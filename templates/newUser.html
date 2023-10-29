@@ -1,0 +1,103 @@
+<title>
+    Novo Usuário
+</title>
+<template>
+    <style>
+        .line{
+            display: flex;
+            margin: 5px;
+        }
+
+        .form-newUser{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-top: 50px;
+        }
+
+        input{
+            width: 250px;
+            height: 30px;
+        }
+
+        #btnAddUser{
+            width: 250px;
+        }
+
+        .form-newUser{
+            background-image: url("assets/background/06.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+    </style>
+
+    <div class="form-newUser">
+
+        <div class="line">
+            <input id="edtMail" type="email" maxlength="70" inputmode="email" placeholder="* Email" onkeyup="validate(this)" >
+        </div>
+
+        <div class="line">
+            <input id="edtNick" type="text" maxlength="15" placeholder="* Nick" onkeyup="valNoSpace(this)">
+        </div>
+
+        <div class="line">
+            <input id="edtPass" type="password" maxlength="12" placeholder="* Senha" onkeyup="valNoSpace(this)">
+        </div>
+
+        <div class="line">
+            <input id="edtRePass" type="password" maxlength="12" placeholder="* Repita a Senha" onkeyup="valNoSpace(this)">
+        </div>
+
+        <button  class="btn-backhand btn-fill" id="btnAddUser">Salvar</button>
+    </div>
+
+</template>
+<script>
+
+
+    document.querySelector('#btnAddUser').addEventListener('click',()=>{
+        const pass = document.querySelector('#edtPass').value.trim()
+        const repass = document.querySelector('#edtRePass').value.trim()
+        const nick = document.querySelector('#edtNick').value.trim().toUpperCase()
+
+        if(checkMail('#edtMail')){
+            if(pass == repass){
+                if(goon('edtPass,edtMail')){
+                    const email = document.querySelector('#edtMail').value.trim().toLowerCase()
+                    const params = new Object;
+                        params.id = 'DEFAULT'
+                        params.email = email
+                        params.hash = (email+pass).getHash(77)
+                        params.nick = nick
+                    const myPromisse = queryDB(params,1);
+                    myPromisse.then((resolve)=>{
+                        const json = JSON.parse(resolve)                        
+                        let ok = 0
+
+                        try{
+                            ok = parseInt(json[0].OK)
+                        }catch{
+                            ok = 0
+                        }
+
+                        if(ok){
+                            alert('Usuário cadastrado com sucesso!')
+                        }else{
+                            alert('Houve algum problema no cadastro, o email pode ou já estar cadastrado ou ser inválido, favor verificar os dados e tentar novamente.')
+                        }
+                        closeModal(1)
+                    })
+                }
+            }else{
+                alert('As senhas não conferem.')
+                document.querySelector('#edtRePass').focus()
+            }
+        }
+    })
+
+
+</script>

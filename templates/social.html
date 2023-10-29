@@ -1,0 +1,102 @@
+<title>Social</title>
+<template>
+    <style>
+        #myFriends{
+            margin-top: 20px;
+        }
+
+
+    </style>
+
+    <div class="tab-bar">
+        <div class="tab-item" id="tab-seguindo" onclick="pictab(this)">Seguindo </div>
+        <div class="tab-item" id="tab-seguidores"  onclick="pictab(this)">Seguidores  </div>
+    </div>
+    <div class="tab-screen">        
+        <div id="seguindo" class="tab">
+
+            <label>Meus Amigos</label>
+            <button id="btnMyFriends" class="btn-round"><i class="fas fa-search"></i></button>
+            <div id="myFriends"></div>
+
+
+        </div>
+        <div id="seguidores" class="tab">
+            <div id="iFriend"></div>
+        </div>
+
+    </div>
+
+
+</template>
+<script>
+        
+    mainData.social.func.viewFriends = (field,docDiv,showName,pic)=>{
+        const params = new Object;
+            params[field] = localStorage.getItem('idUser')            
+
+        const myPromisse = queryDB(params,25)
+
+        myPromisse.then((resolve)=>{
+            const friends =  JSON.parse(resolve)
+
+            const div_search = document.querySelector(docDiv) 
+            div_search.innerHTML = ''
+            for(let i=0; i<friends.length; i++){      
+                const div = document.createElement('div')
+                div.className = 'view-inline'
+
+                const leftdiv = document.createElement('div')
+                leftdiv.style.display = 'flex'
+                const img = document.createElement('img')
+                img.src = `assets/users/${friends[i][pic]}.jpg`
+                breakImg(img)
+                               
+                img.addEventListener('click',()=>{
+                    window.location.hash = 'P'+friends[i][pic].padStart(10,0)
+                    loadHash()
+                })
+                
+                img.className = 'imgUser'
+                leftdiv.appendChild(img)
+
+                const p = document.createElement('p')
+                p.innerHTML = friends[i][showName]
+                leftdiv.appendChild(p)
+                div.appendChild(leftdiv)
+                if(field=='hostID' || (field=='guestID' && friends[i].SEGUE_VOLTA=='0') ){
+                    const btn = document.createElement('button')
+                    btn.innerHTML = field=='hostID' ? 'CANCELAR' : 'SEGUIR'
+                    btn.className = 'btn btn-primary'
+
+                    btn.addEventListener('click',()=>{
+                        const params = new Object;
+                            params.hash = localStorage.getItem('hash')
+                            params.id_guest = friends[i][pic]
+
+                            queryDB(params,23).then((resolve)=>{
+                                mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
+                                mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
+                            })
+                    })
+                    div.appendChild(btn)
+                }
+
+                div_search.appendChild(div)
+            }
+
+
+        })
+    }
+
+    pictab(document.querySelector('#tab-seguindo'))
+    mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
+    mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
+    
+    document.querySelector('#btnMyFriends').addEventListener('click',()=>{
+        openHTML('viewAtleta.html','modal',{origem:'social'})
+    })
+
+
+
+</script>

@@ -1,0 +1,182 @@
+<title>Atleta</title>
+<template>
+    <style>
+
+        svg{
+            cursor: pointer;
+        }
+
+        .frm-atleta{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .frm-atleta > *{
+            width: 95%;
+        }
+
+        .inline{
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin: 10px;
+        }
+
+        .ckb{
+            justify-content: center !important;
+        }
+
+        .inline label{
+            padding-right: 10px;
+            cursor: pointer;
+        }
+
+        .inline input{
+            width: 80%;
+        }
+
+        .inline input[type=checkbox]{
+            width: auto;
+        }
+
+
+
+    </style>
+
+    <div class="frm-atleta">
+
+        <div class="inline">
+            <label for="edtNomeAtl">Nome</label>
+            <input type="text" id="edtNomeAtl" maxlength="40">
+        </div>
+
+        <div class="inline ckb">
+            <label for="ckbMensal">Mensalista</label>
+            <input type="checkbox" id="ckbMensal">
+        </div>
+
+        <fieldset>
+            <legend>Nível</legend>
+            <div class="inline">
+                <label>Saque</label>
+                <div class="rating-line">
+                    <div class="rating">
+                        <progress id="rtn-saque" class="rating-bg" value="1" max="5"></progress>
+                        <svg id="svg-saque"><use xlink:href="#fivestars"/></svg>
+                    </div>    
+                </div> 
+            </div>
+    
+    
+            <div class="inline">
+                <label>Passe</label>
+                <div class="rating-line">
+                    <div class="rating">
+                        <progress id="rtn-passe" class="rating-bg" value="1" max="5"></progress>
+                        <svg id="svg-passe"><use xlink:href="#fivestars"/></svg>
+                    </div>    
+                </div> 
+            </div>
+    
+            <div class="inline">
+                <label>Ataque</label>
+                <div class="rating-line">
+                    <div class="rating">
+                        <progress id="rtn-ataque" class="rating-bg" value="1" max="5"></progress>
+                        <svg id="svg-ataque"><use xlink:href="#fivestars"/></svg>
+                    </div>    
+                </div> 
+            </div>
+    
+            <div class="inline">
+                <label>Levantamento</label>
+                <div class="rating-line">
+                    <div class="rating">
+                        <progress id="rtn-levanta" class="rating-bg" value="1" max="5"></progress>
+                        <svg id="svg-levanta"><use xlink:href="#fivestars"/></svg>
+                    </div>    
+                </div> 
+            </div>
+
+        </fieldset>
+
+        <button id="btnRanking" class="btn btn-primary">Salvar</button>
+
+    </div>
+
+
+</template>
+<script>
+
+    const data = mainData.viewAtl.data    
+
+    document.querySelector('.title-viewAtl').innerHTML = data.nick.toUpperCase()
+    document.querySelector('#edtNomeAtl').value = data.nick.toUpperCase()
+    document.querySelector('#ckbMensal').checked = parseInt(data.mensalista)
+    document.querySelector('#rtn-saque').value = data.saque
+    document.querySelector('#rtn-passe').value = data.passe
+    document.querySelector('#rtn-ataque').value = data.ataque
+    document.querySelector('#rtn-levanta').value = data.levanta
+
+    if(mainData.newTreino.data.id_owner != localStorage.getItem('idUser')){
+        document.querySelector('#edtNomeAtl').disabled = data.id_user == localStorage.getItem('idUser') ? 0 : 1
+        document.querySelector('#ckbMensal').disabled = 1
+    }
+
+    function getStar(e){
+        const target = e.target;        
+        let bar  = target.parentNode.querySelector('progress') 
+        bar =  bar==null ?  target.parentNode.parentNode.querySelector('progress') : bar
+        const rect = target.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        bar.value = parseFloat((x/(rect.width/5)).toFixed(2))
+        return bar.value
+
+    }
+
+
+    document.querySelector('#svg-saque').addEventListener('click',(e)=>{
+        getStar(e)
+    })
+
+    document.querySelector('#svg-passe').addEventListener('click',(e)=>{
+        getStar(e)
+    })
+
+    document.querySelector('#svg-ataque').addEventListener('click',(e)=>{
+        getStar(e)        
+    })
+
+    document.querySelector('#svg-levanta').addEventListener('click',(e)=>{
+        getStar(e)
+    })
+
+    document.querySelector('#btnRanking').addEventListener('click',()=>{
+        const saque = document.querySelector('#rtn-saque').value
+        const passe = document.querySelector('#rtn-passe').value
+        const ataque = document.querySelector('#rtn-ataque').value
+        const levanta = document.querySelector('#rtn-levanta').value
+
+        const params = new Object;
+            params.id_treino = mainData.newTreino.data.id
+            params.hash = localStorage.getItem('hash')
+            params.id_avaliado = mainData.viewAtl.data.id
+            params.saque = saque
+            params.passe = passe
+            params.ataque = ataque
+            params.levanta = levanta
+
+        const myPromisse = queryDB(params,7);
+        myPromisse.then((resolve)=>{
+            console.log(resolve)
+            mainData.newTreino.func.fillAtl()
+            closeModal(0)
+
+        })
+
+    })
+
+
+</script>    

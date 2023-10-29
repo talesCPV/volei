@@ -1,0 +1,60 @@
+<title>Convidar Atletas</title>
+<template>
+    <style>
+
+        .frm-invite{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+    </style>
+
+    <div class="frm-invite">
+
+        <fieldset>
+            <legend>Atleta Não Usuário</legend>
+            <div class="edtbtn">
+                <input type="text" id="edtNotUser" maxlength="15" placeholder="Nome do Atleta" onkeyup="valNoSpace(this)">
+                <button id="btnNotUser"><span class="mdi mdi-account-plus"></span></button>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Buscar Atletas</legend>
+            <div class="edtbtn">
+                <input type="text" id="edtBuscaAtl" maxlength="15" placeholder="Busca de Atletas">
+                <button><span class="mdi mdi-account-search"></span></button>
+            </div>    
+            <table id="tblAtl"></table>
+        </fieldset>
+
+    </div>
+
+
+</template>
+<script>
+
+    const data = mainData.addAtl.data
+    const edit = Object.keys(data).length>1?1:0
+
+    document.querySelector('#btnNotUser').addEventListener("click",()=>{
+        const nick = document.querySelector('#edtNotUser').value.trim().toUpperCase()
+
+        const params = new Object;            
+            params.hash = localStorage.getItem('hash')
+            params.id_treino = data.id
+            params.id_user = 0
+            params.nick = nick
+            params.mensalista = confirm(nick+' é Mensalista?')
+        const myPromisse = queryDB(params,5);
+        myPromisse.then((resolve)=>{            
+            mainData.newTreino.func.fillAtl()
+            closeModal(0)
+        })
+    })
+        
+
+
+</script>    

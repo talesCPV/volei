@@ -1,0 +1,255 @@
+<title> Novo Treino</title>
+<template>
+    <style>
+
+        fieldset{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        fieldset > legend{
+            width: auto !important;
+        }
+
+        .frm-group{
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .line{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        .line *{
+            text-align: center;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .img-treino{
+            display: flex;
+            flex-direction: column;
+            max-width: 300px;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            width: 40%;
+        }
+
+        .data-treino{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            width: 60%;
+            justify-content: center;
+        }
+
+        .img-treino *, .data-treino *{
+            width: 95%;
+        }
+
+        @media (max-width: 769px) {
+
+            .data-treino, .img-treino{
+                width: 100%;                
+            }
+
+        }
+
+    </style>
+
+        <div class="frm-group">
+
+            <div class="img-treino">
+                <canvas  width="300" height="300"  id="cnvLogo"></canvas>
+                <input  name="up_file" id="up_file" type="file" accept=".jpg,.jpeg,.png">        
+                <button id="btnUpload" class="btn btn-primary show-edit">Upload</button>
+            </div>
+
+            <div class="data-treino">
+                <label for="edtNomeTreino">Nome</label>
+                <input type="text" id="edtNomeTreino" maxlength="40">
+
+                <fieldset>
+                    <legend>Dia/Hora</legend>
+                    <div class="line">
+                        <label for="ckbDom">DOM</label>
+                        <input type="checkbox" id="ckbDom" class="ckbWeek" week='DOM'>
+                        <label for="ckbSeg">SEG</label>
+                        <input type="checkbox" id="ckbSeg" class="ckbWeek" week='SEG'>
+                        <label for="ckbTer">TER</label>
+                        <input type="checkbox" id="ckbTer" class="ckbWeek" week='TER'>
+                        <label for="ckbQua">QUA</label>
+                        <input type="checkbox" id="ckbQua" class="ckbWeek" week='QUA'>
+                        <label for="ckbQui">QUI</label>
+                        <input type="checkbox" id="ckbQui" class="ckbWeek" week='QUI'>
+                        <label for="ckbSex">SEX</label>
+                        <input type="checkbox" id="ckbSex" class="ckbWeek" week='SEX'>
+                        <label for="ckbSab">SAB</label>
+                        <input type="checkbox" id="ckbSab" class="ckbWeek" week='SAB'>
+                    </div>
+                    <div class="line">
+                        <label for="edtIni">das</label>
+                        <input type="time" id="edtIni">
+                        <label for="edtFin">as</label>
+                        <input type="time" id="edtFin">    
+                    </div>
+                </fieldset>
+
+                <label for="edtLocal">Local</label>
+                <input type="text" id="edtLocal" maxlength="70">
+
+                <label for="edtObs">Obs:</label>
+                <textarea id="edtObs" cols="30" rows="5" maxlength="999"></textarea>
+
+                <label for="edtObs" id="lblAtl" class="hide-all">Atletas <button id="btnAddAtl" class="btn-round btn-round-side">+</button> </label>
+                <table id="tblAtl"></table>
+                
+                <button id="btnTreino" class="btn btn-primary">Criar Treino</button>
+                <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>
+
+            </div>
+
+
+
+        </div>
+
+</template>
+<script>
+  
+    const data = mainData.newTreino.data
+    const edit = Object.keys(data).length>1?1:0
+    const week = document.querySelectorAll('.ckbWeek')
+
+    mainData.newTreino.func.fillAtl = ()=>{
+        const tbl = document.querySelector('#tblAtl')
+        const params = new Object;
+            params.id_treino = data.id
+            params.id_user = localStorage.getItem('idUser')
+        const myPromisse = queryDB(params,6);
+        myPromisse.then((resolve)=>{
+            const json = JSON.parse(resolve)
+            tbl.head('Nome,Mensal')
+            for(let i=0; i<json.length; i++){                
+                tbl.plot(json[i],'nick,mensalista','Upp,cha 1=SIM 0=NÃO')
+            }
+        })
+    }
+
+
+    if(edit){
+        id = data.id
+        const dia_sem = data.dia_sem.split(',')
+        const horario = data.horario.split('-')
+
+        for(let i=0; i<week.length; i++){
+            if(dia_sem.includes(week[i].getAttribute('week'))){
+                week[i].checked = 1
+            }            
+        }
+
+        document.querySelector('.title-newTreino').innerHTML = data.nome
+        document.querySelector('#btnTreino').innerHTML = 'Salvar'
+        document.querySelector('#edtNomeTreino').value = data.nome
+        document.querySelector('#edtIni').value = horario[0]
+        document.querySelector('#edtFin').value = horario[1]
+        document.querySelector('#edtLocal').value = data.local
+        document.querySelector('#edtObs').value = data.obs
+        document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+        document.querySelector('#lblAtl').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+        
+        mainData.newTreino.func.fillAtl()
+    }
+
+    const back = backFunc({'filename':`../assets/treinos/${data.id}.jpg`},1)
+    back.then((resp)=>{
+        imgExist = JSON.parse(resp)
+        const path = imgExist ? `assets/treinos/${data.id}.jpg` : 'assets/default/treino.jpeg'    
+        loadImg(path,'#cnvLogo')
+    })
+
+    document.querySelector('#up_file').addEventListener('change',()=>{
+        showFile('#up_file','#cnvLogo')     
+    })
+
+    document.querySelector('#btnUpload').addEventListener('click',()=>{
+        if(edit){
+            uploadImage('up_file','/../assets/treinos/',localStorage.getItem('idUser')+'.jpg')
+            .then(()=>{
+//
+            })
+
+        }
+    })
+
+    document.querySelector('#btnTreino').addEventListener('click',()=>{
+
+        const nome = document.querySelector('#edtNomeTreino').value.trim().toUpperCase()
+        const local = document.querySelector('#edtLocal').value.trim().toUpperCase()
+        const obs = document.querySelector('#edtObs').value.trim().toUpperCase()
+        let day = ''
+
+        for(let i=0; i<week.length; i++){
+            if(week[i].checked){
+                day += day.length ? ',':''
+                day += week[i].getAttribute('week')
+            }            
+        }
+
+        let time = document.querySelector('#edtIni').value+'-'+document.querySelector('#edtFin').value
+
+        if(day.length > 0 && time.length == 11 ){
+            const params = new Object;
+            params.id = edit? data.id : 'DEFAULT'
+            params.hash = localStorage.getItem('hash')
+            params.nome = nome
+            params.dias_sem = day
+            params.horario = time
+            params.local = local
+            params.obs = obs
+
+            const myPromisse = queryDB(params,2);
+            myPromisse.then((resolve)=>{
+                if(up_file.files.length){
+                    uploadImage('up_file','/../assets/treinos/',localStorage.getItem('idUser')+'.jpg')
+                }
+                mainData.viewTreino.func.fillTreino()
+                closeModal(1)
+            })
+
+        }else{
+            alert('Por favor, selecione um dia e um horário válido!')
+            document.querySelector('#edtIni').focus()
+        }
+
+    })
+
+    document.querySelector('#btnDelTreino').addEventListener('click',()=>{
+        if(confirm('Deseja deletar definitivamente este treino?')){
+            const params = new Object;
+                params.id = edit? data.id : 'DEFAULT'
+                params.hash = localStorage.getItem('hash')
+            const myPromisse = queryDB(params,4);
+            myPromisse.then((resolve)=>{
+                mainData.viewTreino.func.fillTreino()
+                closeModal(1)
+            })
+        }
+    })
+
+    document.querySelector('#btnAddAtl').addEventListener('click',()=>{
+        openHTML('addAtl.html','modal',data)
+    })
+    
+    document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
+        const data = e.target.parentNode.data
+        data!=undefined ? openHTML('viewAtl.html','modal',data,400) : 0
+    })
+
+</script>
