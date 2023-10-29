@@ -168,3 +168,5 @@ DELIMITER $$
 			WHERE ATL.id NOT IN (SELECT id_avaliado FROM tb_ranking WHERE id_treino = ATL.id_treino AND id_avaliador=Iid_user);
 	END $$
 DELIMITER ;
+
+/* TESTE@ */
