@@ -1,0 +1,74 @@
+<title>
+    Meus Treinos
+</title>
+<template>
+    <style>
+        .frm-treino{
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }        
+
+        table{
+            width: 90%;
+        }
+
+
+        .line-dir{
+            display: flex;
+            align-self: end;
+            padding-right: 3%;
+        }
+
+    </style>
+
+    <div class="frm-treino">
+        <table id="tblTreino"></table>
+        <div class="line-dir">
+            <button class="btn btn-primary" id="btnNovoTreino">Novo Treino</button>
+        </div>
+    </div>
+
+    
+
+</template>
+<script>
+
+    const func = mainData.viewTreino.func
+
+    func.fillTreino = ()=>{
+        const tbl = document.querySelector('#tblTreino')
+
+        const params = new Object;
+            params.hash = localStorage.getItem('hash')
+
+            const myPromisse = queryDB(params,3);
+            myPromisse.then((resolve)=>{
+                const json = JSON.parse(resolve)
+                
+                tbl.head('Treino,Dia,Horário,Local')
+                for(let i=0; i<json.length;i++){
+                    tbl.plot(json[i],'nome,dia_sem,horario,local','Upp,Upp,Upp,Upp')
+                }
+
+            })
+    }
+
+    func.fillTreino();
+
+
+    document.querySelector('#tblTreino').addEventListener('click',(e)=>{        
+        const data = e.target.parentNode.data
+        openHTML('newTreino.html','modal',data)
+    })
+
+    document.querySelector('#btnNovoTreino').addEventListener('click',()=>{
+        openHTML('newTreino.html','modal',null)
+    })
+
+
+
+</script>

@@ -1,0 +1,195 @@
+<title>
+    
+</title>
+<template>
+    <style>
+
+
+        .form-perfil{
+            padding: 20px ;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .top{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+            justify-content: space-around;
+        }
+
+        .middle{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .perfil-box{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .perfil-box p{
+            padding: 0;
+            text-indent: 0;
+        }
+
+        #pic-perfil{
+            width: 100px;
+            height: 100px;
+        }
+
+        #last-4{
+            font-size: 3em;
+            font-weight: 600;
+        }
+
+        .left-perfil{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .rigth-perfil{
+            width: 80%;
+            display: flex;
+            gap: 5px;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        .line{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .line > *{
+            padding: 0;
+            text-indent: 0;
+        }
+
+    </style>
+
+    <div class="form-perfil">
+
+        <div class="top">
+            <div class="left-perfil">
+                <img id="pic-perfil" class="imgUser" src="assets/user.jpeg" alt="">
+                <div class="rating-line">
+                    <div class="rating">
+                        <progress id="perfil-rating" class="rating-bg" value="2" max="5"></progress>
+                        <svg><use xlink:href="#fivestars"/></svg>
+                    </div>    
+                </div>   
+                <div class="line">
+                    <p>nível:</p>
+                    <h2 id="val-nivel">0</h2>
+                </div>                
+            </div>
+
+            <div class="rigth-perfil">
+                <div class="perfil-box">
+                    <p>Seguindo</p>
+                    <p id="val-seguindo"></p>
+                </div>
+                <div class="perfil-box">
+                    <p>Seguidores</p>
+                    <p id="val-seguidores"></p>
+                </div>
+                <div class="perfil-box">
+                    <p>Atividades</p>
+                    <p id="val-atividades"></p>
+                </div>                                              
+            </div>
+
+        </div>
+
+        <div class="middle">
+            <div class="perfil-box">
+                <p>Últimas 4 semanas</p>
+                <p id="last-4"></p>
+            </div>
+            <div class="myDate"></div>
+        </div>
+
+        <div class="botton">
+            <div class="activities"></div>
+        </div>
+
+
+    </div>
+
+
+</template>
+<script>
+
+const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
+    back.then((resp)=>{
+        const imgExist = JSON.parse(resp)    
+        document.querySelector('#pic-perfil').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
+    })
+
+document.querySelector('.myDate').appendChild(calendar())
+
+
+/*
+    const perfil = mainData.perfil.data.address
+    mainData.perfil.data.iniMap = maps.length
+    mainData.perfil.data.mapLength = 0
+
+    mainData.perfil.func.onClose = ()=>{
+        maps.splice(mainData.perfil.data.iniMap,mainData.perfil.data.mapLength)
+    }
+
+    function getPerfil(){
+        const params = new Object;
+        params.id =  parseInt(perfil)
+
+        const myPromisse = queryDB(params,27);
+        myPromisse.then((resolve)=>{
+            const json = JSON.parse(resolve)
+            const treinos = json[0].TREINOS!=null?json[0].TREINOS.split(','):0
+            const treinos_id = json[0].TREINO_ID!=null?json[0].TREINO_ID.split(','):0
+
+            for(let i=0; i<treinos.length; i++){          
+                try{
+                    document.getElementById(treinos[i].trim()).classList.add('day-trainning')
+                }catch{
+//
+                }
+            }
+
+            const pic = document.querySelector('#pic-perfil')
+
+            document.querySelector('.title-perfil').innerHTML = json[0].nome
+            document.querySelector('#val-seguindo').innerHTML = json[0].SEGUINDO
+            document.querySelector('#val-seguidores').innerHTML = json[0].SEGUIDORES
+            document.querySelector('#val-atividades').innerHTML = json[0].ATIVIDADES
+            document.querySelector('#last-4').innerHTML = json[0].LAST_28
+            document.querySelector('#perfil-rating').value = json[0].nivel
+            document.querySelector('#val-nivel').innerHTML = json[0].nivel
+
+            pic.src = `assets/users/${json[0].id}.jpg`
+            breakImg(pic)
+
+            queryDB(params,29).then((res_ATV)=>{
+                const jsonATV = JSON.parse(res_ATV)
+
+                for(let i=0; i<jsonATV.length; i++){
+                    makeActivity(jsonATV[i],'activities',false)
+                    mainData.perfil.data.mapLength++
+                }
+            })
+        })
+    }
+
+    getPerfil()
+    removeHash()
+*/
+  
+</script>

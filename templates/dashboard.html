@@ -1,0 +1,186 @@
+<title></title>
+<template>
+    <style>
+
+        .head-activity{
+          display:flex; 
+          gap:10px;
+        }
+
+        .head-activity-atleta{
+          font-weight: bold;
+          text-transform: capitalize;
+        }
+
+        .head-activity-data{
+          font-size: 0.9em;
+        }
+
+        .head-activity-img{
+          width: 40px;
+          height: 40px;
+        }
+
+        .post-activity{
+          width: 100%;
+          padding: 20px;
+          background-color: white;
+          border-radius: 5px;
+        }
+
+        .post-activity p{
+          text-indent: 0;
+          padding: 0;
+        }
+
+        .map-activity .leaflet-control-zoom{
+          display: none;
+        }
+        
+        .perfil-board{
+          width: 100%;
+          height: 400px;
+          background-color: rgb(255, 255, 255);
+          border-radius: 5px;
+        }
+
+        .perfil-img{
+          display: flex;
+          width: 100%;
+          justify-content: center;
+          top: -35px;
+          position: relative;
+        }
+
+        .perfil-img img{
+          width: 70px;
+          height: 70px;
+        }
+
+        .perfil-nome{
+          font-weight: bold;
+          text-align: center;          
+        }
+
+        .perfil-dados{
+          display: flex;
+          justify-content: space-around;
+        }
+
+        .perfil-seguindo, .perfil-seguidores, .perfil-atividades{
+          width: 30%;
+          height: 100px;
+          text-align: center;
+          justify-content: center;
+          display: flex;
+          align-items: center;
+          font-size: 0.8em;
+          word-spacing: 30%;
+          text-indent: unset;
+        }
+
+        .social-icon{
+          display: flex;
+          gap: 5px;
+        }
+
+        .rating-line{
+          display: flex;
+          justify-content: center;
+          /*width: 100%;*/
+        }
+
+        .nivel-line{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 70px;
+          gap: 5px;
+        }
+
+        .nivel-line p{
+          text-indent: 0;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* BTN KUDOS E SCRAP */
+        .btn-social{
+          margin: 0 !important;
+        }
+
+
+
+    </style>
+
+    <section class="perfil hide">
+            
+        <div class="perfil-board">
+        <div class="perfil-img">
+            <img id="perfil-img" class="imgUser" src="">
+        </div>            
+        <div class="perfil-nome"></div>
+
+        <div class="perfil-dados">
+            <p class="perfil-seguindo"></p>
+            <p class="perfil-seguidores"></p>
+            <p class="perfil-atividades"></p>
+        </div>
+
+        <svg style="display:none;">
+            <defs>
+            <symbol id="fivestars">
+                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd"/>
+                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(24)"/>
+                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(48)"/>
+                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(72)"/>
+                <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z M0 0 h24 v24 h-24 v-24" fill="white" fill-rule="evenodd" transform="translate(96)"/>
+            </symbol>
+            </defs>
+        </svg>
+
+        <div class="nivel-line">
+            <p>Passe:</p>
+            <h2 class="nivel-passe">1</h2>    
+        </div>
+        <div class="nivel-line">
+            <p>Ataque:</p>
+            <h2 class="nivel-ataque">1</h2>    
+        </div>
+        <div class="nivel-line">
+            <p>Levantamento:</p>
+            <h2 class="nivel-levanta">1</h2>    
+        </div>
+        <div class="nivel-line">
+            <p>Saque:</p>
+            <h2 class="nivel-saque">1</h2>    
+        </div>
+
+        <div class="rating-line">
+            <div class="rating">
+            <progress class="rating-bg" value="1" max="5"></progress>
+            <svg><use xlink:href="#fivestars"/></svg>
+            </div>    
+        </div>
+
+        </div>
+
+    </section>
+
+    <section class="dashboard"></section>
+
+    <div class="view-activity"></div>
+
+
+</template>
+<script>
+
+    const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
+    back.then((resp)=>{
+        const imgExist = JSON.parse(resp)    
+        document.querySelector('#perfil-img').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
+    })  
+
+//    fillPerfil(localStorage.getItem('idUser'))
+    
+</script>

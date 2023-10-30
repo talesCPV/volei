@@ -1,0 +1,134 @@
+
+
+<html lang="pt-br">
+    <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<!--      <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+      <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+      <title>Rachão de Voley</title>
+      <link rel="icon" href="assets/default/logo.png">
+          
+      <!-- Pictogrammers -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
+
+      <!--JQuery-->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+      <!--Local Libs-->
+      <link rel="stylesheet" href="style/style.css" />
+      <link rel="stylesheet" href="style/menu.css">
+      <link rel="stylesheet" href="style/modal.css">
+      <link rel="stylesheet" href="style/rating.css">      
+      <script src="scripts/proto.js"></script>
+      <script src="scripts/database.js"></script>
+      
+      <style>
+
+      </style>      
+    </head>
+    <body>
+
+      <nav class="navbar">
+        <div class="navbar-container container">
+            <div class="logo">
+              <img src="assets/default/logo.png">
+            </div>
+            <input type="checkbox" id="ckbHamb">
+            <div class="hamburger-lines">
+                <span class="line- line1"></span>
+                <span class="line- line2"></span>
+                <span class="line- line3"></span>
+            </div>
+            <div class="username">
+              <p id="usr"></p>
+            </div>
+            <ul class="menu-items">
+                <li class="only-login hide-menu" title="Dashboard"><a onclick="loadActivity(0)" class="menu-mobile"><span class="mdi mdi-view-dashboard"></span><div></div> </a></li>
+                <li class="only-login hide-menu" title="Torneios"><a onclick="torneio()" class="menu-mobile"><span class="mdi mdi-tournament"></span><span id="alert-torn" class="badge"></span><div></div> </a></li>
+                <li class="only-login hide-menu" title="Social"><a onclick="openHTML('social.html','modal',null)" class="menu-mobile"><span class="mdi mdi-account-multiple"></span><div></div> </a></li>
+                <li class="only-login hide-menu" title="Treinos"><a onclick="openHTML('viewTreino.html','modal',null)" class="menu-mobile"><span class="mdi mdi-volleyball"></span><div></div> </a></li>
+                <li class="only-login hide-menu" title="Alertas"><a onclick="showAlert()" class="menu-mobile" style="display: flex; gap: 5px;" class="parent-sub-menu"><span class="mdi mdi-bell-outline"></span><span id="alert" class="badge"></span><div></div>  </a>
+                  <ul class="sub-menu alert-badge"></ul>
+                </li>
+                <li class="only-login hide-menu" title="Configurações"><a onclick="openHTML('viewUser.html','modal',null)" class="menu-mobile"><img class="imgUser" id="imgUser" src="assets/default/user.jpeg"><div></div></a></li>
+                <li class="only-logout" title="Login"><a onclick="openHTML('login.html','modal',null,400)" class="menu-mobile"><span class="mdi mdi-login"></span><div></div> </a></li>
+                <li class="only-login" title="Logout"><a onclick="forceLogout()" class="menu-mobile"><span class="mdi mdi-power"></span><div></div> </a></li>
+            </ul>
+            <p></p>
+        </div>
+      </nav>
+
+      <div class="main-content"> 
+
+
+      </div>
+
+      <footer id="footer">
+        <h2>Rachão de Voley &copy; 
+          <br>todos os direitos reservados®
+        </h2>
+      </footer>
+
+      <div id="myModal"></div>
+
+    </body>
+    <script src="scripts/modal.js"></script>
+    <script src="scripts/menu.js"></script>
+    <script src="scripts/main.js"></script>
+    <script>
+
+/*
+      if (location.protocol !== 'https:') {
+          location.replace(`https:${location.href.substring(location.protocol.length)}`);
+      }
+*/
+
+    openMenu()
+
+
+      if(localStorage.getItem('log')=='1'){
+        openHTML('dashboard.html','screen')
+      }
+      
+
+      function openMenu(){
+
+        const login = localStorage.getItem('log')=='1' ? 1 : 0
+        const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
+
+        back.then((resp)=>{
+            const imgExist = JSON.parse(resp)    
+            document.querySelector('#imgUser').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
+        })
+
+
+//        document.querySelector('#log-inout').innerHTML = login ? 'Inscreva-se' : '<i class="fas fa-power-off"></i>'
+
+        const menu_in = document.querySelectorAll('.only-login')
+        for(let i=0; i<menu_in.length; i++){
+          login ?  menu_in[i].classList.remove('hide-menu') : menu_in[i].classList.add('hide-menu')
+        }
+
+        const menu_out = document.querySelectorAll('.only-logout')
+        for(let i=0; i<menu_out.length; i++){
+          login ? menu_out[i].classList.add('hide-menu') : menu_out[i].classList.remove('hide-menu') 
+        }
+      }
+      
+      function forceLogout(){
+        if(confirm('Sair do sistema?')){
+            localStorage.clear();
+            openMenu()
+          }
+      }
+
+
+
+
+    </script>
+  </html>
+  
+  

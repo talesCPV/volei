@@ -1,0 +1,88 @@
+<title>
+    Login de Usuário
+</title>
+<template>
+    <style>
+        
+        #local{
+            display: flex;
+            justify-content: center;
+        }
+
+        input[type="email"], input[type="password"]{
+            width: 250px;
+            height: 30px;
+        }
+
+        #btnLogin{
+            width: 250px;
+        }
+
+        .login-text{
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        #btnNewUser:hover{
+            cursor: pointer;
+            color: rgb(143, 71, 71);
+        }
+
+    </style>
+
+    <div id="local">
+
+        <div class="form">
+            <div class="login-text">
+                <input type="email" id="edtEmail" inputmode="email" placeholder="  Seu e-mail" onkeyup="validate(this)">
+                <input type="password" id="edtSenha" placeholder="  Senha" onkeyup="valNoSpace(this)">
+                <button id="btnLogin" class="btn-backhand btn-fill" >login</button>
+                <div>
+                    <p id="btnNewUser" onclick="openHTML('newUser.html','modal',null,500)">Novo Usuário?</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</template>
+<script>
+
+    localStorage.clear();
+
+    document.querySelector('#btnLogin').addEventListener('click',()=>{
+        if(checkMail('#edtEmail')){
+            if(goon('edtEmail,edtSenha')){
+                const params = new Object;
+                    params.email =  document.querySelector('#edtEmail').value.trim()
+                    params.hash = (params.email+document.querySelector('#edtSenha').value.trim()).getHash(77)
+
+                const myPromisse = queryDB(params,0)
+
+                myPromisse.then((resolve)=>{
+                    const json = JSON.parse(resolve)[0]
+                    
+                    if(json.login == '1'){
+                        localStorage.setItem('idUser',json.id)
+                        localStorage.setItem('email',params.email)
+                        localStorage.setItem('hash',params.hash)
+                        localStorage.setItem('nick',json.nick)
+                        localStorage.setItem('access',json.access)
+                        localStorage.setItem('user',params.email.split('@')[0])
+                        localStorage.setItem('log',1)
+                        openHTML('dashboard.html','screen')
+                        closeModal()
+                        openMenu()
+                    }else{
+                        alert('Usuário ou senha inválido!')
+                        localStorage.clear();
+                    }
+                })
+            }
+        }
+    })
+
+</script>

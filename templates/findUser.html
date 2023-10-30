@@ -1,0 +1,140 @@
+<title>Pesquisa de Atletas</title>
+<template>
+    <style>
+
+        .form-viewList{
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-viewList input, .form-viewList select{
+            padding: 5px;
+        }
+
+        .form-viewList .edtbtn{
+            width: 100%;
+        }
+
+        #tbl-users{
+            width: 100%;            
+            overflow-y: scroll;
+        }
+
+        .divConvidado{
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            justify-content: space-between;
+            padding-right: 10px;
+            display: none;
+        }
+
+    </style>
+
+    <div class="form-viewList">
+
+        <div class="inline">
+            <label for="edtNomeAtleta">Busca por:</label>
+            <select id="cmbTipoBusca">
+                <option value="1">Nick do Atleta</option>
+                <option value="2" selected>Email do Atleta</option>
+                <option value="3">Código do Atleta</option>
+            </select>    
+        </div>
+        <div class="edtbtn">
+            <input type="text" id="edtNomeAtleta">
+            <button id="btnSearchAtleta"><span class="mdi mdi-magnify"></span></button>
+        </div>
+        <div class="divConvidado">
+            <div>
+                <label for="">Convidado</label>
+                <input type="text" id="edtConvidado">    
+            </div>
+            <button id="btnConvidado" class="btn btn-primary" style="min-width: 100px;">ADICIONAR</button>
+        </div>        
+        <table id="tbl-users"></table>
+
+       
+    </div>
+
+
+</template>
+<script>
+    
+    const data = mainData.findUser.data
+    const func = mainData.findUser.func
+    const scroll = {start:0, limit:10}
+
+
+    func.onClose = ()=>{
+        if(data.origem =='social'){
+            mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
+            mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
+        }
+    }
+
+    func.findUser = ()=>{
+        const params = new Object;
+            params.sel = document.querySelector('#cmbTipoBusca').value
+            params.nome = document.querySelector('#edtNomeAtleta').value.trim()    
+            params.start = scroll.start
+            params.limit = scroll.limit
+
+        const myPromisse = queryDB(params,8)
+
+        myPromisse.then((resolve)=>{
+            const users =  JSON.parse(resolve)            
+            func.fillUser(users)
+        })
+    }
+
+    func.fillUser = (json)=>{
+        const tbl = document.querySelector('#tbl-users')
+
+        tbl.head('Cod.,Nome, Email')
+        for(let i=0; i<json.length;i++){
+            tbl.plot(json[i],'id,nick,email','int,Upp,Low')
+        }
+
+    }
+
+    document.querySelector('#btnSearchAtleta').addEventListener('click',()=>{
+        
+        scroll.start = 0
+        mainData.findUser.func.findUser()
+    })
+
+/*
+    document.querySelector('#searchFriends').addEventListener('scroll',()=>{
+        const win = document.querySelector('#searchFriends')
+        if( win.scrollTop === (win.scrollHeight - win.offsetHeight)){
+            scroll.start += scroll.limit
+            mainData.findUser.func.findUser()
+        }
+    })
+*/
+
+
+    function repeatUser(id){
+
+        const A = mainData.newActivity.data.timeA.filter(e => e.userID === id).length
+        const B = mainData.newActivity.data.timeB.filter(e => e.userID === id).length
+        return  A || B
+
+    }
+
+    document.querySelector('#btnConvidado').addEventListener('click',()=>{
+        const conv = new Object
+            conv.userID = 0
+            conv.nome = '#'+document.querySelector('#edtConvidado').value.trim().toUpperCase()
+
+        mainData.newActivity.data[data.time].push(conv)
+        mainData.newActivity.func.fillTime(data.time)
+        closeModal(0)
+    })
+
+
+
+</script>
