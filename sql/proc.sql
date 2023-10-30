@@ -106,12 +106,19 @@ DELIMITER $$
         IN Isaque double,
         IN Ipasse double,
         IN Iataque double,
-        IN Ilevanta double        
+        IN Ilevanta double,
+        IN Inick varchar(77),
+        IN Imensalista boolean
     )
 	BEGIN
         SET @id_avaliador = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != Iid_avaliado);
-		
+        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != Iid_avaliado);		
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
+        
+        IF(@id_avaliador = @id_owner) THEN
+			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id=Iid_avaliado;
+        END IF;
+        
         IF(@pode_avaliar) THEN
 			INSERT INTO tb_ranking (id_treino,id_avaliador,id_avaliado,saque,passe,ataque,levanta)
             VALUES (Iid_treino,@id_avaliador,Iid_avaliado,Isaque,Ipasse,Iataque,Ilevanta)
@@ -168,5 +175,3 @@ DELIMITER $$
 			WHERE ATL.id NOT IN (SELECT id_avaliado FROM tb_ranking WHERE id_treino = ATL.id_treino AND id_avaliador=Iid_user);
 	END $$
 DELIMITER ;
-
-/* TESTE@ */

@@ -158,15 +158,19 @@
         const passe = document.querySelector('#rtn-passe').value
         const ataque = document.querySelector('#rtn-ataque').value
         const levanta = document.querySelector('#rtn-levanta').value
+        const nick = document.querySelector('#edtNomeAtl').value.trim().toUpperCase()
+        const mensal = document.querySelector('#ckbMensal').checked
 
         const params = new Object;
             params.id_treino = mainData.newTreino.data.id
             params.hash = localStorage.getItem('hash')
-            params.id_avaliado = mainData.viewAtl.data.id
+            params.id_avaliado = data.id
             params.saque = saque
             params.passe = passe
             params.ataque = ataque
-            params.levanta = levanta
+            params.levanta = levanta            
+            params.nick = nick
+            params.mensalista = mensal
 
         const myPromisse = queryDB(params,7);
         myPromisse.then((resolve)=>{
