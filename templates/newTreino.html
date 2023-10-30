@@ -243,7 +243,9 @@
     })
 
     document.querySelector('#btnAddAtl').addEventListener('click',()=>{
-        openHTML('addAtl.html','modal',data)
+//        openHTML('addAtl.html','modal',data)
+        data.origem = 'newAtl'
+        openHTML('findUser.html','modal',data)
     })
     
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
