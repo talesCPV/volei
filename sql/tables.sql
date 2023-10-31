@@ -12,14 +12,14 @@ CREATE TABLE tb_usuario (
 
  DROP TABLE tb_atleta;
 CREATE TABLE tb_atleta (
-	id int(11) NOT NULL AUTO_INCREMENT,
+	id int(11) NOT NULL,
     id_user int(11) DEFAULT 0,
     id_treino int(11) NOT NULL,
     nick varchar(15) NOT NULL,    
     mensalista BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (id_user) REFERENCES tb_usuario(id),
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id,id_treino)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
  DROP TABLE tb_treinos;

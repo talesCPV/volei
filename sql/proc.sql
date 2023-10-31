@@ -80,13 +80,14 @@ DELIMITER $$
 		IN Inick varchar(15),
         IN Imensalista BOOLEAN
     )
-	BEGIN        
-		
+	BEGIN		
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
-        
+
         IF(@id_call = @id_owner) THEN
-			INSERT INTO tb_atleta (id_user,id_treino,nick,mensalista) VALUES (Iid_user,Iid_treino,Inick,Imensalista);
+			SET @id = (SELECT (IFNULL(MAX(id),0)+1) AS id  FROM tb_atleta WHERE id_treino=Iid_treino);
+			INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (@id,Iid_user,Iid_treino,Inick,Imensalista);
+            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id_owner,(SELECT MAX(id) FROM tb_atleta));
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
@@ -112,11 +113,12 @@ DELIMITER $$
     )
 	BEGIN
         SET @id_avaliador = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != Iid_avaliado);		
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_avaliado AND id_treino=Iid_treino);
+        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != @id_user);		
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
         
         IF(@id_avaliador = @id_owner) THEN
-			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id=Iid_avaliado;
+			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id_treino=Iid_treino AND id=Iid_avaliado;
         END IF;
         
         IF(@pode_avaliar) THEN
@@ -130,6 +132,8 @@ DELIMITER $$
         END IF;
 	END $$
 DELIMITER ;
+
+CALL sp_avalia("6","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,"3.41","1","1","1","RODRIGO","1");
 
  DROP PROCEDURE sp_linkAtl;
 DELIMITER $$
@@ -186,13 +190,12 @@ DELIMITER $$
 		IN Iid_atleta int(11)
     )
 	BEGIN        
-		
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @id_treino = (SELECT id_treino FROM tb_atleta WHERE id = Iid_atleta);         
+        SELECT id_user,id_treino INTO @id_user,@id_treino FROM tb_atleta WHERE id=Iid_atleta;
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);        
         
-        IF(@id_call = @id_owner) THEN
-			DELETE FROM tb_ranking WHERE id=id_avaliado AND id_treino=@id_treino;
+        IF(@id_call = @id_owner AND @id_user != @id_owner) THEN
+			DELETE FROM tb_ranking WHERE id_treino=@id_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
 			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=@id_treino;
             SELECT 1 AS OK;
 		ELSE 
@@ -201,6 +204,8 @@ DELIMITER $$
 
 	END $$
 DELIMITER ;
+
+CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
 
 /* VIEWS */
 
@@ -211,18 +216,38 @@ DELIMITER $$
 		IN Iid_user int(11)
     )
 	BEGIN
-		SELECT ATL.*, RNK.saque, RNK.passe, RNK.ataque, RNK.levanta, RNK.id_avaliador
-			FROM tb_atleta AS ATL
-			INNER JOIN tb_ranking AS RNK
-			ON ATL.id = RNK.id_avaliado
-            AND RNK.id_avaliador = Iid_user
-            AND RNK.id_treino = Iid_treino
-		UNION
-			SELECT ATL.*, 1 AS saque, 1 AS passe, 1 AS ataque, 1 AS levanta, Iid_user AS id_avaliador
-			FROM tb_atleta AS ATL
-			WHERE ATL.id NOT IN (SELECT id_avaliado FROM tb_ranking WHERE id_treino = ATL.id_treino AND id_avaliador=Iid_user);
+SELECT * FROM(    
+	SELECT ATL.*, RNK.saque, RNK.passe, RNK.ataque, RNK.levanta, RNK.id_avaliador,
+		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG
+		FROM tb_atleta AS ATL
+		INNER JOIN tb_ranking AS RNK
+		INNER JOIN vw_ranking AS AVG_RNK
+		ON ATL.id = RNK.id_avaliado
+		AND AVG_RNK.id_treino = RNK.id_treino
+		AND AVG_RNK.id = RNK.id_avaliado
+		AND ATL.id_treino = Iid_treino
+		AND RNK.id_avaliador = Iid_user
+		AND RNK.id_treino = Iid_treino
+		GROUP BY id
+	UNION
+	SELECT ATL.*, 1 AS saque, 1 AS passe, 1 AS ataque, 1 AS levanta, Iid_user AS id_avaliador,
+		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG
+		FROM tb_atleta AS ATL
+		INNER JOIN tb_ranking AS RNK
+		INNER JOIN vw_ranking AS AVG_RNK
+		ON ATL.id = RNK.id_avaliado
+		AND AVG_RNK.id_treino = RNK.id_treino
+		AND AVG_RNK.id = RNK.id_avaliado
+		AND ATL.id_treino = Iid_treino
+		AND RNK.id_avaliador != Iid_user
+		AND RNK.id_treino = Iid_treino
+		GROUP BY id
+	) AS tbl_Atl 
+    GROUP BY id_treino,id_user;
 	END $$
 DELIMITER ;
+
+CALL sp_vwTreinoAtl(6,2);
 
  DROP PROCEDURE sp_vwUsers;
 DELIMITER $$
