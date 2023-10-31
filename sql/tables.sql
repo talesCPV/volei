@@ -12,14 +12,14 @@ CREATE TABLE tb_usuario (
 
  DROP TABLE tb_atleta;
 CREATE TABLE tb_atleta (
-	id int(11) NOT NULL AUTO_INCREMENT,
+	id int(11) NOT NULL,
     id_user int(11) DEFAULT 0,
     id_treino int(11) NOT NULL,
     nick varchar(15) NOT NULL,    
     mensalista BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (id_user) REFERENCES tb_usuario(id),
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id,id_treino)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
  DROP TABLE tb_treinos;
@@ -48,4 +48,13 @@ CREATE TABLE tb_ranking (
     FOREIGN KEY (id_avaliador) REFERENCES tb_atleta(id),
     FOREIGN KEY (id_avaliado) REFERENCES tb_atleta(id),
     PRIMARY KEY (id_treino,id_avaliador,id_avaliado)
+) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+ DROP TABLE tb_agenda;
+CREATE TABLE tb_agenda (	
+    id_treino int(11) NOT NULL,
+    data datetime NOT NULL,
+    obs varchar(255) DEFAULT NULL,
+    FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
+    PRIMARY KEY (id_treino, data)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

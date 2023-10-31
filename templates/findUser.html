@@ -148,6 +148,7 @@
                     params.id_atleta = data.id
                     params.hash = localStorage.getItem('hash')
                     params.id_user = row.id
+                    params.id_treino = mainData.viewAtl.data.id_treino
                     
                 const myPromisse = queryDB(params,9)
 
@@ -169,17 +170,19 @@
     })
 
     function addAtl(id,nick){
-        const params = new Object;            
-            params.hash = localStorage.getItem('hash')
-            params.id_treino = data.id
-            params.id_user = 0
-            params.nick = nick
-            params.mensalista = confirm(nick+' é Mensalista?')
-        const myPromisse = queryDB(params,5);
-        myPromisse.then((resolve)=>{            
-            mainData.newTreino.func.fillAtl()
-            closeModal(0)
-        })
+        if(nick != ''){
+                const params = new Object;            
+                params.hash = localStorage.getItem('hash')
+                params.id_treino = data.id
+                params.id_user = id
+                params.nick = nick
+                params.mensalista = confirm(nick+' é Mensalista?')
+            const myPromisse = queryDB(params,5);
+            myPromisse.then((resolve)=>{            
+                mainData.newTreino.func.fillAtl()
+                closeModal(0)
+            })
+        }
     }
 
 

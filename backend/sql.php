@@ -7,10 +7,10 @@
         "3"  => 'SELECT * FROM tb_treinos;', // DASHBOARD
         "4"  => 'CALL sp_delTreino("x00","x01");',
         "5"  => 'CALL sp_addAtleta("x00","x01","x02","x03","x04");',
-        "6"  => 'CALL sp_vwTreinoAtl("x00",x01);', // Treino Atl
+        "6"  => 'CALL sp_vwTreinoAtl(x00,x01);', // Treino Atl
         "7"  => 'CALL sp_avalia("x00","x01",x02,"x03","x04","x05","x06","x07","x08");',
         "8"  => 'CALL sp_vwUsers(x00,"x01",0,10);',
-        "9"  => 'CALL sp_linkAtl(x00,"x01",x02);',
+        "9"  => 'CALL sp_linkAtl(x00,"x01",x02,x03);',
         "10" => 'CALL sp_delAtleta("x00",x01);',
 
     );
