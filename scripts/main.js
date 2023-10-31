@@ -39,52 +39,6 @@ function showUserPic(){
     })
 }
 
-function fillPerfil(usr){
-
-    const params = new Object;
-        params.id =  usr
-
-    const myPromisse = queryDB(params,27);
-    myPromisse.then((resolve)=>{
-        const json = JSON.parse(resolve)  
-        const img = document.querySelector('#perfil-img') 
-
-        img.src = `assets/users/${json[0].id}.jpg`
-        breakImg(img)
-
-        document.querySelector('#imgUser').src = img.src
-        breakImg(document.querySelector('#imgUser'))
-        document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
-        document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDORES.padStart(2,0)
-        document.querySelector('.perfil-atividades').innerText = 'Atividades '+json[0].ATIVIDADES.padStart(2,0)
-        document.querySelector('.perfil-nome').innerText = json[0].nome
-        document.querySelector('.perfil-nivel').innerText = json[0].nivel
-        document.querySelector('.rating-bg').value = json[0].nivel
-
-        try{
-            json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)
-            json[0].ALERTA_ATV = json[0].ALERTA_ATV.split(',')
-            json[0].ALERTA_NOME = json[0].ALERTA_NOME.split(',')
-        }catch{
-            json[0].ALERTA_QTD = ''
-            json[0].ALERTA_ATV = []
-            json[0].ALERTA_NOME = []
-        }
-
-        try{
-            json[0].ALERTA_TORN_QTD = parseInt(json[0].ALERTA_TORN_QTD)
-            json[0].ALERTA_TORN_ID = json[0].ALERTA_TORN_ID.split(',')
-        }catch{
-            json[0].ALERTA_TORN_QTD = ''
-            json[0].ALERTA_TORN_ID = ''
-        }
-
-        mainData.data.perfil = json[0]
-        document.querySelector('#alert').innerText = json[0].ALERTA_QTD
-        document.querySelector('#alert-torn').innerText = json[0].ALERTA_TORN_QTD
-    })
-}
-
 function breakImg(img,url='assets/user.jpeg'){
     img.addEventListener('error',()=>{
         img.src = url

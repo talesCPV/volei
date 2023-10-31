@@ -71,6 +71,29 @@ DELIMITER ;
 
 CALL sp_setTreino("DEFAULT","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","RACHA DE QUINTA","QUI","20:00-22:00","GREMIO","");
 
+-- DROP PROCEDURE sp_setAgenda;
+DELIMITER $$
+	CREATE PROCEDURE sp_setAgenda(
+		IN Ihash varchar(77),
+		IN Iid_treino int(11),
+		IN Idata datetime,
+		IN Iobs varchar(255)
+    )
+	BEGIN
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);        
+		
+        IF(@id_call = @id_owner) THEN
+			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
+            ON DUPLICATE KEY UPDATE obs=Iobs;
+			SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;            
+        END IF;
+	END $$
+DELIMITER ;
+
+
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
 	CREATE PROCEDURE sp_addAtleta(		
@@ -140,16 +163,17 @@ DELIMITER $$
 	CREATE PROCEDURE sp_linkAtl(		
         IN Iid_atleta int(11),
 		IN Ihash varchar(77),
-        IN Iid_user int(11)
+        IN Iid_user int(11),
+        IN Iid_treino int(11)
     )
 	BEGIN
-        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @id_treino = (SELECT id_treino FROM tb_atleta WHERE id = Iid_atleta); 
+        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
         SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = @id_treino AND id_user=Iid_user); 
-        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
+        SET @nick = (SELECT nick FROM tb_usuario WHERE id = Iid_user);
 
         IF(@id_owner = @id_call AND @has_atl = 0) THEN
-			UPDATE tb_atleta SET id_user=Iid_user WHERE id=Iid_atleta;
+			UPDATE tb_atleta SET id_user=Iid_user, nick=@nick WHERE id=Iid_atleta AND id_treino=Iid_treino;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
@@ -158,7 +182,7 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-CALL sp_linkAtl(2,"f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2);
+CALL sp_linkAtl(2,"f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7);
 
 /* DELEÇÂO */
 

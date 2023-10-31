@@ -35,7 +35,7 @@
                 <input type="time" id="edtFin-1">    
             </div>
             <label for="edyObs">Obs:</label>
-            <textarea id="edtObs" cols="30" rows="10"></textarea>
+            <textarea id="edtTreinoObs" cols="30" rows="10"></textarea>
             <button id="btnAgTreino"  class="btn btn-primary">Salvar</button>
         </fieldset>
 
@@ -61,37 +61,24 @@
 
         document.querySelector('#edtData').value = today.getFormatDate()
         document.querySelector('#edtIni-1').value = data.horario.split('-')[0]
-        document.querySelector('#edtFin-1').value = data.horario.split('-')[1]
-
-        console.log(today)
-        console.log(week)
-        
-
-
-
-
-
+        document.querySelector('#edtFin-1').value = data.horario.split('-')[1]        
     }
 
-
-
-/*    
-    document.querySelector('#btnNotUser').addEventListener("click",()=>{
-        const nick = document.querySelector('#edtNotUser').value.trim().toUpperCase()
-
+    document.querySelector('#btnAgTreino').addEventListener("click",()=>{
+        const obs = document.querySelector('#edtTreinoObs').value.trim()
+        const dia = document.querySelector('#edtData').value + '-' + document.querySelector('#edtIni-1').value+ document.querySelector('#edtFin-1').value
+        console.log(obs)
         const params = new Object;            
             params.hash = localStorage.getItem('hash')
             params.id_treino = data.id
-            params.id_user = 0
-            params.nick = nick
-            params.mensalista = confirm(nick+' é Mensalista?')
-        const myPromisse = queryDB(params,5);
+            params.data = dia
+            params.obs = obs
+        const myPromisse = queryDB(params,12);
         myPromisse.then((resolve)=>{            
-            mainData.newTreino.func.fillAtl()
+            console.log(resolve)
             closeModal(0)
         })
     })
-  */      
 
 
 </script>    
