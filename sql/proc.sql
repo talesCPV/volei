@@ -131,6 +131,30 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+ DROP PROCEDURE sp_linkAtl;
+DELIMITER $$
+	CREATE PROCEDURE sp_linkAtl(		
+        IN Iid_atleta int(11),
+		IN Ihash varchar(77),
+        IN Iid_user int(11)
+    )
+	BEGIN
+        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        SET @id_treino = (SELECT id_treino FROM tb_atleta WHERE id = Iid_atleta); 
+        SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = @id_treino AND id_user=Iid_user); 
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);
+
+        IF(@id_owner = @id_call AND @has_atl = 0) THEN
+			UPDATE tb_atleta SET id_user=Iid_user WHERE id=Iid_atleta;
+            SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;
+        END IF;
+        
+	END $$
+DELIMITER ;
+
+
 /* DELEÇÂO */
 
  DROP PROCEDURE sp_delTreino;
@@ -144,10 +168,34 @@ DELIMITER $$
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid);
     
         IF(@id_call = @id_owner) THEN
+			DELETE FROM tb_ranking WHERE id_treino=Iid;
 			DELETE FROM tb_atleta WHERE id_treino=Iid;
 			DELETE FROM tb_treinos WHERE id=Iid;
 			SELECT 1 AS OK;
         ELSE
+			SELECT 0 AS OK;
+        END IF;
+
+	END $$
+DELIMITER ;
+
+ DROP PROCEDURE sp_delAtleta;
+DELIMITER $$
+	CREATE PROCEDURE sp_delAtleta(		
+        IN Ihash varchar(77),
+		IN Iid_atleta int(11)
+    )
+	BEGIN        
+		
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        SET @id_treino = (SELECT id_treino FROM tb_atleta WHERE id = Iid_atleta);         
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);        
+        
+        IF(@id_call = @id_owner) THEN
+			DELETE FROM tb_ranking WHERE id=id_avaliado AND id_treino=@id_treino;
+			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=@id_treino;
+            SELECT 1 AS OK;
+		ELSE 
 			SELECT 0 AS OK;
         END IF;
 
@@ -175,3 +223,30 @@ DELIMITER $$
 			WHERE ATL.id NOT IN (SELECT id_avaliado FROM tb_ranking WHERE id_treino = ATL.id_treino AND id_avaliador=Iid_user);
 	END $$
 DELIMITER ;
+
+ DROP PROCEDURE sp_vwUsers;
+DELIMITER $$
+	CREATE PROCEDURE sp_vwUsers(
+		IN Isel int(2),
+		IN Inick varchar(15),
+        IN Istart int(11),
+        IN IshowLimit int(11)
+    )
+	BEGIN	         
+
+		IF(Isel = 1) THEN
+			SELECT id,email,nick FROM tb_usuario WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+            LIMIT Istart,IshowLimit;        
+        ELSE 
+			IF(Isel = 2) THEN
+				SELECT id,email,nick FROM tb_usuario WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+				LIMIT Istart,IshowLimit;
+			ELSE 
+				SELECT id,email,nick FROM tb_usuario WHERE id = Inick;
+			END IF;
+		END IF;
+
+	END $$
+DELIMITER ;
+
+CALL sp_vwUsersByName(2,'teste@',0,10);

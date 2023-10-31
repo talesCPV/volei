@@ -16,7 +16,7 @@
         <div id="seguindo" class="tab">
 
             <label>Meus Amigos</label>
-            <button id="btnMyFriends" class="btn-round"><i class="fas fa-search"></i></button>
+            <button id="btnMyFriends" class="btn-round"><span class="mdi mdi-magnify"></span></button>
             <div id="myFriends"></div>
 
 
@@ -30,7 +30,9 @@
 
 </template>
 <script>
-        
+
+    pictab(document.querySelector('#tab-seguindo'))
+/*        
     mainData.social.func.viewFriends = (field,docDiv,showName,pic)=>{
         const params = new Object;
             params[field] = localStorage.getItem('idUser')            
@@ -92,9 +94,9 @@
     pictab(document.querySelector('#tab-seguindo'))
     mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
     mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
-    
+*/    
     document.querySelector('#btnMyFriends').addEventListener('click',()=>{
-        openHTML('viewAtleta.html','modal',{origem:'social'})
+        openHTML('findUser.html','modal',{origem:'social'})
     })
 
 

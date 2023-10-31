@@ -135,9 +135,10 @@
         const myPromisse = queryDB(params,6);
         myPromisse.then((resolve)=>{
             const json = JSON.parse(resolve)
-            tbl.head('Nome,Mensal')
-            for(let i=0; i<json.length; i++){                
-                tbl.plot(json[i],'nick,mensalista','Upp,cha 1=SIM 0=NÃO')
+            tbl.head('Nome,Mensal,Nível(0/5)')
+            for(let i=0; i<json.length; i++){  
+                const avg = ((parseFloat(json[i].SAQUE_AVG)+parseFloat(json[i].PASSE_AVG)+parseFloat(json[i].SAQUE_AVG)+parseFloat(json[i].LEVANTA_AVG))/4).toFixed(2)
+                tbl.plot(json[i],`nick,mensalista,${avg}`,'Upp,cha 1=SIM 0=NÃO,let')
             }
         })
     }
@@ -243,7 +244,9 @@
     })
 
     document.querySelector('#btnAddAtl').addEventListener('click',()=>{
-        openHTML('addAtl.html','modal',data)
+//        openHTML('addAtl.html','modal',data)
+        data.origem = 'newAtl'
+        openHTML('findUser.html','modal',data)
     })
     
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{        

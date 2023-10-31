@@ -57,6 +57,8 @@
             <input type="checkbox" id="ckbMensal">
         </div>
 
+        <button id="btnBuscaAtl" class="btn btn-primary">Buscar Atleta</button>
+
         <fieldset>
             <legend>Nível</legend>
             <div class="inline">
@@ -103,6 +105,7 @@
         </fieldset>
 
         <button id="btnRanking" class="btn btn-primary">Salvar</button>
+        <button id="btnDelAtl" class="btn btn-primary">Deletar</button>
 
     </div>
 
@@ -123,6 +126,9 @@
     if(mainData.newTreino.data.id_owner != localStorage.getItem('idUser')){
         document.querySelector('#edtNomeAtl').disabled = data.id_user == localStorage.getItem('idUser') ? 0 : 1
         document.querySelector('#ckbMensal').disabled = 1
+        document.querySelector('#btnBuscaAtl').style.display = 'none'
+    }else{
+        document.querySelector('#btnBuscaAtl').style.display = data.id_user == '0' ? 'block' : 'none'        
     }
 
     function getStar(e){
@@ -135,7 +141,6 @@
         return bar.value
 
     }
-
 
     document.querySelector('#svg-saque').addEventListener('click',(e)=>{
         getStar(e)
@@ -182,5 +187,27 @@
 
     })
 
+    document.querySelector('#btnBuscaAtl').addEventListener('click',()=>{
+        data.origem = 'treino'
+        openHTML('findUser.html','modal',data)
+    })
 
+    document.querySelector('#btnDelAtl').addEventListener('click',()=>{
+        if(confirm(`Deseja deletar o atleta ${data.nick} do treino ${mainData.newTreino.data.nome}?`)){
+            const params = new Object;
+            params.hash = localStorage.getItem('hash')
+            params.id_atl = data.id
+            const myPromisse = queryDB(params,10);
+            myPromisse.then((resolve)=>{
+                console.log(resolve)
+                mainData.newTreino.func.fillAtl()         
+                closeModal(0)
+            })
+
+
+        }
+    })
+
+
+    
 </script>    

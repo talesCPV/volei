@@ -68,10 +68,20 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                     break;                  
                 case 'sta':
                     
-                    html = ''
-                    for(let j=0; j<parseInt(obj[arr[0]]); j++){
+                    html = `
+                    <div class="rating-line">
+                        <div class="rating">
+                            <progress id="rtn-saque" class="rating-bg" value="${arr[0]}" max="5"></progress>
+                            <svg id="svg-saque"><use xlink:href="#fivestars"/></svg>
+                        </div>    
+                    </div>
+                    `
+/*                    
+                    for(let j=0; j<parseInt(arr[0]); j++){
+                        alert(j)
                         html += '<span class="fa fa-star checked"></span>'
                     }
+*/                    
                     break;
                 case 'flo':
                     html = obj[arr[0]] != null ? parseFloat(obj[arr[0]]).toFixed(2) : ''

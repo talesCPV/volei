@@ -1,0 +1,220 @@
+<title>Pesquisa de Atletas</title>
+<template>
+    <style>
+
+        .form-viewList{
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-viewList input, .form-viewList select{
+            padding: 5px;
+        }
+
+        .form-viewList .edtbtn{
+            width: 100%;
+        }
+
+        #tblUsers{
+            width: 100%;
+            max-height: 800px;
+            overflow-y: scroll;
+        }
+
+        .divConvidado{
+            margin: 0;
+            flex-direction: row;
+            width: 100%;
+            max-width: none;
+            justify-content: center;
+            padding-right: 10px;
+            display: none;
+        }
+
+        .divUsuario{
+            margin: 0;
+            flex-direction: column;
+            width: 100%;
+            max-width: none;
+            align-items: baseline;            
+            padding-right: 10px;            
+        }
+
+
+        .line-busca{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+        }
+
+    </style>
+
+    <div class="form-viewList">
+
+        <fieldset  class="divConvidado">
+            <legend>Convidado</legend>
+            <input type="text" id="edtConvidado" maxlength="15" style="width: 80%;">    
+            <button id="btnConvidado" class="btn btn-primary" style="min-width: 100px;">ADICIONAR</button>
+        </fieldset>
+
+
+        <fieldset class="divUsuario">
+            <legend>Usuário</legend>
+            <div class="line-busca">
+                <label for="edtNomeAtleta">Busca</label>
+                <select id="cmbTipoBusca">
+                    <option value="1">Nick do Atleta</option>
+                    <option value="2" selected>Email do Atleta</option>
+                    <option value="3">Código do Atleta</option>
+                </select>    
+                <div class="edtbtn">
+                    <input type="text" id="edtNomeAtleta">
+                    <button id="btnSearchAtleta"><span class="mdi mdi-magnify"></span></button>
+                </div>
+    
+            </div>
+            <table id="tblUsers"></table>
+    
+        </fieldset>
+
+
+        
+
+       
+    </div>
+
+
+</template>
+<script>
+    
+    const data = mainData.findUser.data
+    const func = mainData.findUser.func
+    const scroll = {start:0, limit:10}
+
+
+    if(data.origem == 'newAtl'){
+        document.querySelector('.divConvidado').style.display = 'flex'        
+    }
+
+
+    func.onClose = ()=>{
+        if(data.origem =='social'){
+            mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
+            mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
+        }
+    }
+
+    func.findUser = ()=>{
+        const params = new Object;
+            params.sel = document.querySelector('#cmbTipoBusca').value
+            params.nome = document.querySelector('#edtNomeAtleta').value.trim()    
+            params.start = scroll.start
+            params.limit = scroll.limit
+
+        const myPromisse = queryDB(params,8)
+
+        myPromisse.then((resolve)=>{
+            const users =  JSON.parse(resolve)            
+            func.fillUser(users)
+        })
+    }
+
+    func.fillUser = (json)=>{
+        const tbl = document.querySelector('#tblUsers')
+
+        tbl.head('Cod.,Nome, Email')
+        for(let i=0; i<json.length;i++){
+            tbl.plot(json[i],'id,nick,email','int,Upp,Low')
+        }
+
+    }
+
+    document.querySelector('#btnSearchAtleta').addEventListener('click',()=>{
+        
+        scroll.start = 0
+        mainData.findUser.func.findUser()
+    })
+
+    document.querySelector('#tblUsers').addEventListener('click',(e)=>{        
+
+        const row = e.target.parentNode.data
+        if(data.origem == 'treino'){
+            if(confirm(`Deseja linkar o usuário ${row.nick} ao atleta ${data.nick}?`)){
+                const params = new Object;
+                    params.id_atleta = data.id
+                    params.hash = localStorage.getItem('hash')
+                    params.id_user = row.id
+                    
+                const myPromisse = queryDB(params,9)
+
+                myPromisse.then((resolve)=>{
+//                    const users =  JSON.parse(resolve)            
+                        console.log(resolve)
+                    closeModal(0)
+
+                })
+            }
+        }else if(data.origem == 'newAtl'){            
+            addAtl(row.id,row.nick)
+        }
+    })
+
+    document.querySelector('#btnConvidado').addEventListener("click",()=>{
+        const nick = document.querySelector('#edtConvidado').value.trim().toUpperCase()
+        addAtl(0,nick)
+    })
+
+    function addAtl(id,nick){
+        if(nick != ''){
+                const params = new Object;            
+                params.hash = localStorage.getItem('hash')
+                params.id_treino = data.id
+                params.id_user = id
+                params.nick = nick
+                params.mensalista = confirm(nick+' é Mensalista?')
+            const myPromisse = queryDB(params,5);
+            myPromisse.then((resolve)=>{            
+                mainData.newTreino.func.fillAtl()
+                closeModal(0)
+            })
+        }
+    }
+
+
+
+/*
+    document.querySelector('#tbl-users').addEventListener('scroll',()=>{
+        const win = document.querySelector('#searchFriends')
+        if( win.scrollTop === (win.scrollHeight - win.offsetHeight)){
+            scroll.start += scroll.limit
+            mainData.findUser.func.findUser()
+        }
+    })
+*/
+
+/*
+    function repeatUser(id){
+
+        const A = mainData.newActivity.data.timeA.filter(e => e.userID === id).length
+        const B = mainData.newActivity.data.timeB.filter(e => e.userID === id).length
+        return  A || B
+
+    }
+
+    document.querySelector('#btnConvidado').addEventListener('click',()=>{
+        const conv = new Object
+            conv.userID = 0
+            conv.nome = '#'+document.querySelector('#edtConvidado').value.trim().toUpperCase()
+
+        mainData.newActivity.data[data.time].push(conv)
+        mainData.newActivity.func.fillTime(data.time)
+        closeModal(0)
+    })
+*/
+
+
+</script>
