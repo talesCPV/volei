@@ -1,0 +1,40 @@
+<title>View Agenda</title>
+<template>
+    <style>
+
+
+        .frm-agenda{
+            display: flex;
+            flex-direction: row;
+        }
+
+    </style>
+ 
+    <div class="frm-agenda">
+
+        <div class="img-treino">
+            <img src="">
+        </div>
+
+
+
+
+    </div>
+
+
+</template>
+<script>
+    const data = mainData.viewAgenda.data   
+    console.log(data) 
+    document.querySelector('.title-viewAgenda').innerHTML = data.nome
+
+    const back = backFunc({'filename':`../assets/treinos/${data.id_treino}.jpg`},1)
+    back.then((resp)=>{
+
+        console.log(resp)
+
+    })
+
+
+ 
+</script>

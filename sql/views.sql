@@ -20,5 +20,9 @@ SELECT * FROM tb_ranking;
 		GROUP BY USR.id;
         
  DROP VIEW vw_dashboard;
- CREATE VIEW vw_dashboard AS
-	SELECT * FROM tb_agenda;        
+  CREATE VIEW vw_dashboard AS
+	SELECT AGD.*, TRN.nome, TRN.local
+    FROM tb_agenda AS AGD
+    INNER JOIN tb_treinos AS TRN
+    ON AGD.id_treino = TRN.id
+    ORDER BY AGD.data DESC;

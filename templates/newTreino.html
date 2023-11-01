@@ -169,7 +169,7 @@
     }
 
     const back = backFunc({'filename':`../assets/treinos/${data.id}.jpg`},1)
-    back.then((resp)=>{
+    back.then((resp)=>{        
         imgExist = JSON.parse(resp)
         const path = imgExist ? `assets/treinos/${data.id}.jpg` : 'assets/default/treino.jpeg'    
         loadImg(path,'#cnvLogo')
@@ -181,7 +181,7 @@
 
     document.querySelector('#btnUpload').addEventListener('click',()=>{
         if(edit){
-            uploadImage('up_file','/../assets/treinos/',localStorage.getItem('idUser')+'.jpg')
+            uploadImage('up_file','/../assets/treinos/',data.id+'.jpg')
             .then(()=>{
 //
             })

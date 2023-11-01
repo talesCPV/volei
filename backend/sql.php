@@ -14,6 +14,7 @@
         "10" => 'CALL sp_delAtleta("x00",x01);',
         "11" => 'SELECT * FROM vw_user_ranking WHERE id=x00',
         "12" => 'CALL sp_setAgenda("x00",x01,"x02","x03");',
+        "13" => 'SELECT * FROM vw_dashboard;',
 
     );
 
