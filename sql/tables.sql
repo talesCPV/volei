@@ -58,3 +58,14 @@ CREATE TABLE tb_agenda (
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     PRIMARY KEY (id_treino, data)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+ DROP TABLE tb_agd_confirma;
+CREATE TABLE tb_agd_confirma (
+	id_atleta int(11) NOT NULL,
+    id_treino int(11) NOT NULL,
+    data datetime NOT NULL,
+    vou BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
+    FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
+    PRIMARY KEY (id_atleta,id_treino, data)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

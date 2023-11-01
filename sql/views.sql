@@ -1,6 +1,7 @@
  DROP VIEW vw_ranking;
  CREATE VIEW vw_ranking AS
-	SELECT RNK.id_treino, ATL.id, ATL.nick, ROUND(AVG(RNK.saque),2) AS SAQUE_AVG, ROUND(AVG(RNK.passe),2) AS PASSE_AVG, ROUND(AVG(RNK.ataque),2) AS ATAQUE_AVG, ROUND(AVG(RNK.levanta),2) AS LEVANTA_AVG 
+	SELECT RNK.id_treino, ATL.id, ATL.nick, ROUND(AVG(RNK.saque),2) AS SAQUE_AVG, ROUND(AVG(RNK.passe),2) AS PASSE_AVG, ROUND(AVG(RNK.ataque),2) AS ATAQUE_AVG, ROUND(AVG(RNK.levanta),2) AS LEVANTA_AVG,
+		ROUND(((AVG(RNK.saque) + AVG(RNK.passe) + AVG(RNK.ataque) + AVG(RNK.levanta))/4),2) AS NIVEL
 		FROM tb_ranking AS RNK
 		INNER JOIN tb_atleta AS ATL
 		ON RNK.id_avaliado = ATL.id
@@ -21,8 +22,20 @@ SELECT * FROM tb_ranking;
         
  DROP VIEW vw_dashboard;
   CREATE VIEW vw_dashboard AS
-	SELECT AGD.*, TRN.nome, TRN.local
+	SELECT AGD.*, TRN.nome,
+    TRN.local,  TRN.id_owner, GROUP_CONCAT(ATL.nick SEPARATOR ',') AS ATLETAS
     FROM tb_agenda AS AGD
     INNER JOIN tb_treinos AS TRN
+    INNER JOIN tb_atleta AS ATL
     ON AGD.id_treino = TRN.id
+    AND ATL.id_treino = TRN.id
+    GROUP BY AGD.id_treino, AGD.data
     ORDER BY AGD.data DESC;
+    
+
+SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = ""),0) AS GO
+FROM vw_ranking AS RNK;
+
+    
+    
+    

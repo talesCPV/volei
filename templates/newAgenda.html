@@ -75,7 +75,7 @@
             params.obs = obs
         const myPromisse = queryDB(params,12);
         myPromisse.then((resolve)=>{            
-            console.log(resolve)
+            loadActivity()
             closeModal(0)
         })
     })

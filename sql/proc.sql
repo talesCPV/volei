@@ -93,6 +93,28 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+-- DROP PROCEDURE sp_setConfirma_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_setConfirma_agd(
+		IN Ihash varchar(77),
+        IN Iid_atleta int(11),
+		IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta);
+		
+        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
+            ON DUPLICATE KEY UPDATE obs=Iobs;
+			SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;            
+        END IF;
+	END $$
+DELIMITER ;
 
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
@@ -232,6 +254,28 @@ DELIMITER ;
 
 CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
 
+ DROP PROCEDURE sp_delAgenda;
+DELIMITER $$
+	CREATE PROCEDURE sp_delAgenda(		
+        IN Ihash varchar(77),
+        IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);        
+        
+        IF(@id_call = @id_owner) THEN
+			DELETE FROM tb_agd_confirma WHERE id_treino=Iid_treino AND data=Idata;
+			DELETE FROM tb_agenda       WHERE id_treino=Iid_treino AND data=Idata;
+            SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;
+        END IF;
+
+	END $$
+DELIMITER ;
+
 /* VIEWS */
 
  DROP PROCEDURE sp_vwTreinoAtl;
@@ -302,3 +346,20 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_vwUsersByName(2,'teste@',0,10);
+
+-- DROP PROCEDURE sp_vwConfirma_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_vwConfirma_agd(		
+		IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN
+    
+		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO
+		FROM vw_ranking AS RNK
+		WHERE id_treino = Iid_treino;
+
+	END $$
+DELIMITER ;
+
+CALL sp_vwConfirma_agd(6,"2023-02-11 20:00");

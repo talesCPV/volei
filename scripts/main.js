@@ -107,6 +107,7 @@ function makeElement(kind,html='',cn='',id='',src='',target=''){
 function loadActivity(keep=true){
 
     const divAtv = document.querySelector('.dashboard')
+    divAtv.innerHTML = ''
 
     if(!keep){
         mainData.data.dashPos = 0
