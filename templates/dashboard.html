@@ -22,10 +22,29 @@
         }
 
         .post-activity{
+          display: flex;
           width: 100%;
           padding: 20px;
           background-color: white;
-          border-radius: 5px;
+          border-radius: 15px;
+          border: solid 1px white;
+        }
+
+        .post-activity:hover{
+          cursor: pointer;
+          border: solid 1px #105221;
+        }
+
+        .post-activity img{
+          max-width: 150px;
+        }
+
+        .dados-treino{
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
         }
 
         .post-activity p{
@@ -94,7 +113,7 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 70px;
+          padding: 0 50px;
           gap: 5px;
         }
 
@@ -158,7 +177,7 @@
 
         <div class="rating-line">
             <div class="rating">
-            <progress class="rating-bg" value="1" max="5"></progress>
+            <progress id="perfil-nivel" class="rating-bg" value="1" max="5"></progress>
             <svg><use xlink:href="#fivestars"/></svg>
             </div>    
         </div>
@@ -181,6 +200,58 @@
         document.querySelector('#perfil-img').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
     })  
 
-//    fillPerfil(localStorage.getItem('idUser'))
+    fillPerfil(localStorage.getItem('idUser'))
+    loadActivity()
     
+  function fillPerfil(usr){
+
+    const params = new Object;
+        params.id =  usr
+
+    const myPromisse = queryDB(params,11);
+    myPromisse.then((resolve)=>{
+        const json = JSON.parse(resolve)  
+//console.log(json)        
+        const img = document.querySelector('#perfil-img') 
+
+        img.src = `assets/users/${json[0].id}.jpg`
+        breakImg(img)
+
+        document.querySelector('#imgUser').src = img.src
+        breakImg(document.querySelector('#imgUser'))
+//        document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
+//        document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDORES.padStart(2,0)
+//        document.querySelector('.perfil-atividades').innerText = 'Atividades '+json[0].ATIVIDADES.padStart(2,0)
+        document.querySelector('.perfil-nome').innerText = json[0].nick.toUpperCase()
+        document.querySelector('#perfil-nivel').value = json[0].NIVEL
+        document.querySelector('.nivel-saque').innerHTML = json[0].SAQUE
+        document.querySelector('.nivel-passe').innerHTML = json[0].PASSE
+        document.querySelector('.nivel-ataque').innerHTML = json[0].ATAQUE
+        document.querySelector('.nivel-levanta').innerHTML = json[0].LEVANTA
+
+        try{
+            json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)
+            json[0].ALERTA_ATV = json[0].ALERTA_ATV.split(',')
+            json[0].ALERTA_NOME = json[0].ALERTA_NOME.split(',')
+        }catch{
+            json[0].ALERTA_QTD = ''
+            json[0].ALERTA_ATV = []
+            json[0].ALERTA_NOME = []
+        }
+
+        try{
+            json[0].ALERTA_TORN_QTD = parseInt(json[0].ALERTA_TORN_QTD)
+            json[0].ALERTA_TORN_ID = json[0].ALERTA_TORN_ID.split(',')
+        }catch{
+            json[0].ALERTA_TORN_QTD = ''
+            json[0].ALERTA_TORN_ID = ''
+        }
+
+        mainData.data.perfil = json[0]
+        document.querySelector('#alert').innerText = json[0].ALERTA_QTD
+        document.querySelector('#alert-torn').innerText = json[0].ALERTA_TORN_QTD
+    })
+  }
+
+
 </script>

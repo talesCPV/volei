@@ -71,6 +71,51 @@ DELIMITER ;
 
 CALL sp_setTreino("DEFAULT","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","RACHA DE QUINTA","QUI","20:00-22:00","GREMIO","");
 
+-- DROP PROCEDURE sp_setAgenda;
+DELIMITER $$
+	CREATE PROCEDURE sp_setAgenda(
+		IN Ihash varchar(77),
+		IN Iid_treino int(11),
+		IN Idata datetime,
+		IN Iobs varchar(255)
+    )
+	BEGIN
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);        
+		
+        IF(@id_call = @id_owner) THEN
+			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
+            ON DUPLICATE KEY UPDATE obs=Iobs;
+			SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;            
+        END IF;
+	END $$
+DELIMITER ;
+
+-- DROP PROCEDURE sp_setConfirma_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_setConfirma_agd(
+		IN Ihash varchar(77),
+        IN Iid_atleta int(11),
+		IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta);
+		
+        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
+            ON DUPLICATE KEY UPDATE obs=Iobs;
+			SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;            
+        END IF;
+	END $$
+DELIMITER ;
+
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
 	CREATE PROCEDURE sp_addAtleta(		
@@ -140,16 +185,17 @@ DELIMITER $$
 	CREATE PROCEDURE sp_linkAtl(		
         IN Iid_atleta int(11),
 		IN Ihash varchar(77),
-        IN Iid_user int(11)
+        IN Iid_user int(11),
+        IN Iid_treino int(11)
     )
 	BEGIN
-        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @id_treino = (SELECT id_treino FROM tb_atleta WHERE id = Iid_atleta); 
+        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
         SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = @id_treino AND id_user=Iid_user); 
-        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
+        SET @nick = (SELECT nick FROM tb_usuario WHERE id = Iid_user);
 
         IF(@id_owner = @id_call AND @has_atl = 0) THEN
-			UPDATE tb_atleta SET id_user=Iid_user WHERE id=Iid_atleta;
+			UPDATE tb_atleta SET id_user=Iid_user, nick=@nick WHERE id=Iid_atleta AND id_treino=Iid_treino;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
@@ -158,6 +204,7 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+CALL sp_linkAtl(2,"f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7);
 
 /* DELEÇÂO */
 
@@ -207,6 +254,28 @@ DELIMITER ;
 
 CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
 
+ DROP PROCEDURE sp_delAgenda;
+DELIMITER $$
+	CREATE PROCEDURE sp_delAgenda(		
+        IN Ihash varchar(77),
+        IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);        
+        
+        IF(@id_call = @id_owner) THEN
+			DELETE FROM tb_agd_confirma WHERE id_treino=Iid_treino AND data=Idata;
+			DELETE FROM tb_agenda       WHERE id_treino=Iid_treino AND data=Idata;
+            SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;
+        END IF;
+
+	END $$
+DELIMITER ;
+
 /* VIEWS */
 
  DROP PROCEDURE sp_vwTreinoAtl;
@@ -218,7 +287,8 @@ DELIMITER $$
 	BEGIN
 SELECT * FROM(    
 	SELECT ATL.*, RNK.saque, RNK.passe, RNK.ataque, RNK.levanta, RNK.id_avaliador,
-		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG
+		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG,
+        ROUND(((AVG_RNK.SAQUE_AVG + AVG_RNK.PASSE_AVG + AVG_RNK.ATAQUE_AVG + AVG_RNK.LEVANTA_AVG)/4),2) AS NIVEL
 		FROM tb_atleta AS ATL
 		INNER JOIN tb_ranking AS RNK
 		INNER JOIN vw_ranking AS AVG_RNK
@@ -231,7 +301,8 @@ SELECT * FROM(
 		GROUP BY id
 	UNION
 	SELECT ATL.*, 1 AS saque, 1 AS passe, 1 AS ataque, 1 AS levanta, Iid_user AS id_avaliador,
-		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG
+		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG,
+        ROUND(((AVG_RNK.SAQUE_AVG + AVG_RNK.PASSE_AVG + AVG_RNK.ATAQUE_AVG + AVG_RNK.LEVANTA_AVG)/4),2) AS NIVEL
 		FROM tb_atleta AS ATL
 		INNER JOIN tb_ranking AS RNK
 		INNER JOIN vw_ranking AS AVG_RNK
@@ -243,11 +314,11 @@ SELECT * FROM(
 		AND RNK.id_treino = Iid_treino
 		GROUP BY id
 	) AS tbl_Atl 
-    GROUP BY id_treino,id_user;
+    GROUP BY id_treino,id;
 	END $$
 DELIMITER ;
 
-CALL sp_vwTreinoAtl(6,2);
+CALL sp_vwTreinoAtl(7,1);
 
  DROP PROCEDURE sp_vwUsers;
 DELIMITER $$
@@ -275,3 +346,20 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_vwUsersByName(2,'teste@',0,10);
+
+-- DROP PROCEDURE sp_vwConfirma_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_vwConfirma_agd(		
+		IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN
+    
+		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO
+		FROM vw_ranking AS RNK
+		WHERE id_treino = Iid_treino;
+
+	END $$
+DELIMITER ;
+
+CALL sp_vwConfirma_agd(6,"2023-02-11 20:00");

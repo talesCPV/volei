@@ -39,52 +39,6 @@ function showUserPic(){
     })
 }
 
-function fillPerfil(usr){
-
-    const params = new Object;
-        params.id =  usr
-
-    const myPromisse = queryDB(params,27);
-    myPromisse.then((resolve)=>{
-        const json = JSON.parse(resolve)  
-        const img = document.querySelector('#perfil-img') 
-
-        img.src = `assets/users/${json[0].id}.jpg`
-        breakImg(img)
-
-        document.querySelector('#imgUser').src = img.src
-        breakImg(document.querySelector('#imgUser'))
-        document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
-        document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDORES.padStart(2,0)
-        document.querySelector('.perfil-atividades').innerText = 'Atividades '+json[0].ATIVIDADES.padStart(2,0)
-        document.querySelector('.perfil-nome').innerText = json[0].nome
-        document.querySelector('.perfil-nivel').innerText = json[0].nivel
-        document.querySelector('.rating-bg').value = json[0].nivel
-
-        try{
-            json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)
-            json[0].ALERTA_ATV = json[0].ALERTA_ATV.split(',')
-            json[0].ALERTA_NOME = json[0].ALERTA_NOME.split(',')
-        }catch{
-            json[0].ALERTA_QTD = ''
-            json[0].ALERTA_ATV = []
-            json[0].ALERTA_NOME = []
-        }
-
-        try{
-            json[0].ALERTA_TORN_QTD = parseInt(json[0].ALERTA_TORN_QTD)
-            json[0].ALERTA_TORN_ID = json[0].ALERTA_TORN_ID.split(',')
-        }catch{
-            json[0].ALERTA_TORN_QTD = ''
-            json[0].ALERTA_TORN_ID = ''
-        }
-
-        mainData.data.perfil = json[0]
-        document.querySelector('#alert').innerText = json[0].ALERTA_QTD
-        document.querySelector('#alert-torn').innerText = json[0].ALERTA_TORN_QTD
-    })
-}
-
 function breakImg(img,url='assets/user.jpeg'){
     img.addEventListener('error',()=>{
         img.src = url
@@ -149,163 +103,11 @@ function makeElement(kind,html='',cn='',id='',src='',target=''){
     return el
 }
 
-function makeActivity(ATV,classScreen,showUser=true){
-    
-    const screen =  document.querySelector('.'+classScreen)
-    const mapDiv = 'map-'+classScreen
-    const i = maps.length
-    const owner = localStorage.getItem('idUser') == ATV.id_usuario
-
-
-    let timeA = {nome:'',id:[]}
-    let timeB = {nome:'',id:[]}
-    const nome_atl = ATV.ATLETAS.split(',')
-    const id_atl = ATV.ID_ATLETAS.split(',')
-    const times = ATV.LADO.split(',')
-
-    for(let j=0; j<nome_atl.length; j++){
-        if(times[j].trim()=='A'){
-            timeA.nome += (timeA.nome.length>0 ?',':'') +  nome_atl[j].trim()
-            timeA.id.push(parseInt(id_atl[j]))
-        }else{
-            timeB.nome += (timeB.nome.length>0 ?',':'') +  nome_atl[j].trim()
-            timeB.id.push(parseInt(id_atl[j]))
-        }           
-    }  
-
-
-    const mainDiv = makeElement('div','','post-activity',`atv-${i}`)
-
-    const head = makeElement('div','','head-activity')
-    if(showUser){
-        
-        const img = makeElement('img','','imgUser head-activity-img','',`assets/users/${ATV.id_usuario}.jpg`)    
-        img.addEventListener('click',()=>{
-            window.location.hash = 'P'+ATV.id_usuario.padStart(10,0)
-            loadHash()
-        })
-        head.appendChild(img)
-
-        const div1 = makeElement('div')                        
-        const headAtl = makeElement('p',ATV.NOME_ATLETA,'head-activity-atleta')        
-        div1.appendChild(headAtl)
-
-        const headDat = makeElement('p',`${ATV.dia.showDate()} as ${ATV.dia.showTime()}`,'head-activity-data')        
-        div1.appendChild(headDat)
-        head.appendChild(div1)
-        mainDiv.appendChild(head)
-    }else{
-        head.appendChild(makeElement('p',`${ATV.dia.showDate()} as ${ATV.dia.showTime()}`,'head-activity-data'))
-    }
-    
-    const h2Nome = makeElement('h2',`${ATV.ranking=="1"?'<i class="fas fa-trophy"></i> ':''}  ${ATV.nome}` ,'','nome')
-    mainDiv.appendChild(h2Nome)
-
-    !showUser ? mainDiv.appendChild(head) : 0
-
-    if(timeB.nome.trim()!=''){
-
-        const p1_score = parseInt(ATV.SETS_P1)
-        const p2_score = parseInt(ATV.SETS_P2)
-
-        if(p1_score+p2_score==0){
-            const h4Placar = makeElement('h4',`<span class="mdi mdi-tennis"></span> ${timeA.nome} & ${timeB.nome}`,'','placar')    
-            mainDiv.appendChild(h4Placar)        
-        }else{
-            const h4Placar = makeElement('h4',`${timeA.nome}  ${p1_score} x ${p2_score}  ${timeB.nome}`,'','placar')    
-            mainDiv.appendChild(h4Placar)        
-        }
-
-    }
-
-    const panel = makeElement('div','','panel')
-    const leftPanel = makeElement('div','','left-panel')
-    const map = makeElement('div','','map-view')
-    leftPanel.appendChild(map)
-    const mapAct = makeElement('div','','map-activity',mapDiv+i)
-    leftPanel.appendChild(mapAct)
-    const h6Map = makeElement('h6',ATV.QUADRA,'map-label')
-    leftPanel.appendChild(h6Map)
-    panel.appendChild(leftPanel)
-
-    const rigthPanel = makeElement('div','','right-panel')
-    const pSport = makeElement('p',`${ATV.SPORT} (${ATV.EVENTO})`,'','sport')
-    rigthPanel.appendChild(pSport)
-    if(owner){
-        const div2 = makeElement('div','',`only-login social-icon ${localStorage.getItem('idUser') == null ? 'hide-menu' : ''}`)
-    
-        const link = encodeURI('https://www.backhand.com.br/#G'+ATV.id.padStart(10,0));
-        const msg = encodeURIComponent('Hey, olhe meu treino no backhand');
-        
-        const facebook = makeElement('a','<i class="fab fa-facebook">','facebook','','','blank')
-        facebook.href = `https://www.facebook.com/share.php?u=${link}`;
-        div2.appendChild(facebook)
-        const twitter = makeElement('a','<i class="fab fa-twitter"></i>','twitter','','','blank')
-        twitter.href = `http://twitter.com/share?&url=${link}&text=${msg}&hashtags=javascript,programming`;
-        div2.appendChild(twitter)
-        const linkedin = makeElement('a','<i class="fab fa-linkedin"></i>','linkedin','','','blank')
-        linkedin.href = `https://www.linkedin.com/sharing/share-offsite/?url=${link}`;
-        div2.appendChild(linkedin)
-        const reddit = makeElement('a','<i class="fab fa-reddit"></i>','reddit','','','blank')
-        reddit.href = `http://www.reddit.com/submit?url=${link}&title=${msg}`;
-        div2.appendChild(reddit)
-        const whatsapp = makeElement('a','<i class="fab fa-whatsapp"></i>','whatsapp','','','blank')
-        whatsapp.href = `https://api.whatsapp.com/send?text=${msg}: ${link}`;
-        div2.appendChild(whatsapp)
-        const telegram = makeElement('a','<i class="fab fa-telegram"></i>','telegram','','','blank')
-        telegram.href = `https://telegram.me/share/url?url=${link}&text=${msg}`;
-        div2.appendChild(telegram)
-        rigthPanel.appendChild(div2)
-    }
-
-    panel.appendChild(rigthPanel)
-    mainDiv.appendChild(panel)
-
-    const socialPanel = makeElement('div','','panel-social')
-    const numKudos = makeElement('div',`${ATV.KUDOS.padStart(2,0)} kudos`,'social-kudos')
-    socialPanel.appendChild(numKudos)
-    const div3 = makeElement('div')
-    div3.style = 'display:flex; gap:5px;'
-    const btnKudos = makeElement('button','<i class="fas fa-thumbs-up"></i>','btn-backhand btn-social')
-    btnKudos.addEventListener('click',()=>{
-        if(localStorage.getItem('idUser') != null){             
-            const params = new Object;
-                params.hash =  localStorage.getItem('hash')
-                params.id_atividade = ATV.id
-            const myPromisse = queryDB(params,18)
-            myPromisse.then((resolve)=>{                       
-                numKudos.innerHTML = JSON.parse(resolve)[0].KUDOS.padStart(2,0)+ ' kudos'                                     
-            })
-        }
-    })
-    div3.appendChild(btnKudos)
-    const btnScrap = makeElement('button','<i class="fas fa-comments"></i>','btn-backhand btn-social')
-    btnScrap.addEventListener('click',()=>{
-        openHTML('message.html','modal',ATV)
-    })
-    div3.appendChild(btnScrap)
-    socialPanel.appendChild(div3)
-    mainDiv.appendChild(socialPanel)
-    mainDiv.database = ATV
-
-    screen.appendChild(mainDiv)        
-    mainData.data.activities.push(`atv-${i}`)
-
-    clearMemory()
-
-    maps.push(createMap(mapDiv+i,[ATV.lat, ATV.lng],30))
-    pinMap([ATV.lat, ATV.lng],maps[maps.length-1])
-    maps[maps.length-1].locate({setView: false, maxZoom: 30})
-    disableMap(maps[maps.length-1])
-    maps[maps.length-1].on('click',()=>{
-        mainData.data.formID = `atv-${i}`
-        window.location.hash = 'G'+ATV.id.padStart(10,0)
-        loadHash()
-    })
-
-}
 
 function loadActivity(keep=true){
+
+    const divAtv = document.querySelector('.dashboard')
+    divAtv.innerHTML = ''
 
     if(!keep){
         mainData.data.dashPos = 0
@@ -322,19 +124,55 @@ function loadActivity(keep=true){
     }
 
     const params = new Object;
-        params.lat =  mainData.data.lat
-        params.lng =  mainData.data.lng
-        params.maxDistance = mainData.data.dashDist
-        params.start = mainData.data.dashPos
-        params.limit = mainData.data.dashLim
+        params.id_user = localStorage.getItem('idUser')
         
-    const myPromisse = queryDB(params,9);
+    const myPromisse = queryDB(params,13);
     myPromisse.then((resolve)=>{
         mainData.data.dashPos += mainData.data.dashLim
         const json = JSON.parse(resolve)   
 //console.log(json)
+
         for(let i=0; i<json.length; i++){            
-            makeActivity(json[i],'dashboard')          
+
+            const back = backFunc({'filename':`../assets/treinos/${json[i].id_treino}.jpg`},1)
+            back.then((resp)=>{
+                imgExist = JSON.parse(resp)
+                const path = imgExist ? `assets/treinos/${json[i].id_treino}.jpg` : 'assets/default/treino.jpeg'    
+
+                const HTML = `
+                        <div class="img-treino">
+                            <img src=${path}>
+                        </div>
+                        <div class='dados-treino'>
+                            <h2>${json[i].nome}</h2>
+                            <label>${json[i].local}</label>
+                            <div>Dia ${json[i].data.showDate()} as ${json[i].data.showTime()}</div>
+                            <div>${json[i].obs}</div>
+                        </div>
+                `
+
+            const atv = makeElement('div',HTML,'post-activity',`atv-${i}`) 
+            atv.addEventListener('click',()=>{
+                openHTML('viewAgenda.html','modal',json[i])
+            })
+            
+
+            divAtv.appendChild(atv)
+
+
+
+
+            }) 
+
+
+
+
+  
+            
+  
+
+
+
         }
     })
 }

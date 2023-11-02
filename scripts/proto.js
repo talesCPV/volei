@@ -76,12 +76,6 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                         </div>    
                     </div>
                     `
-/*                    
-                    for(let j=0; j<parseInt(arr[0]); j++){
-                        alert(j)
-                        html += '<span class="fa fa-star checked"></span>'
-                    }
-*/                    
                     break;
                 case 'flo':
                     html = obj[arr[0]] != null ? parseFloat(obj[arr[0]]).toFixed(2) : ''
@@ -147,6 +141,21 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                     const pos = parseInt(type[i].substring(3,6))
                     html = obj[arr[0]] != null ? obj[arr[0]].trim().substring(0,pos) : ''
                     break;                                       
+                case 'usr':
+                    op = parseInt(obj[arr[0]])
+                    let out = '<span class="mdi mdi-account-question" style="color: #F9C727;"></span>'
+                    switch(op){
+                        case 0:
+                            out = '<span class="mdi mdi-account-off" style="color: #d52c2c;"></span>'
+                            break
+                        case 1:
+                            out = '<span class=" mdi mdi-account-check" style="color:#43b90e;"></span>'
+                            break                            
+                    }
+
+
+                    html = out
+                    break;
 
                 default:
                   html = obj[arr[0]] != null ? obj[arr[0]] :''

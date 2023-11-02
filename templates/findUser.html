@@ -148,6 +148,7 @@
                     params.id_atleta = data.id
                     params.hash = localStorage.getItem('hash')
                     params.id_user = row.id
+                    params.id_treino = mainData.viewAtl.data.id_treino
                     
                 const myPromisse = queryDB(params,9)
 

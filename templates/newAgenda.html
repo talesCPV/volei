@@ -1,0 +1,84 @@
+<title>Agendar Treino</title>
+<template>
+    <style>
+
+        fieldset{
+            align-items: revert;
+        }
+
+        .frm-invite{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .line{
+            gap: 5px;     
+            justify-content: flex-start;       
+        }
+
+    </style>
+
+    <div class="frm-invite">
+
+
+        <fieldset>
+            <legend id="lgdTitle"></legend>
+            <div class="line">
+                <label for="edtData">Dia</label>
+                <input type="date" id="edtData">
+            </div>
+            <div class="line">
+                <label for="edtIni-1">das</label>
+                <input type="time" id="edtIni-1">
+                <label for="edtFin-1">as</label>
+                <input type="time" id="edtFin-1">    
+            </div>
+            <label for="edyObs">Obs:</label>
+            <textarea id="edtTreinoObs" cols="30" rows="10"></textarea>
+            <button id="btnAgTreino"  class="btn btn-primary">Salvar</button>
+        </fieldset>
+
+
+    </div>
+
+
+</template>
+<script>
+
+    const data = mainData.newAgenda.data    
+    document.querySelector('#lgdTitle').innerHTML = data.nome
+
+    setDate()
+
+    function setDate(){
+        const today = new Date()
+        const week = ['DOM','SEG','TER','QUA','QUI','SEX','SAB'].indexOf(data.dia_sem)
+
+        while(today.getDay() != week){
+            today.change()
+        }
+
+        document.querySelector('#edtData').value = today.getFormatDate()
+        document.querySelector('#edtIni-1').value = data.horario.split('-')[0]
+        document.querySelector('#edtFin-1').value = data.horario.split('-')[1]        
+    }
+
+    document.querySelector('#btnAgTreino').addEventListener("click",()=>{
+        const obs = document.querySelector('#edtTreinoObs').value.trim()
+        const dia = document.querySelector('#edtData').value + '-' + document.querySelector('#edtIni-1').value
+        console.log(obs)
+        const params = new Object;            
+            params.hash = localStorage.getItem('hash')
+            params.id_treino = data.id
+            params.data = dia
+            params.obs = obs
+        const myPromisse = queryDB(params,12);
+        myPromisse.then((resolve)=>{            
+            loadActivity()
+            closeModal(0)
+        })
+    })
+
+
+</script>    

@@ -1,0 +1,179 @@
+<title> </title>
+<template>
+    <style>
+
+        fieldset{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        fieldset > legend{
+            width: auto !important;
+        }
+
+        .frm-group{
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .line{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        .line *{
+            text-align: center;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .img-treino{
+            display: flex;
+            flex-direction: column;
+            max-width: 300px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 5px;
+            width: 40%;
+        }
+
+        .data-treino{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            width: 60%;
+            justify-content: center;
+        }
+
+        .img-treino *, .data-treino *{
+            width: 95%;
+            max-width: none;
+        }
+
+        #edtObs{
+            padding: 10px;
+            font-size: 1.2em;
+            border: none;
+            font-weight: 700;
+        }
+
+        @media (max-width: 769px) {
+
+            .data-treino, .img-treino{
+                width: 100%;                
+            }
+
+        }
+
+    </style>
+
+        <div class="frm-group">
+
+            <div class="img-treino">
+                <img src="" id="agd-logo">                
+                <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>                
+
+            </div>
+
+            <div class="data-treino">
+          
+                <label id="lblLocal">Local</label>
+                <label id="lblData">Local</label>
+
+                <label for="edtObs">Obs:</label>
+                <textarea id="edtObs" cols="30" rows="5" readonly></textarea>
+
+                <label for="edtObs" id="lblAtl" class="hide-all">Atletas <button id="btnAddAtl" class="btn-round btn-round-side">+</button> </label>
+                <table id="tblAtl"></table>
+                
+            </div>
+
+
+
+        </div>
+
+</template>
+<script>
+    const data = mainData.viewAgenda.data
+    const func = mainData.viewAgenda.func
+
+    const back = backFunc({'filename':`../assets/treinos/${data.id_treino}.jpg`},1)
+    back.then((resp)=>{
+        imgExist = JSON.parse(resp)
+        const path = imgExist ? `assets/treinos/${data.id_treino}.jpg` : 'assets/default/treino.jpeg'    
+        document.querySelector('#agd-logo').src = path
+
+    })
+
+    document.querySelector('.title-viewAgenda').innerHTML = data.nome
+    document.querySelector('#lblLocal').innerHTML = 'Local: '+data.local
+    document.querySelector('#lblData').innerHTML = `dia ${data.data.showDate()} as ${data.data.showTime()}hs`
+    document.querySelector('#edtObs').value = data.obs
+    document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+
+    document.querySelector('#btnDelTreino').addEventListener('click',()=>{
+        if(confirm('Deseja deletar este treino?')){
+             const params = new Object;            
+                params.hash = localStorage.getItem('hash')
+                params.id_treino = data.id_treino
+                params.data = data.data                
+            const myPromisse = queryDB(params,14);
+            myPromisse.then((resolve)=>{            
+                loadActivity()
+                closeModal(0)
+            })
+        }
+
+    })
+
+ 
+    func.fillAtl = ()=>{
+        const tbl = document.querySelector('#tblAtl')
+        const params = new Object;                    
+            params.id_treino = data.id_treino
+            params.data = data.data
+
+        const myPromisse = queryDB(params,15);
+        myPromisse.then((resolve)=>{            
+            const json = JSON.parse(resolve)
+            tbl.head('Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
+            for(let i=0; i<json.length;i++){
+                tbl.plot(json[i],'nick,NIVEL,GO','Upp,Upp,usr')
+            }
+
+
+        })
+
+
+    }
+
+    func.fillAtl()
+
+    document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
+        const dados = e.target.parentNode.data
+        const idUser = localStorage.getItem('idUser')
+        
+        if(idUser==dados.id_user || idUser==dados.id_owner){
+            const params = new Object;  
+                params.hash = localStorage.getItem('hash')
+                params.id_atleta = dados.id
+                params.id_treino = data.id_treino
+                params.data = data.data
+                params.vou = confirm('Confirma Presença?') ? 1 : 0
+                
+            const myPromisse = queryDB(params,16);
+            myPromisse.then((resolve)=>{  
+                func.fillAtl()
+            })
+        }
+        
+    })
+
+
+</script>

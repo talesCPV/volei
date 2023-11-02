@@ -10,9 +10,14 @@
         "6"  => 'CALL sp_vwTreinoAtl(x00,x01);', // Treino Atl
         "7"  => 'CALL sp_avalia("x00","x01",x02,"x03","x04","x05","x06","x07","x08");',
         "8"  => 'CALL sp_vwUsers(x00,"x01",0,10);',
-        "9"  => 'CALL sp_linkAtl(x00,"x01",x02);',
+        "9"  => 'CALL sp_linkAtl(x00,"x01",x02,x03);',
         "10" => 'CALL sp_delAtleta("x00",x01);',
-
+        "11" => 'SELECT * FROM vw_user_ranking WHERE id=x00;',
+        "12" => 'CALL sp_setAgenda("x00",x01,"x02","x03");',
+        "13" => 'SELECT * FROM vw_dashboard;',
+        "14" => 'CALL sp_delAgenda("x00",x01,"x02");',
+        "15" => 'CALL sp_vwConfirma_agd(x00,"x01");',
+        "16" => 'CALL sp_setConfirma_agd("x00",x01,x02,"x03",x04);',
     );
 
     $query_json = array(

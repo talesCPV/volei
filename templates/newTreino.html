@@ -70,6 +70,7 @@
                 <canvas  width="300" height="300"  id="cnvLogo"></canvas>
                 <input  name="up_file" id="up_file" type="file" accept=".jpg,.jpeg,.png">        
                 <button id="btnUpload" class="btn btn-primary show-edit">Upload</button>
+                <button id="btnAgendar" class="hide-all btn btn-primary">Agendar Próximo Treino</button>
             </div>
 
             <div class="data-treino">
@@ -112,7 +113,7 @@
                 <table id="tblAtl"></table>
                 
                 <button id="btnTreino" class="btn btn-primary">Criar Treino</button>
-                <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>
+                <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>                
 
             </div>
 
@@ -135,10 +136,9 @@
         const myPromisse = queryDB(params,6);
         myPromisse.then((resolve)=>{
             const json = JSON.parse(resolve)
-            tbl.head('Nome,Mensal,Nível(0/5)')
+            tbl.head('Nome,Mensal,<span class="mdi mdi-star"></span>')
             for(let i=0; i<json.length; i++){  
-                const avg = ((parseFloat(json[i].SAQUE_AVG)+parseFloat(json[i].PASSE_AVG)+parseFloat(json[i].SAQUE_AVG)+parseFloat(json[i].LEVANTA_AVG))/4).toFixed(2)
-                tbl.plot(json[i],`nick,mensalista,${avg}`,'Upp,cha 1=SIM 0=NÃO,let')
+                tbl.plot(json[i],`nick,mensalista,NIVEL`,'Upp,cha 1=SIM 0=NÃO,Upp')
             }
         })
     }
@@ -162,13 +162,14 @@
         document.querySelector('#edtLocal').value = data.local
         document.querySelector('#edtObs').value = data.obs
         document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+        document.querySelector('#btnAgendar').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
         document.querySelector('#lblAtl').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
         
         mainData.newTreino.func.fillAtl()
     }
 
     const back = backFunc({'filename':`../assets/treinos/${data.id}.jpg`},1)
-    back.then((resp)=>{
+    back.then((resp)=>{        
         imgExist = JSON.parse(resp)
         const path = imgExist ? `assets/treinos/${data.id}.jpg` : 'assets/default/treino.jpeg'    
         loadImg(path,'#cnvLogo')
@@ -180,7 +181,7 @@
 
     document.querySelector('#btnUpload').addEventListener('click',()=>{
         if(edit){
-            uploadImage('up_file','/../assets/treinos/',localStorage.getItem('idUser')+'.jpg')
+            uploadImage('up_file','/../assets/treinos/',data.id+'.jpg')
             .then(()=>{
 //
             })
@@ -247,11 +248,15 @@
 //        openHTML('addAtl.html','modal',data)
         data.origem = 'newAtl'
         openHTML('findUser.html','modal',data)
-    })
-    
+    })        
+
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
         const data = e.target.parentNode.data
         data!=undefined ? openHTML('viewAtl.html','modal',data,400) : 0
+    })
+
+    document.querySelector('#btnAgendar').addEventListener('click',(e)=>{ 
+         openHTML('newAgenda.html','modal',data,400)
     })
 
 </script>

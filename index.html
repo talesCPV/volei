@@ -91,6 +91,8 @@
 
       if(localStorage.getItem('log')=='1'){
         openHTML('dashboard.html','screen')
+      }else{
+        openHTML('blank.html','screen')
       }
       
 
@@ -122,6 +124,7 @@
         if(confirm('Sair do sistema?')){
             localStorage.clear();
             openMenu()
+            openHTML('blank.html','screen')            
           }
       }
 
