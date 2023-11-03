@@ -200,7 +200,13 @@
         document.querySelector('#perfil-img').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
     })  
 
-    fillPerfil(localStorage.getItem('idUser'))
+    if(localStorage.getItem('log')=='1'){
+      fillPerfil(localStorage.getItem('idUser'))
+    }else{
+      document.querySelector('.perfil').style.display = 'none'
+      document.querySelector('.dashboard').style.width = '100%'
+    }
+
     loadActivity()
     
   function fillPerfil(usr){

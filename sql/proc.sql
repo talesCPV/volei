@@ -93,28 +93,36 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
--- DROP PROCEDURE sp_setConfirma_agd;
+ DROP PROCEDURE sp_setConfirma_agd;
 DELIMITER $$
 	CREATE PROCEDURE sp_setConfirma_agd(
 		IN Ihash varchar(77),
         IN Iid_atleta int(11),
 		IN Iid_treino int(11),
-		IN Idata datetime
+		IN Idata datetime,
+        IN Ivou boolean
     )
 	BEGIN
+    
+		SET @exist = (SELECT COUNT(*) FROM tb_agd_confirma WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata LIMIT 1);
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
-        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta);
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino);
 		
         IF(@id_call = @id_owner OR @id_call = @id_user) THEN
-			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
-            ON DUPLICATE KEY UPDATE obs=Iobs;
+			IF(@exist)THEN
+				UPDATE tb_agd_confirma SET vou = Ivou WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata;
+            ELSE
+				INSERT INTO tb_agd_confirma (id_atleta,id_treino,data,vou) VALUES (Iid_atleta,Iid_treino,Idata,Ivou);
+            END IF;
 			SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;            
         END IF;
 	END $$
 DELIMITER ;
+
+CALL sp_setConfirma_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7,"2023-11-04 10:00:00",0);
 
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
@@ -162,7 +170,7 @@ DELIMITER $$
         SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != @id_user);		
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
         
-        IF(@id_avaliador = @id_owner) THEN
+        IF(@id_avaliador = @id_owner OR @id_avaliador = @id_avaliador) THEN
 			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id_treino=Iid_treino AND id=Iid_avaliado;
         END IF;
         
@@ -189,8 +197,9 @@ DELIMITER $$
         IN Iid_treino int(11)
     )
 	BEGIN
+		    
         SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
-        SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = @id_treino AND id_user=Iid_user); 
+        SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = Iid_treino AND id_user=Iid_user); 
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
         SET @nick = (SELECT nick FROM tb_usuario WHERE id = Iid_user);
 
@@ -234,16 +243,17 @@ DELIMITER ;
 DELIMITER $$
 	CREATE PROCEDURE sp_delAtleta(		
         IN Ihash varchar(77),
-		IN Iid_atleta int(11)
+		IN Iid_atleta int(11),
+        IN Iid_treino int(11)
     )
 	BEGIN        
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SELECT id_user,id_treino INTO @id_user,@id_treino FROM tb_atleta WHERE id=Iid_atleta;
-        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);        
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);        
         
-        IF(@id_call = @id_owner AND @id_user != @id_owner) THEN
-			DELETE FROM tb_ranking WHERE id_treino=@id_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
-			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=@id_treino;
+        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+			DELETE FROM tb_ranking WHERE id_treino=Iid_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
+			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
@@ -253,6 +263,8 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
+CALL sp_delAtleta("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",3);
+
 
  DROP PROCEDURE sp_delAgenda;
 DELIMITER $$
@@ -362,4 +374,5 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-CALL sp_vwConfirma_agd(6,"2023-02-11 20:00");
+CALL sp_vwConfirma_agd(7,"2023-11-04 10:00:00");
+SELECT vou FROM tb_agd_confirma WHERE id_treino=7 AND id_atleta =2  AND data = "2023-11-04 10:00:00";

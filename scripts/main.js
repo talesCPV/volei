@@ -130,7 +130,7 @@ function loadActivity(keep=true){
     myPromisse.then((resolve)=>{
         mainData.data.dashPos += mainData.data.dashLim
         const json = JSON.parse(resolve)   
-console.log(json)
+//console.log(json)
 
         for(let i=0; i<json.length; i++){            
 

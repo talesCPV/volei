@@ -153,9 +153,12 @@
                 const myPromisse = queryDB(params,9)
 
                 myPromisse.then((resolve)=>{
-//                    const users =  JSON.parse(resolve)            
-                        console.log(resolve)
-                    closeModal(0)
+                    const ok =  JSON.parse(resolve)[0].OK
+                    if(ok=='0'){
+                        alert('Este atleta já participa do treino!')
+                    }else{
+                        closeModal(0)
+                    }                        
 
                 })
             }

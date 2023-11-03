@@ -142,32 +142,34 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                     html = obj[arr[0]] != null ? obj[arr[0]].trim().substring(0,pos) : ''
                     break;                                       
                 case 'usr':
-                    const op = arr[0]
-                    let out = ''
+                    op = parseInt(obj[arr[0]])
+                    let out = '<span class="mdi mdi-account-question" style="color: #F9C727;"></span>'
                     switch(op){
                         case 0:
                             out = '<span class="mdi mdi-account-off" style="color: #d52c2c;"></span>'
                             break
                         case 1:
                             out = '<span class=" mdi mdi-account-check" style="color:#43b90e;"></span>'
-                            break
-                        default:
-                            out = '<span class="mdi mdi-account-question" style="color: #F9C727;"></span>'
-                            
-                            
+                            break                            
                     }
-
-
                     html = out
                     break;
-
+                case 'obj':
+                    html = mainData.data.obj
+                    break;
                 default:
                   html = obj[arr[0]] != null ? obj[arr[0]] :''
             }            
         }else{
             html = obj[fields[i].split('|')[0]]
         }
-        td.innerHTML = html
+
+        if(type[i].substring(0,3) != 'obj'){
+            td.innerHTML = html
+        }else{
+            td.appendChild(html)
+        }
+
         tr.appendChild(td)
     }
     tr.data = obj

@@ -105,7 +105,7 @@
         </fieldset>
 
         <button id="btnRanking" class="btn btn-primary">Salvar</button>
-        <button id="btnDelAtl" class="btn btn-primary">Deletar</button>
+        <button id="btnDelAtl" class="btn btn-primary">Sair do Treino</button>
 
     </div>
 
@@ -114,6 +114,7 @@
 <script>
 
     const data = mainData.viewAtl.data    
+    
 
     document.querySelector('.title-viewAtl').innerHTML = data.nick.toUpperCase()
     document.querySelector('#edtNomeAtl').value = data.nick.toUpperCase()
@@ -123,13 +124,11 @@
     document.querySelector('#rtn-ataque').value = data.ataque
     document.querySelector('#rtn-levanta').value = data.levanta
 
-    if(mainData.newTreino.data.id_owner != localStorage.getItem('idUser')){
-        document.querySelector('#edtNomeAtl').disabled = data.id_user == localStorage.getItem('idUser') ? 0 : 1
-        document.querySelector('#ckbMensal').disabled = 1
-        document.querySelector('#btnBuscaAtl').style.display = 'none'
-    }else{
-        document.querySelector('#btnBuscaAtl').style.display = data.id_user == '0' ? 'block' : 'none'        
-    }
+    document.querySelector('#edtNomeAtl').disabled =  !(data.owner || data.self)
+    document.querySelector('#ckbMensal').disabled = !data.owner
+    document.querySelector('#btnBuscaAtl').style.display = (data.owner && data.id_user == '0') ? 'block' : 'none'
+    document.querySelector('#btnDelAtl').style.display = (data.owner || data.self) ? 'block' : 'none'
+
 
     function getStar(e){
         const target = e.target;        
@@ -143,19 +142,19 @@
     }
 
     document.querySelector('#svg-saque').addEventListener('click',(e)=>{
-        getStar(e)
+        !data.self ? getStar(e) : 0
     })
 
     document.querySelector('#svg-passe').addEventListener('click',(e)=>{
-        getStar(e)
+        !data.self ? getStar(e) : 0
     })
 
     document.querySelector('#svg-ataque').addEventListener('click',(e)=>{
-        getStar(e)        
+        !data.self ? getStar(e) : 0
     })
 
     document.querySelector('#svg-levanta').addEventListener('click',(e)=>{
-        getStar(e)
+        !data.self ? getStar(e) : 0
     })
 
     document.querySelector('#btnRanking').addEventListener('click',()=>{
@@ -193,18 +192,17 @@
     })
 
     document.querySelector('#btnDelAtl').addEventListener('click',()=>{
-        if(confirm(`Deseja deletar o atleta ${data.nick} do treino ${mainData.newTreino.data.nome}?`)){
+        if(confirm(`Deseja retirar o atleta ${data.nick} do treino ${mainData.newTreino.data.nome}?`)){
             const params = new Object;
             params.hash = localStorage.getItem('hash')
             params.id_atl = data.id
+            params.id_treino = data.id_treino
             const myPromisse = queryDB(params,10);
             myPromisse.then((resolve)=>{
                 console.log(resolve)
                 mainData.newTreino.func.fillAtl()         
                 closeModal(0)
             })
-
-
         }
     })
 
