@@ -47,8 +47,10 @@
             width: 100%;
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 5px;
             align-items: center;
+            justify-content: center;
         }
 
     </style>
@@ -64,8 +66,7 @@
 
         <fieldset class="divUsuario">
             <legend>Usuário</legend>
-            <div class="line-busca">
-                <label for="edtNomeAtleta">Busca</label>
+            <div class="line-busca">                
                 <select id="cmbTipoBusca">
                     <option value="1">Nick do Atleta</option>
                     <option value="2" selected>Email do Atleta</option>

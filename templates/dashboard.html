@@ -217,23 +217,24 @@
     const myPromisse = queryDB(params,11);
     myPromisse.then((resolve)=>{
         const json = JSON.parse(resolve)  
-//console.log(json)        
+console.log(json)        
         const img = document.querySelector('#perfil-img') 
-
-        img.src = `assets/users/${json[0].id}.jpg`
-        breakImg(img)
+          img.src = `assets/users/${json[0].id}.jpg`
+          breakImg(img)
 
         document.querySelector('#imgUser').src = img.src
         breakImg(document.querySelector('#imgUser'))
+
 //        document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
 //        document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDORES.padStart(2,0)
 //        document.querySelector('.perfil-atividades').innerText = 'Atividades '+json[0].ATIVIDADES.padStart(2,0)
-        document.querySelector('.perfil-nome').innerText = json[0].nick.toUpperCase()
-        document.querySelector('#perfil-nivel').value = json[0].NIVEL
-        document.querySelector('.nivel-saque').innerHTML = json[0].SAQUE
-        document.querySelector('.nivel-passe').innerHTML = json[0].PASSE
-        document.querySelector('.nivel-ataque').innerHTML = json[0].ATAQUE
-        document.querySelector('.nivel-levanta').innerHTML = json[0].LEVANTA
+          document.querySelector('.perfil-nome').innerText = json[0].nick.toUpperCase()
+          document.querySelector('#perfil-nivel').value = json[0].NIVEL
+          document.querySelector('.nivel-saque').innerHTML = json[0].SAQUE
+          document.querySelector('.nivel-passe').innerHTML = json[0].PASSE
+          document.querySelector('.nivel-ataque').innerHTML = json[0].ATAQUE
+          document.querySelector('.nivel-levanta').innerHTML = json[0].LEVANTA
+
 
         try{
             json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)

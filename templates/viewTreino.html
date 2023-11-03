@@ -43,7 +43,7 @@
         const tbl = document.querySelector('#tblTreino')
 
         const params = new Object;
-            params.hash = localStorage.getItem('hash')
+            params.id_user = localStorage.getItem('idUser')
 
             const myPromisse = queryDB(params,3);
             myPromisse.then((resolve)=>{
