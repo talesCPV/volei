@@ -76,7 +76,8 @@ CREATE TABLE tb_warning (
 	id_atleta int(11) NOT NULL,
     message varchar(255) NOT NULL,
     data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ok BOOLEAN NOT NULL DEFAULT FALSE,
+    callback varchar(255) DEFAULT "", 
+    view BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
     PRIMARY KEY (id,id_atleta)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

@@ -1,0 +1,41 @@
+<title>AVISOS</title>
+<template>
+    <style>
+
+
+    </style>
+
+
+</template>
+<script>
+    
+    fillWarning()
+
+    function fillWarning(){
+        const params = new Object;
+            params.id = localStorage.getItem('idUser')
+        
+        const myPromisse = queryDB(params,18);
+        myPromisse.then((resolve)=>{
+            const json = JSON.parse(resolve)
+
+
+            for(let i=0; i<json.length; i++){
+                console.log(json[i].callback)
+                const treino = JSON.parse(json[i].callback)
+                console.log(treino)
+
+            }
+
+
+            
+
+
+        })
+
+    }
+
+
+
+ 
+</script>

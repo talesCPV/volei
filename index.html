@@ -47,14 +47,11 @@
             </div>
             <ul class="menu-items">
                 <li class="only-login hide-menu" title="Dashboard"><a onclick="loadActivity(0)" class="menu-mobile"><span class="mdi mdi-view-dashboard"></span><div></div> </a></li>
-                <li class="only-login hide-menu" title="Torneios"><a onclick="torneio()" class="menu-mobile"><span class="mdi mdi-tournament"></span><span id="alert-torn" class="badge"></span><div></div> </a></li>
+                <li class="only-login hide-menu" title="Torneios"><a onclick="openHTML('torneio.html','modal',null)"  class="menu-mobile"><span class="mdi mdi-tournament"></span><span id="alert-torn" class="badge"></span><div></div> </a></li>
                 <li class="only-login hide-menu" title="Social"><a onclick="openHTML('social.html','modal',null)" class="menu-mobile"><span class="mdi mdi-account-multiple"></span><div></div> </a></li>
                 <li class="only-login hide-menu" title="Treinos"><a onclick="openHTML('viewTreino.html','modal',null)" class="menu-mobile"><span class="mdi mdi-volleyball"></span><div></div> </a></li>
                 <li class="only-login hide-menu" title="Alertas"><a onclick="showAlert()" class="menu-mobile" style="display: flex; gap: 5px;" class="parent-sub-menu"><span class="mdi mdi-bell-outline"></span><span id="alert" class="badge"></span><div></div>  </a>
-                  <ul class="sub-menu alert-badge">
-                    <li>teste</li>
-
-                  </ul>
+                  <ul class="sub-menu alert-badge"></ul>
                 </li>
                 <li class="only-login hide-menu" title="Configurações"><a onclick="openHTML('viewUser.html','modal',null)" class="menu-mobile"><img class="imgUser" id="imgUser" src="assets/default/user.jpeg"><div></div></a></li>
                 <li class="only-logout" title="Login"><a onclick="openHTML('login.html','modal',null,400)" class="menu-mobile"><span class="mdi mdi-login"></span><div></div> </a></li>
@@ -127,11 +124,13 @@
         if(confirm('Sair do sistema?')){
             localStorage.clear();
             openMenu()
-            openHTML('blank.html','screen')            
+            openHTML('dasqhboard.html','screen')            
           }
       }
 
-
+      function showAlert(){
+        openHTML('warning.html','modal')
+      }
 
 
     </script>

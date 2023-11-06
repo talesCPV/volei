@@ -152,6 +152,7 @@ function loadActivity(keep=true){
                 `
 
             const atv = makeElement('div',HTML,'post-activity',`atv-${i}`) 
+            
             atv.addEventListener('click',()=>{
                 openHTML('viewAgenda.html','modal',json[i])
             })

@@ -106,8 +106,9 @@ DELIMITER $$
 						END IF;
                         
                         SET @treino = (SELECT nome FROM tb_treinos WHERE id=Iid_treino LIMIT 1);
+						SET @callback = CONCAT("{id_treino:",Iid_treino,", nome:'", @treino,"', data:",Idata,", obs:'",Iobs,"', id_owner:",@id_owner,"}");
                         
-						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@treino));
+						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@treino),@callback);
 						END LOOP insertLoop;
 
 					CLOSE cur;
@@ -184,12 +185,13 @@ CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH
 DELIMITER $$
 	CREATE PROCEDURE sp_setWarning(		
 		IN Iid_atleta int(11),
-		IN IMessage varchar(255)
+		IN IMessage varchar(255),
+        IN Icallback varchar(255)
     )
 	BEGIN    
 		SET @new_id = (SELECT  IFNULL(MAX(id),0)+1 AS NEW_ID FROM tb_warning WHERE id_atleta = Iid_atleta);
 		
-		INSERT INTO tb_warning (id,id_atleta,message) VALUES (@new_id,Iid_atleta,Imessage);
+		INSERT INTO tb_warning (id,id_atleta,message,callback) VALUES (@new_id,Iid_atleta,Imessage,Icallback);
 		SELECT 1 AS OK;
         
 	END $$

@@ -217,7 +217,7 @@
     const myPromisse = queryDB(params,11);
     myPromisse.then((resolve)=>{
         const json = JSON.parse(resolve)  
-  console.log(json)        
+//  console.log(json)        
         const img = document.querySelector('#perfil-img') 
           img.src = `assets/users/${json[0].id}.jpg`
           breakImg(img)
