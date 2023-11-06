@@ -20,7 +20,9 @@
  DROP VIEW vw_user_ranking;
  CREATE VIEW vw_user_ranking AS
 	SELECT  USR.id, USR.nick, ROUND(AVG(RNK.saque),2) AS SAQUE, ROUND(AVG(RNK.passe),2) AS PASSE, ROUND(AVG(RNK.ataque),2) AS ATAQUE, ROUND(AVG(RNK.levanta),2) AS LEVANTA,
-    ROUND(((AVG(RNK.saque) + AVG(RNK.passe) + AVG(RNK.ataque) + AVG(RNK.levanta))/4),2) AS NIVEL
+    ROUND(((AVG(RNK.saque) + AVG(RNK.passe) + AVG(RNK.ataque) + AVG(RNK.levanta))/4),2) AS NIVEL,
+    (SELECT COUNT(*) FROM tb_warning WHERE id_atleta=USR.id AND ok = FALSE) AS WARNING,
+    IFNULL(GROUP_CONCAT((SELECT message FROM tb_warning WHERE id_atleta=USR.id AND ok = FALSE) SEPARATOR ','),"")  AS MESSAGE
 		FROM tb_ranking AS RNK
 		INNER JOIN tb_usuario AS USR
         INNER JOIN tb_atleta AS ATL
@@ -28,7 +30,9 @@
         AND ATL.id_user = USR.id        
 		GROUP BY USR.id
 	UNION        
-	SELECT  USR.id, USR.nick, 1.00 AS SAQUE, 1.00 AS PASSE, 1.00 AS ATAQUE, 1.00 AS LEVANTA, 1.00 AS NIVEL
+	SELECT  USR.id, USR.nick, 1.00 AS SAQUE, 1.00 AS PASSE, 1.00 AS ATAQUE, 1.00 AS LEVANTA, 1.00 AS NIVEL,
+        (SELECT COUNT(*) FROM tb_warning WHERE id_atleta=USR.id AND ok = FALSE) AS WARNING,
+        IFNULL(GROUP_CONCAT((SELECT message FROM tb_warning WHERE id_atleta=USR.id AND ok = FALSE) SEPARATOR ','),"")  AS MESSAGE
 		FROM tb_usuario AS USR        
 		WHERE USR.id NOT IN(SELECT id_user FROM tb_atleta)
 		GROUP BY USR.id;
@@ -54,4 +58,5 @@
     FROM tb_treinos AS TRN    
     INNER JOIN tb_atleta AS ATL
     ON ATL.id_treino = TRN.id
+    ORDER BY id DESC
     LIMIT 50;

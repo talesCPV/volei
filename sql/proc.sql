@@ -71,7 +71,7 @@ DELIMITER ;
 
 CALL sp_setTreino("DEFAULT","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","RACHA DE QUINTA","QUI","20:00-22:00","GREMIO","");
 
--- DROP PROCEDURE sp_setAgenda;
+ DROP PROCEDURE sp_setAgenda;
 DELIMITER $$
 	CREATE PROCEDURE sp_setAgenda(
 		IN Ihash varchar(77),
@@ -84,8 +84,37 @@ DELIMITER $$
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);        
 		
         IF(@id_call = @id_owner) THEN
+			
+            SET @qtd = (SELECT COUNT(*) FROM tb_agenda);
+        
 			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
             ON DUPLICATE KEY UPDATE obs=Iobs;
+            
+            IF(@qtd < (SELECT COUNT(*) FROM tb_agenda))THEN
+				BEGIN
+					DECLARE done BOOLEAN DEFAULT FALSE;
+					DECLARE _id BIGINT UNSIGNED;
+					DECLARE cur CURSOR FOR SELECT id_user FROM tb_atleta WHERE id_treino=Iid_treino AND id_user!=0;
+					DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
+
+					OPEN cur;
+
+					insertLoop: LOOP
+						FETCH cur INTO _id;
+						IF done THEN
+							LEAVE insertLoop;
+						END IF;
+                        
+                        SET @treino = (SELECT nome FROM tb_treinos WHERE id=Iid_treino LIMIT 1);
+                        
+						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@treino));
+						END LOOP insertLoop;
+
+					CLOSE cur;
+				END;
+                
+            END IF;
+            
 			SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;            
@@ -150,6 +179,22 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","6",0,TESTE,"0");
+
+ DROP PROCEDURE sp_setWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_setWarning(		
+		IN Iid_atleta int(11),
+		IN IMessage varchar(255)
+    )
+	BEGIN    
+		SET @new_id = (SELECT  IFNULL(MAX(id),0)+1 AS NEW_ID FROM tb_warning WHERE id_atleta = Iid_atleta);
+		
+		INSERT INTO tb_warning (id,id_atleta,message) VALUES (@new_id,Iid_atleta,Imessage);
+		SELECT 1 AS OK;
+        
+	END $$
+DELIMITER ;
+
 
  DROP PROCEDURE sp_avalia;
 DELIMITER $$

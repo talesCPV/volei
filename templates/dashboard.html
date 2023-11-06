@@ -217,7 +217,7 @@
     const myPromisse = queryDB(params,11);
     myPromisse.then((resolve)=>{
         const json = JSON.parse(resolve)  
-console.log(json)        
+  console.log(json)        
         const img = document.querySelector('#perfil-img') 
           img.src = `assets/users/${json[0].id}.jpg`
           breakImg(img)
@@ -237,9 +237,9 @@ console.log(json)
 
 
         try{
-            json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)
-            json[0].ALERTA_ATV = json[0].ALERTA_ATV.split(',')
-            json[0].ALERTA_NOME = json[0].ALERTA_NOME.split(',')
+            json[0].ALERTA_QTD = parseInt(json[0].WARNING) ? parseInt(json[0].WARNING) : ''
+            json[0].ALERTA_ATV = json[0].MESSAGE.split(',')
+            json[0].ALERTA_NOME = json[0].MESSAGE.split(',')
         }catch{
             json[0].ALERTA_QTD = ''
             json[0].ALERTA_ATV = []

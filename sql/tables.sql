@@ -69,3 +69,15 @@ CREATE TABLE tb_agd_confirma (
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     PRIMARY KEY (id_atleta,id_treino, data)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ DROP TABLE tb_warning;
+CREATE TABLE tb_warning (
+	id int(11) NOT NULL,
+	id_atleta int(11) NOT NULL,
+    message varchar(255) NOT NULL,
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ok BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
+    PRIMARY KEY (id,id_atleta)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
