@@ -218,6 +218,29 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+
+/* FOLLOW */
+
+-- DROP PROCEDURE sp_follow;
+DELIMITER $$
+	CREATE PROCEDURE sp_follow(
+		IN Ihash varchar(77),
+		IN Iid_guest int(11)
+    )
+	BEGIN	
+		DECLARE Iid_host INT(11);
+		SET Iid_host = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        
+		IF ((SELECT COUNT(*) FROM tb_following WHERE id_host = Iid_host AND id_guest = Iid_guest)>0) THEN
+		   DELETE FROM tb_following WHERE id_host = Iid_host AND id_guest = Iid_guest ;           
+		ELSE
+		   INSERT INTO tb_following (id_host,id_guest) VALUES (Iid_host,Iid_guest);
+		END IF;    	
+        SELECT COUNT(*) AS FOLLOW FROM tb_following WHERE id_guest = Iid_guest;
+
+	END $$
+DELIMITER ;
+
  DROP PROCEDURE sp_avalia;
 DELIMITER $$
 	CREATE PROCEDURE sp_avalia(

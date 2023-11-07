@@ -70,3 +70,14 @@
     ON ATL.id_treino = TRN.id
     ORDER BY id DESC
     LIMIT 50;
+
+
+
+ DROP VIEW tb_following;
+--  CREATE VIEW tb_following AS
+	SELECT USR.id, USR.email, USR.nick, 
+    (SELECT COUNT(*) FROM tb_following WHERE id_guest=USR.id) AS SEGUIDORES,
+    (SELECT COUNT(*) FROM tb_following WHERE id_host=USR.id) AS SEGUINDO
+    FROM tb_usuario AS USR
+    ORDER BY USR.id
+    LIMIT 50;

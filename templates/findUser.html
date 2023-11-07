@@ -143,6 +143,8 @@
     document.querySelector('#tblUsers').addEventListener('click',(e)=>{        
 
         const row = e.target.parentNode.data
+        console.log(row)
+        console.log(data)
         if(data.origem == 'treino'){
             if(confirm(`Deseja linkar o usuário ${row.nick} ao atleta ${data.nick}?`)){
                 const params = new Object;
@@ -163,8 +165,18 @@
 
                 })
             }
-        }else if(data.origem == 'newAtl'){            
+        }else if(data.origem == 'newAtl'){
             addAtl(row.id,row.nick)
+        }else if(data.origem == 'social'){
+            const params = new Object;
+                params.hash = localStorage.getItem('hash')
+                params.id_atleta = row.id
+                const myPromisse = queryDB(params,20)
+                myPromisse.then((resolve)=>{
+                    console.log(resolve)
+                })
+
+
         }
     })
 
