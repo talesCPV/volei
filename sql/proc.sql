@@ -105,10 +105,12 @@ DELIMITER $$
 							LEAVE insertLoop;
 						END IF;
                         
-                        SET @treino = (SELECT nome FROM tb_treinos WHERE id=Iid_treino LIMIT 1);
-						SET @callback = CONCAT("{id_treino:",Iid_treino,", nome:'", @treino,"', data:",Idata,", obs:'",Iobs,"', id_owner:",@id_owner,"}");
+                        SELECT nome, local  INTO @nome, @local FROM tb_treinos WHERE id=Iid_treino LIMIT 1;
                         
-						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@treino),@callback);
+/*                        SET @treino = (SELECT nome FROM tb_treinos WHERE id=Iid_treino LIMIT 1);*/
+						SET @callback = CONCAT('{"origem":"agenda", "id_treino":',Iid_treino,', "nome":"', @nome,'","local":"',@local,'", "data":"',Idata,'", "obs":"',Iobs,'", "id_owner":',@id_owner,'}');
+                        
+						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@nome),@callback);
 						END LOOP insertLoop;
 
 					CLOSE cur;
@@ -197,6 +199,24 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+
+ DROP PROCEDURE sp_markWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_markWarning(	
+		IN Ihash varchar(77),
+		IN Iid_warning int(11)
+    )
+	BEGIN    
+		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		
+        IF( @id_call > 0)THEN
+			UPDATE tb_warning SET view=1 WHERE id=Iid_warning AND id_atleta=@id_call ;
+			SELECT 1 AS OK;
+        ELSE
+			SELECT 0 AS OK;
+        END IF;        
+	END $$
+DELIMITER ;
 
  DROP PROCEDURE sp_avalia;
 DELIMITER $$
