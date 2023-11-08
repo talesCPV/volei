@@ -128,9 +128,6 @@
 <script>
 
     const usr = parseInt(mainData.perfil.data.address)
-
-    console.log(usr)
-
     const back = backFunc({'filename':`../assets/users/${usr}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
@@ -140,6 +137,16 @@
     document.querySelector('.myDate').appendChild(calendar())
 
     function getPerfil(){
+
+        function fillUserData(treinos){                
+            document.querySelector('.title-perfil').innerHTML = treinos[0].nick
+            document.querySelector('#val-seguindo').innerHTML = treinos[0].SEGUINDO
+            document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
+            document.querySelector('#val-atividades').innerHTML = treinos[0].TREINOS
+            document.querySelector('#perfil-rating').value = treinos[0].NIVEL
+            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL
+        }
+
         const params = new Object;
         params.id_user =  usr
 
@@ -147,25 +154,22 @@
         myPromisse.then((resolve)=>{
             const treinos = JSON.parse(resolve)
 
-            for(let i=0; i<treinos.length; i++){          
+            if(treinos.length == 0){
+                const myPromisse = queryDB(params,11);
+                myPromisse.then((resolve)=>{
+                    fillUserData(JSON.parse(resolve))
+                })
+            }else{
+                for(let i=0; i<treinos.length; i++){          
+                    try{                        
+                        const day =  document.getElementById(treinos[i].data.substr(0,10))
+                        day.classList.add('day-trainning')
+                    }catch{
 
-                try{
-                    console.log(treinos[i].data.substr(0,10))
-                    const day =  document.getElementById(treinos[i].data.substr(0,10))
-                    day.classList.add('day-trainning')
-                    console.log(day)
-
-                }catch{
-
+                    }
                 }
+                fillUserData(treinos)
             }
-            document.querySelector('.title-perfil').innerHTML = treinos[0].nick
-            document.querySelector('#val-seguindo').innerHTML = treinos[0].SEGUINDO
-            document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
-            document.querySelector('#val-atividades').innerHTML = treinos[0].TREINOS
-            document.querySelector('#perfil-rating').value = treinos[0].NIVEL
-            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL
-
         })
     }
 
