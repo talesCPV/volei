@@ -40,6 +40,7 @@
     order: 2;
     display: flex;
     padding-right: 20px;
+    overflow-y: scroll;
   }
   
   .menu-mobile{
@@ -132,9 +133,30 @@
     cursor: pointer;
   }
 
+  .only-mobile{
+    display: none;
+  }
+
+
 /* ......../ media query /.......... */
 
 @media (max-width: 768px) {
+
+
+    .only-mobile{
+      display: flex;
+    }
+
+    .menu-mobile{
+      width: 200px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .menu-mobile:hover{
+      border-bottom: 1px rgb(187, 86, 86);
+    }
+
 
     .menu-mobile div{
       display: block;
@@ -219,10 +241,10 @@
     }
   
     .navbar .menu-items {
-      padding-top: 100px;
+      padding-bottom: 100px;
       background: #fff;
       height: 100vh;
-      max-width: 300px;
+      /*max-width: 300px;*/
       transform: translate(-150%);
       display: flex;
       flex-direction: column;
@@ -245,8 +267,12 @@
         font-size: 3rem;
       }
       
+      .badge{
+        left: -30px;
+      }
+
     .navbar-container input[type="checkbox"]:checked ~ .menu-items {
-      transform: translateX(0);
+      transform: translateX(40px);
     }
   
     .navbar-container input[type="checkbox"]:checked ~ .hamburger-lines .line1 {

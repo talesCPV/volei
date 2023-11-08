@@ -69,3 +69,35 @@ CREATE TABLE tb_agd_confirma (
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     PRIMARY KEY (id_atleta,id_treino, data)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ DROP TABLE tb_warning;
+CREATE TABLE tb_warning (
+	id int(11) NOT NULL,
+	id_atleta int(11) NOT NULL,
+    message varchar(255) NOT NULL,
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    callback varchar(255) DEFAULT "", 
+    view BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
+    PRIMARY KEY (id,id_atleta)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- DROP TABLE tb_following;
+CREATE TABLE tb_following (
+	id_host int(11) NOT NULL,
+    id_guest int(11) NOT NULL,
+	FOREIGN KEY (id_host) REFERENCES tb_usuario(id),
+	FOREIGN KEY (id_guest) REFERENCES tb_usuario(id),
+    PRIMARY KEY (id_host,id_guest)
+) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+-- DROP TABLE tb_message;
+CREATE TABLE tb_message (
+	id int(11) NOT NULL AUTO_INCREMENT,
+    id_usuario int(11) NOT NULL,
+    id_atividade int(11) NOT NULL, 
+    scrap varchar(600) DEFAULT NULL,
+	FOREIGN KEY (id_usuario) REFERENCES tb_usuario(id),
+	FOREIGN KEY (id_atividade) REFERENCES tb_atividades(id),
+    PRIMARY KEY (id)
+) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

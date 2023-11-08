@@ -35,11 +35,11 @@ function showUserPic(){
     const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)
-        document.querySelector('#imgUser').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/user.jpeg'
+        document.querySelector('#imgUser').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
     })
 }
 
-function breakImg(img,url='assets/user.jpeg'){
+function breakImg(img,url='assets/default/user.jpeg'){
     img.addEventListener('error',()=>{
         img.src = url
     })   
@@ -152,6 +152,7 @@ function loadActivity(keep=true){
                 `
 
             const atv = makeElement('div',HTML,'post-activity',`atv-${i}`) 
+            
             atv.addEventListener('click',()=>{
                 openHTML('viewAgenda.html','modal',json[i])
             })

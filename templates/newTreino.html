@@ -1,4 +1,4 @@
-<title> Novo Treino</title>
+<title> Novo Time</title>
 <template>
     <style>
 
@@ -77,8 +77,8 @@
                 <label for="edtNomeTreino">Nome</label>
                 <input type="text" id="edtNomeTreino" maxlength="40">
 
-                <fieldset>
-                    <legend>Dia/Hora</legend>
+                <fieldset id="fds-dias">
+                    <legend>Treinos - Dia/Hora</legend>
                     <div class="line">
                         <label for="ckbDom">DOM</label>
                         <input type="checkbox" id="ckbDom" class="ckbWeek" week='DOM'>
@@ -127,6 +127,7 @@
     const data = mainData.newTreino.data
     const edit = Object.keys(data).length>1?1:0
     const week = document.querySelectorAll('.ckbWeek')
+    const owner = localStorage.getItem('idUser') == data.id_owner
 
     mainData.newTreino.func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
@@ -153,7 +154,12 @@
                 week[i].checked = 1
             }            
         }
-
+        document.querySelector('#edtNomeTreino').disabled = !owner
+        document.querySelector('#edtLocal').disabled = !owner
+        document.querySelector('#edtObs').disabled = !owner        
+        document.querySelector('#up_file').disabled = !owner
+        document.querySelector('#btnUpload').disabled = !owner
+        document.querySelector('#fds-dias').disabled = !owner
         document.querySelector('.title-newTreino').innerHTML = data.nome
         document.querySelector('#btnTreino').innerHTML = 'Salvar'
         document.querySelector('#edtNomeTreino').value = data.nome
@@ -161,9 +167,9 @@
         document.querySelector('#edtFin').value = horario[1]
         document.querySelector('#edtLocal').value = data.local
         document.querySelector('#edtObs').value = data.obs
-        document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
-        document.querySelector('#btnAgendar').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
-        document.querySelector('#lblAtl').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+        document.querySelector('#btnDelTreino').style.display =  owner? 'block' : 'none'
+        document.querySelector('#btnAgendar').style.display =  owner? 'block' : 'none'
+        document.querySelector('#lblAtl').style.display =  owner? 'block' : 'none'
         
         mainData.newTreino.func.fillAtl()
     }
@@ -252,6 +258,9 @@
 
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
         const data = e.target.parentNode.data
+        data.id_treino = mainData.newTreino.data.id
+        data.owner = owner
+        data.self = localStorage.getItem('idUser') == data.id_user
         data!=undefined ? openHTML('viewAtl.html','modal',data,400) : 0
     })
 

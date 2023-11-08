@@ -48,7 +48,7 @@ table {
 }
 
 table td{
-  min-width: 80px;
+/*  min-width: 80px;*/
   padding: 10px;
   text-align: center;
 }
@@ -431,6 +431,7 @@ input[type="text"],input[type="number"]{
 .edtbtn{
   display: flex;
   width: inherit;
+  max-width: 600px;
 }
 
 .edtbtn input, .edtbtn select{
@@ -471,7 +472,7 @@ input[type="text"],input[type="number"]{
   }
 
   table td{
-    min-width: auto;
+    /*min-width: auto;*/
     padding: 10px 5px;
     text-align: center;
     font-size: 0.8em;

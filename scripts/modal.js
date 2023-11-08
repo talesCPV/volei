@@ -15,11 +15,11 @@ async function openHTML(  template="",where="modal", data=null, max='',){
                     temp.innerHTML = '<title>ERROR 404!</title><template></template><script></script>'
                 }  
 
+                mainData[template.split('.')[0]] = new Object
+                mainData[template.split('.')[0]].func = new Object
+                mainData[template.split('.')[0]].data = data != null ? data : new Object
 
                 if(where == "modal"){
-                    mainData[template.split('.')[0]] = new Object
-                    mainData[template.split('.')[0]].func = new Object
-                    mainData[template.split('.')[0]].data = data != null ? data : new Object
                     newModal(temp,max)
                 }else{
                     document.querySelector('.main-content').innerHTML = temp.getElementsByTagName('template')[0].innerHTML

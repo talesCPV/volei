@@ -47,6 +47,12 @@
           justify-content: center;
         }
 
+        .dados-treino div{
+          text-align: center;
+
+        }
+
+
         .post-activity p{
           text-indent: 0;
           padding: 0;
@@ -129,6 +135,14 @@
         }
 
 
+        @media (max-width: 769px) {
+
+          .post-activity{
+            flex-wrap: wrap;
+            justify-content: center;
+          }
+        }
+
 
     </style>
 
@@ -194,64 +208,90 @@
 </template>
 <script>
 
+    const func = mainData.dashboard.func
+
+    func.fillPerfil = ()=>{
+
+      const params = new Object;
+          params.id =  localStorage.getItem('idUser')
+
+      const myPromisse = queryDB(params,11);
+      myPromisse.then((resolve)=>{
+          const json = JSON.parse(resolve)  
+    
+          const img = document.querySelector('#perfil-img') 
+            img.src = `assets/users/${json[0].id}.jpg`
+            breakImg(img)
+
+          document.querySelector('#imgUser').src = img.src
+          breakImg(document.querySelector('#imgUser'))
+
+            document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
+            document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDO.padStart(2,0)
+            document.querySelector('.perfil-atividades').innerText = 'Times '+json[0].TREINOS.padStart(2,0)
+            document.querySelector('.perfil-nome').innerText = json[0].nick.toUpperCase()
+            document.querySelector('#perfil-nivel').value = json[0].NIVEL
+            document.querySelector('.nivel-saque').innerHTML = json[0].SAQUE
+            document.querySelector('.nivel-passe').innerHTML = json[0].PASSE
+            document.querySelector('.nivel-ataque').innerHTML = json[0].ATAQUE
+            document.querySelector('.nivel-levanta').innerHTML = json[0].LEVANTA
+
+
+          try{
+              json[0].ALERTA_QTD = parseInt(json[0].WARNING) ? parseInt(json[0].WARNING) : ''
+              json[0].ALERTA_ATV = []//json[0].MESSAGE.split(',')
+              json[0].ALERTA_NOME = []//json[0].MESSAGE.split(',')
+          }catch{
+              json[0].ALERTA_QTD = ''
+              json[0].ALERTA_ATV = []
+              json[0].ALERTA_NOME = []
+          }
+
+          try{
+              json[0].ALERTA_TORN_QTD = parseInt(json[0].ALERTA_TORN_QTD)
+              json[0].ALERTA_TORN_ID = json[0].ALERTA_TORN_ID.split(',')
+          }catch{
+              json[0].ALERTA_TORN_QTD = ''
+              json[0].ALERTA_TORN_ID = ''
+          }
+
+          mainData.data.perfil = json[0]
+          document.querySelector('#alert').innerText = json[0].ALERTA_QTD
+          document.querySelector('#alert-torn').innerText = json[0].ALERTA_TORN_QTD
+      })
+    }
+
+
     const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
         document.querySelector('#perfil-img').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
     })  
 
-    fillPerfil(localStorage.getItem('idUser'))
+    if(localStorage.getItem('log')=='1'){
+      func.fillPerfil(localStorage.getItem('idUser'))
+    }else{
+      document.querySelector('.perfil').style.display = 'none'
+      document.querySelector('.dashboard').style.width = '100%'
+    }
+
+    
+
+    function mobileScreen(){
+      if(window.innerWidth < 769){
+        const menu_perfil = document.querySelector('.menu-perfil')
+        const dash_perfil = document.querySelector('.perfil-board')
+
+        menu_perfil.appendChild(dash_perfil)
+
+      }
+    }
+
+
+    mobileScreen()
     loadActivity()
     
-  function fillPerfil(usr){
 
-    const params = new Object;
-        params.id =  usr
-
-    const myPromisse = queryDB(params,11);
-    myPromisse.then((resolve)=>{
-        const json = JSON.parse(resolve)  
-//console.log(json)        
-        const img = document.querySelector('#perfil-img') 
-
-        img.src = `assets/users/${json[0].id}.jpg`
-        breakImg(img)
-
-        document.querySelector('#imgUser').src = img.src
-        breakImg(document.querySelector('#imgUser'))
-//        document.querySelector('.perfil-seguindo').innerText = 'Seguindo '+json[0].SEGUINDO.padStart(2,0)
-//        document.querySelector('.perfil-seguidores').innerText = 'Seguidores '+json[0].SEGUIDORES.padStart(2,0)
-//        document.querySelector('.perfil-atividades').innerText = 'Atividades '+json[0].ATIVIDADES.padStart(2,0)
-        document.querySelector('.perfil-nome').innerText = json[0].nick.toUpperCase()
-        document.querySelector('#perfil-nivel').value = json[0].NIVEL
-        document.querySelector('.nivel-saque').innerHTML = json[0].SAQUE
-        document.querySelector('.nivel-passe').innerHTML = json[0].PASSE
-        document.querySelector('.nivel-ataque').innerHTML = json[0].ATAQUE
-        document.querySelector('.nivel-levanta').innerHTML = json[0].LEVANTA
-
-        try{
-            json[0].ALERTA_QTD = parseInt(json[0].ALERTA_QTD)
-            json[0].ALERTA_ATV = json[0].ALERTA_ATV.split(',')
-            json[0].ALERTA_NOME = json[0].ALERTA_NOME.split(',')
-        }catch{
-            json[0].ALERTA_QTD = ''
-            json[0].ALERTA_ATV = []
-            json[0].ALERTA_NOME = []
-        }
-
-        try{
-            json[0].ALERTA_TORN_QTD = parseInt(json[0].ALERTA_TORN_QTD)
-            json[0].ALERTA_TORN_ID = json[0].ALERTA_TORN_ID.split(',')
-        }catch{
-            json[0].ALERTA_TORN_QTD = ''
-            json[0].ALERTA_TORN_ID = ''
-        }
-
-        mainData.data.perfil = json[0]
-        document.querySelector('#alert').innerText = json[0].ALERTA_QTD
-        document.querySelector('#alert-torn').innerText = json[0].ALERTA_TORN_QTD
-    })
-  }
 
 
 </script>

@@ -47,8 +47,10 @@
             width: 100%;
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 5px;
             align-items: center;
+            justify-content: center;
         }
 
     </style>
@@ -64,8 +66,7 @@
 
         <fieldset class="divUsuario">
             <legend>Usuário</legend>
-            <div class="line-busca">
-                <label for="edtNomeAtleta">Busca</label>
+            <div class="line-busca">                
                 <select id="cmbTipoBusca">
                     <option value="1">Nick do Atleta</option>
                     <option value="2" selected>Email do Atleta</option>
@@ -126,9 +127,14 @@
     func.fillUser = (json)=>{
         const tbl = document.querySelector('#tblUsers')
 
-        tbl.head('Cod.,Nome, Email')
+        tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Cod.,Nome, Email')
         for(let i=0; i<json.length;i++){
-            tbl.plot(json[i],'id,nick,email','int,Upp,Low')
+            const img = document.createElement('img')
+            img.src = `assets/users/${json[i].id}.jpg`
+            img.className = 'imgUser'
+            breakImg(img)
+            mainData.data.obj = img
+            tbl.plot(json[i],`obj,id,nick,email`,'obj,int,Upp,Low')
         }
 
     }
@@ -153,14 +159,31 @@
                 const myPromisse = queryDB(params,9)
 
                 myPromisse.then((resolve)=>{
-//                    const users =  JSON.parse(resolve)            
-                        console.log(resolve)
-                    closeModal(0)
+                    const ok =  JSON.parse(resolve)[0].OK
+                    if(ok=='0'){
+                        alert('Este atleta já participa do treino!')
+                    }else{
+                        closeModal(0)
+                    }                        
 
                 })
             }
-        }else if(data.origem == 'newAtl'){            
+        }else if(data.origem == 'newAtl'){
             addAtl(row.id,row.nick)
+        }else if(data.origem == 'social'){
+            const params = new Object;
+                params.hash = localStorage.getItem('hash')
+                params.id_atleta = row.id
+                const myPromisse = queryDB(params,20)
+                myPromisse.then((resolve)=>{                    
+                    if(parseInt(JSON.parse(resolve)[0].FOLLOW)){
+                        alert(`Você começou a seguir ${row.nick}`)
+                    }else{
+                        alert(`Você deixou de seguir ${row.nick}`)
+                    }                
+                })
+
+
         }
     })
 

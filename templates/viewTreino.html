@@ -1,5 +1,5 @@
 <title>
-    Meus Treinos
+    Meus Times
 </title>
 <template>
     <style>
@@ -28,7 +28,7 @@
     <div class="frm-treino">
         <table id="tblTreino"></table>
         <div class="line-dir">
-            <button class="btn btn-primary" id="btnNovoTreino">Novo Treino</button>
+            <button class="btn btn-primary" id="btnNovoTreino">Novo Time</button>
         </div>
     </div>
 
@@ -43,7 +43,7 @@
         const tbl = document.querySelector('#tblTreino')
 
         const params = new Object;
-            params.hash = localStorage.getItem('hash')
+            params.id_user = localStorage.getItem('idUser')
 
             const myPromisse = queryDB(params,3);
             myPromisse.then((resolve)=>{

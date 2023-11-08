@@ -27,6 +27,10 @@
       
       <style>
 
+        .menu-perfil {
+          transform: scale(0.8,0.8);
+        }
+
       </style>      
     </head>
     <body>
@@ -46,16 +50,15 @@
               <p id="usr"></p>
             </div>
             <ul class="menu-items">
-                <li class="only-login hide-menu" title="Dashboard"><a onclick="loadActivity(0)" class="menu-mobile"><span class="mdi mdi-view-dashboard"></span><div></div> </a></li>
-                <li class="only-login hide-menu" title="Torneios"><a onclick="torneio()" class="menu-mobile"><span class="mdi mdi-tournament"></span><span id="alert-torn" class="badge"></span><div></div> </a></li>
-                <li class="only-login hide-menu" title="Social"><a onclick="openHTML('social.html','modal',null)" class="menu-mobile"><span class="mdi mdi-account-multiple"></span><div></div> </a></li>
-                <li class="only-login hide-menu" title="Treinos"><a onclick="openHTML('viewTreino.html','modal',null)" class="menu-mobile"><span class="mdi mdi-volleyball"></span><div></div> </a></li>
-                <li class="only-login hide-menu" title="Alertas"><a onclick="showAlert()" class="menu-mobile" style="display: flex; gap: 5px;" class="parent-sub-menu"><span class="mdi mdi-bell-outline"></span><span id="alert" class="badge"></span><div></div>  </a>
-                  <ul class="sub-menu alert-badge"></ul>
-                </li>
-                <li class="only-login hide-menu" title="Configurações"><a onclick="openHTML('viewUser.html','modal',null)" class="menu-mobile"><img class="imgUser" id="imgUser" src="assets/default/user.jpeg"><div></div></a></li>
-                <li class="only-logout" title="Login"><a onclick="openHTML('login.html','modal',null,400)" class="menu-mobile"><span class="mdi mdi-login"></span><div></div> </a></li>
-                <li class="only-login" title="Logout"><a onclick="forceLogout()" class="menu-mobile"><span class="mdi mdi-power"></span><div></div> </a></li>
+                <div class="menu-perfil only-mobile only-login"></div>
+                <li class="only-login hide-menu" title="Dashboard"><a onclick="loadActivity(0)" class="menu-mobile"><span class="mdi mdi-view-dashboard"></span><div class="only-mobile">Dashboard</div> </a></li>
+                <li class="only-login hide-menu" title="Torneios"><a onclick="openHTML('torneio.html','modal',null)"  class="menu-mobile"><span class="mdi mdi-tournament"></span><span id="alert-torn" class="badge"></span><div class="only-mobile">Torneios</div> </a></li>
+                <li class="only-login hide-menu" title="Social"><a onclick="openHTML('social.html','modal',null)" class="menu-mobile"><span class="mdi mdi-account-multiple"></span><div class="only-mobile">Social</div> </a></li>
+                <li class="only-login hide-menu" title="Times"><a onclick="openHTML('viewTreino.html','modal',null)" class="menu-mobile"><span class="mdi mdi-volleyball"></span><div class="only-mobile">Times</div> </a></li>
+                <li class="only-login hide-menu" title="Alertas"><a onclick="showAlert()" class="menu-mobile"><span class="mdi mdi-bell-outline"></span><span id="alert" class="badge"></span> <div class="only-mobile label-alert">Alertas</div> </a></li>
+                <li class="only-login hide-menu" title="Configurações"><a onclick="openHTML('viewUser.html','modal',null)" class="menu-mobile"><img class="imgUser" id="imgUser" src="assets/default/user.jpeg"><div class="only-mobile">Config</div></a></li>
+                <li class="only-logout" title="Login"><a onclick="openHTML('login.html','modal',null,400)" class="menu-mobile"><span class="mdi mdi-login"></span><div class="only-mobile">Login</div> </a></li>
+                <li class="only-login" title="Logout"><a onclick="forceLogout()" class="menu-mobile"><span class="mdi mdi-power"></span><div class="only-mobile">Logout</div> </a></li>
             </ul>
             <p></p>
         </div>
@@ -80,20 +83,20 @@
     <script src="scripts/main.js"></script>
     <script>
 
-/*
+
       if (location.protocol !== 'https:') {
           location.replace(`https:${location.href.substring(location.protocol.length)}`);
       }
-*/
+
 
     openMenu()
 
 
-      if(localStorage.getItem('log')=='1'){
+//      if(localStorage.getItem('log')=='1'){
         openHTML('dashboard.html','screen')
-      }else{
-        openHTML('blank.html','screen')
-      }
+//      }else{
+//        openHTML('blank.html','screen')
+//      }
       
 
       function openMenu(){
@@ -124,11 +127,13 @@
         if(confirm('Sair do sistema?')){
             localStorage.clear();
             openMenu()
-            openHTML('blank.html','screen')            
+            openHTML('dashboard.html','screen')            
           }
       }
 
-
+      function showAlert(){
+        openHTML('warning.html','modal')
+      }
 
 
     </script>

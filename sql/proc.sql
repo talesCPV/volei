@@ -71,7 +71,7 @@ DELIMITER ;
 
 CALL sp_setTreino("DEFAULT","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","RACHA DE QUINTA","QUI","20:00-22:00","GREMIO","");
 
--- DROP PROCEDURE sp_setAgenda;
+ DROP PROCEDURE sp_setAgenda;
 DELIMITER $$
 	CREATE PROCEDURE sp_setAgenda(
 		IN Ihash varchar(77),
@@ -84,8 +84,40 @@ DELIMITER $$
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);        
 		
         IF(@id_call = @id_owner) THEN
+			
+            SET @qtd = (SELECT COUNT(*) FROM tb_agenda);
+        
 			INSERT INTO tb_agenda (id_treino,data,obs) VALUES (Iid_treino,Idata,Iobs)
             ON DUPLICATE KEY UPDATE obs=Iobs;
+            
+            IF(@qtd < (SELECT COUNT(*) FROM tb_agenda))THEN
+				BEGIN
+					DECLARE done BOOLEAN DEFAULT FALSE;
+					DECLARE _id BIGINT UNSIGNED;
+					DECLARE cur CURSOR FOR SELECT id_user FROM tb_atleta WHERE id_treino=Iid_treino AND id_user!=0;
+					DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
+
+					OPEN cur;
+
+					insertLoop: LOOP
+						FETCH cur INTO _id;
+						IF done THEN
+							LEAVE insertLoop;
+						END IF;
+                        
+                        SELECT nome, local  INTO @nome, @local FROM tb_treinos WHERE id=Iid_treino LIMIT 1;
+                        
+/*                        SET @treino = (SELECT nome FROM tb_treinos WHERE id=Iid_treino LIMIT 1);*/
+						SET @callback = CONCAT('{"origem":"agenda", "id_treino":',Iid_treino,', "nome":"', @nome,'","local":"',@local,'", "data":"',Idata,'", "obs":"',Iobs,'", "id_owner":',@id_owner,'}');
+                        
+						CALL sp_setWarning(_id,CONCAT("NOVO TREINO - ",@nome),@callback);
+						END LOOP insertLoop;
+
+					CLOSE cur;
+				END;
+                
+            END IF;
+            
 			SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;            
@@ -151,6 +183,64 @@ DELIMITER ;
 
 CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","6",0,TESTE,"0");
 
+ DROP PROCEDURE sp_setWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_setWarning(		
+		IN Iid_atleta int(11),
+		IN IMessage varchar(255),
+        IN Icallback varchar(255)
+    )
+	BEGIN    
+		SET @new_id = (SELECT  IFNULL(MAX(id),0)+1 AS NEW_ID FROM tb_warning WHERE id_atleta = Iid_atleta);
+		
+		INSERT INTO tb_warning (id,id_atleta,message,callback) VALUES (@new_id,Iid_atleta,Imessage,Icallback);
+		SELECT 1 AS OK;
+        
+	END $$
+DELIMITER ;
+
+
+ DROP PROCEDURE sp_markWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_markWarning(	
+		IN Ihash varchar(77),
+		IN Iid_warning int(11)
+    )
+	BEGIN    
+		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		
+        IF( @id_call > 0)THEN
+			UPDATE tb_warning SET view=1 WHERE id=Iid_warning AND id_atleta=@id_call ;
+			SELECT 1 AS OK;
+        ELSE
+			SELECT 0 AS OK;
+        END IF;        
+	END $$
+DELIMITER ;
+
+
+/* FOLLOW */
+
+-- DROP PROCEDURE sp_follow;
+DELIMITER $$
+	CREATE PROCEDURE sp_follow(
+		IN Ihash varchar(77),
+		IN Iid_guest int(11)
+    )
+	BEGIN	
+		DECLARE Iid_host INT(11);
+		SET Iid_host = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+        
+		IF ((SELECT COUNT(*) FROM tb_following WHERE id_host = Iid_host AND id_guest = Iid_guest)>0) THEN
+		   DELETE FROM tb_following WHERE id_host = Iid_host AND id_guest = Iid_guest ;           
+		ELSE
+		   INSERT INTO tb_following (id_host,id_guest) VALUES (Iid_host,Iid_guest);
+		END IF;    	
+        SELECT COUNT(*) AS FOLLOW FROM tb_following WHERE id_guest = Iid_guest;
+
+	END $$
+DELIMITER ;
+
  DROP PROCEDURE sp_avalia;
 DELIMITER $$
 	CREATE PROCEDURE sp_avalia(
@@ -170,7 +260,7 @@ DELIMITER $$
         SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != @id_user);		
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
         
-        IF(@id_avaliador = @id_owner) THEN
+        IF(@id_avaliador = @id_owner OR @id_avaliador = @id_avaliador) THEN
 			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id_treino=Iid_treino AND id=Iid_avaliado;
         END IF;
         
@@ -197,8 +287,9 @@ DELIMITER $$
         IN Iid_treino int(11)
     )
 	BEGIN
+		    
         SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
-        SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = @id_treino AND id_user=Iid_user); 
+        SET @has_atl = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino = Iid_treino AND id_user=Iid_user); 
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
         SET @nick = (SELECT nick FROM tb_usuario WHERE id = Iid_user);
 
@@ -242,16 +333,17 @@ DELIMITER ;
 DELIMITER $$
 	CREATE PROCEDURE sp_delAtleta(		
         IN Ihash varchar(77),
-		IN Iid_atleta int(11)
+		IN Iid_atleta int(11),
+        IN Iid_treino int(11)
     )
 	BEGIN        
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SELECT id_user,id_treino INTO @id_user,@id_treino FROM tb_atleta WHERE id=Iid_atleta;
-        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = @id_treino);        
+        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino);
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);        
         
-        IF(@id_call = @id_owner AND @id_user != @id_owner) THEN
-			DELETE FROM tb_ranking WHERE id_treino=@id_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
-			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=@id_treino;
+        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+			DELETE FROM tb_ranking WHERE id_treino=Iid_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
+			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
@@ -261,6 +353,8 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
+CALL sp_delAtleta("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",3);
+
 
  DROP PROCEDURE sp_delAgenda;
 DELIMITER $$
@@ -339,14 +433,14 @@ DELIMITER $$
 	BEGIN	         
 
 		IF(Isel = 1) THEN
-			SELECT id,email,nick FROM tb_usuario WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+			SELECT * FROM vw_following WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
             LIMIT Istart,IshowLimit;        
         ELSE 
 			IF(Isel = 2) THEN
-				SELECT id,email,nick FROM tb_usuario WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+				SELECT * FROM vw_following WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
 				LIMIT Istart,IshowLimit;
 			ELSE 
-				SELECT id,email,nick FROM tb_usuario WHERE id = Inick;
+				SELECT * FROM vw_following WHERE id = Inick;
 			END IF;
 		END IF;
 

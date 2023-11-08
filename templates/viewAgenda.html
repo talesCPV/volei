@@ -56,11 +56,21 @@
             max-width: none;
         }
 
+        .data-treino td, .data-treino th{
+            width: auto;
+        }
+
         #edtObs{
             padding: 10px;
             font-size: 1.2em;
             border: none;
             font-weight: 700;
+        }
+
+        .img-small{
+            width: 30px ;
+            height: 30px;
+            border-radius: 50%;
         }
 
         @media (max-width: 769px) {
@@ -142,9 +152,15 @@
         const myPromisse = queryDB(params,15);
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
-            tbl.head('Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
+//            console.log(json)
+            tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
-                tbl.plot(json[i],'nick,NIVEL,GO','Upp,Upp,usr')
+                const back = backFunc({'filename':`../assets/users/${json[i].id_user}.jpg`},1)
+                back.then((resp)=>{
+                    const imgExist = JSON.parse(resp)    
+                    document.querySelector(`#atl-${i}`).src = imgExist ? `assets/users/${json[i].id_user}.jpg` : 'assets/default/user.jpeg'
+                })                
+                tbl.plot(json[i],`<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">,nick,NIVEL,GO`,'let,Upp,Upp,usr')
             }
 
 
@@ -155,7 +171,7 @@
 
     func.fillAtl()
 
-    document.querySelector('#tblAtl').addEventListener('click',(e)=>{        
+    document.querySelector('#tblAtl').addEventListener('click',(e)=>{      
         const dados = e.target.parentNode.data
         const idUser = localStorage.getItem('idUser')
         
@@ -173,6 +189,7 @@
             })
         }
         
+
     })
 
 

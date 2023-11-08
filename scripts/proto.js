@@ -134,6 +134,11 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                 case 'ckb':                            
                     html = `<input type="checkbox" id="tblCkb_${this.rows.length-1}" class="tbl-ckb" ${parseInt(obj[arr[0]])? '' : 'checked'}>`
                     break;  
+                case 'img':
+                        const img = document.createElement('img')
+                        img.src = arr[0]
+                    html = img                                        
+                    break;  
                 case 'let':                            
                     html = arr[0]
                     break;
@@ -152,18 +157,24 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                             out = '<span class=" mdi mdi-account-check" style="color:#43b90e;"></span>'
                             break                            
                     }
-
-
                     html = out
                     break;
-
+                case 'obj':
+                    html = mainData.data.obj
+                    break;
                 default:
                   html = obj[arr[0]] != null ? obj[arr[0]] :''
             }            
         }else{
             html = obj[fields[i].split('|')[0]]
         }
-        td.innerHTML = html
+
+        if(type[i].substring(0,3) != 'obj'){
+            td.innerHTML = html
+        }else{
+            td.appendChild(html)
+        }
+
         tr.appendChild(td)
     }
     tr.data = obj
