@@ -134,6 +134,11 @@ HTMLTableElement.prototype.plot = function(obj, fields,type='',file=false, mark=
                 case 'ckb':                            
                     html = `<input type="checkbox" id="tblCkb_${this.rows.length-1}" class="tbl-ckb" ${parseInt(obj[arr[0]])? '' : 'checked'}>`
                     break;  
+                case 'img':
+                        const img = document.createElement('img')
+                        img.src = arr[0]
+                    html = img                                        
+                    break;  
                 case 'let':                            
                     html = arr[0]
                     break;

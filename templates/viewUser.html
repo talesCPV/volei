@@ -121,11 +121,9 @@
         showFile('#up_file','#cnvImg')     
     })
 
-    document.querySelector('#cnvImg').addEventListener('click',()=>{
-        openHTML('perfil.html','modal',{id:localStorage.getItem('idUser')})
+    document.querySelector('#cnvImg').addEventListener('click',()=>{        
+        openHTML('perfil.html','modal',{address:localStorage.getItem('idUser')})
     })
-
-
 
     document.querySelector('#btnSave').addEventListener('click',()=>{
         const pass = document.querySelector('#edtPass').value.trim()

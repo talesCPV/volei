@@ -31,13 +31,15 @@
 </template>
 <script>
 
+    const func = mainData.social.func
+
     pictab(document.querySelector('#tab-seguindo'))
-/*        
-    mainData.social.func.viewFriends = (field,docDiv,showName,pic)=>{
+
+    func.viewFriends = (field,docDiv,showName,pic)=>{
         const params = new Object;
             params[field] = localStorage.getItem('idUser')            
 
-        const myPromisse = queryDB(params,25)
+        const myPromisse = queryDB(params,21)
 
         myPromisse.then((resolve)=>{
             const friends =  JSON.parse(resolve)
@@ -51,12 +53,12 @@
                 const leftdiv = document.createElement('div')
                 leftdiv.style.display = 'flex'
                 const img = document.createElement('img')
-                img.src = `assets/users/${friends[i][pic]}.jpg`
+                img.src = `assets/users/${friends[i][pic]}.jpg`                
                 breakImg(img)
                                
                 img.addEventListener('click',()=>{
                     window.location.hash = 'P'+friends[i][pic].padStart(10,0)
-                    loadHash()
+                    loadHash()                    
                 })
                 
                 img.className = 'imgUser'
@@ -76,7 +78,7 @@
                             params.hash = localStorage.getItem('hash')
                             params.id_guest = friends[i][pic]
 
-                            queryDB(params,23).then((resolve)=>{
+                            queryDB(params,20).then((resolve)=>{
                                 mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
                                 mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
                             })
@@ -92,9 +94,11 @@
     }
 
     pictab(document.querySelector('#tab-seguindo'))
+
     mainData.social.func.viewFriends('hostID','#myFriends','guestname','guestID')
     mainData.social.func.viewFriends('guestID','#iFriend','hostname','hostID')
-*/    
+
+    
     document.querySelector('#btnMyFriends').addEventListener('click',()=>{
         openHTML('findUser.html','modal',{origem:'social'})
     })

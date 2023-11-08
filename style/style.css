@@ -48,7 +48,7 @@ table {
 }
 
 table td{
-  min-width: 80px;
+/*  min-width: 80px;*/
   padding: 10px;
   text-align: center;
 }

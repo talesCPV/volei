@@ -132,9 +132,30 @@
     cursor: pointer;
   }
 
+  .only-mobile{
+    display: none;
+  }
+
+
 /* ......../ media query /.......... */
 
 @media (max-width: 768px) {
+
+
+    .only-mobile{
+      display: flex;
+    }
+
+    .menu-mobile{
+      width: 200px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .menu-mobile:hover{
+      border-bottom: 1px rgb(187, 86, 86);
+    }
+
 
     .menu-mobile div{
       display: block;
@@ -245,6 +266,10 @@
         font-size: 3rem;
       }
       
+      .badge{
+        left: -30px;
+      }
+
     .navbar-container input[type="checkbox"]:checked ~ .menu-items {
       transform: translateX(0);
     }

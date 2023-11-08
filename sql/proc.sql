@@ -433,14 +433,14 @@ DELIMITER $$
 	BEGIN	         
 
 		IF(Isel = 1) THEN
-			SELECT id,email,nick FROM tb_usuario WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+			SELECT * FROM vw_following WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
             LIMIT Istart,IshowLimit;        
         ELSE 
 			IF(Isel = 2) THEN
-				SELECT id,email,nick FROM tb_usuario WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+				SELECT * FROM vw_following WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
 				LIMIT Istart,IshowLimit;
 			ELSE 
-				SELECT id,email,nick FROM tb_usuario WHERE id = Inick;
+				SELECT * FROM vw_following WHERE id = Inick;
 			END IF;
 		END IF;
 

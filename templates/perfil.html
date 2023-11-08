@@ -102,7 +102,7 @@
                     <p id="val-seguidores"></p>
                 </div>
                 <div class="perfil-box">
-                    <p>Atividades</p>
+                    <p>Times</p>
                     <p id="val-atividades"></p>
                 </div>                                              
             </div>
@@ -121,75 +121,56 @@
             <div class="activities"></div>
         </div>
 
-
     </div>
 
 
 </template>
 <script>
 
-const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
+    const usr = parseInt(mainData.perfil.data.address)
+
+    console.log(usr)
+
+    const back = backFunc({'filename':`../assets/users/${usr}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
-        document.querySelector('#pic-perfil').src = imgExist ? `assets/users/${localStorage.getItem('idUser')}.jpg` : 'assets/default/user.jpeg'
+        document.querySelector('#pic-perfil').src = imgExist ? `assets/users/${usr}.jpg` : 'assets/default/user.jpeg'
     })
 
-document.querySelector('.myDate').appendChild(calendar())
-
-
-/*
-    const perfil = mainData.perfil.data.address
-    mainData.perfil.data.iniMap = maps.length
-    mainData.perfil.data.mapLength = 0
-
-    mainData.perfil.func.onClose = ()=>{
-        maps.splice(mainData.perfil.data.iniMap,mainData.perfil.data.mapLength)
-    }
+    document.querySelector('.myDate').appendChild(calendar())
 
     function getPerfil(){
         const params = new Object;
-        params.id =  parseInt(perfil)
+        params.id_user =  usr
 
-        const myPromisse = queryDB(params,27);
+        const myPromisse = queryDB(params,22);
         myPromisse.then((resolve)=>{
-            const json = JSON.parse(resolve)
-            const treinos = json[0].TREINOS!=null?json[0].TREINOS.split(','):0
-            const treinos_id = json[0].TREINO_ID!=null?json[0].TREINO_ID.split(','):0
+            const treinos = JSON.parse(resolve)
 
             for(let i=0; i<treinos.length; i++){          
+
                 try{
-                    document.getElementById(treinos[i].trim()).classList.add('day-trainning')
+                    console.log(treinos[i].data.substr(0,10))
+                    const day =  document.getElementById(treinos[i].data.substr(0,10))
+                    day.classList.add('day-trainning')
+                    console.log(day)
+
                 }catch{
-//
+
                 }
             }
+            document.querySelector('.title-perfil').innerHTML = treinos[0].nick
+            document.querySelector('#val-seguindo').innerHTML = treinos[0].SEGUINDO
+            document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
+            document.querySelector('#val-atividades').innerHTML = treinos[0].TREINOS
+            document.querySelector('#perfil-rating').value = treinos[0].NIVEL
+            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL
 
-            const pic = document.querySelector('#pic-perfil')
-
-            document.querySelector('.title-perfil').innerHTML = json[0].nome
-            document.querySelector('#val-seguindo').innerHTML = json[0].SEGUINDO
-            document.querySelector('#val-seguidores').innerHTML = json[0].SEGUIDORES
-            document.querySelector('#val-atividades').innerHTML = json[0].ATIVIDADES
-            document.querySelector('#last-4').innerHTML = json[0].LAST_28
-            document.querySelector('#perfil-rating').value = json[0].nivel
-            document.querySelector('#val-nivel').innerHTML = json[0].nivel
-
-            pic.src = `assets/users/${json[0].id}.jpg`
-            breakImg(pic)
-
-            queryDB(params,29).then((res_ATV)=>{
-                const jsonATV = JSON.parse(res_ATV)
-
-                for(let i=0; i<jsonATV.length; i++){
-                    makeActivity(jsonATV[i],'activities',false)
-                    mainData.perfil.data.mapLength++
-                }
-            })
         })
     }
 
     getPerfil()
-    removeHash()
-*/
+//    removeHash()
+
   
 </script>

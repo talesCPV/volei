@@ -127,9 +127,14 @@
     func.fillUser = (json)=>{
         const tbl = document.querySelector('#tblUsers')
 
-        tbl.head('Cod.,Nome, Email')
+        tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Cod.,Nome, Email')
         for(let i=0; i<json.length;i++){
-            tbl.plot(json[i],'id,nick,email','int,Upp,Low')
+            const img = document.createElement('img')
+            img.src = `assets/users/${json[i].id}.jpg`
+            img.className = 'imgUser'
+            breakImg(img)
+            mainData.data.obj = img
+            tbl.plot(json[i],`obj,id,nick,email`,'obj,int,Upp,Low')
         }
 
     }
@@ -143,8 +148,6 @@
     document.querySelector('#tblUsers').addEventListener('click',(e)=>{        
 
         const row = e.target.parentNode.data
-        console.log(row)
-        console.log(data)
         if(data.origem == 'treino'){
             if(confirm(`Deseja linkar o usuário ${row.nick} ao atleta ${data.nick}?`)){
                 const params = new Object;
@@ -172,8 +175,12 @@
                 params.hash = localStorage.getItem('hash')
                 params.id_atleta = row.id
                 const myPromisse = queryDB(params,20)
-                myPromisse.then((resolve)=>{
-                    console.log(resolve)
+                myPromisse.then((resolve)=>{                    
+                    if(parseInt(JSON.parse(resolve)[0].FOLLOW)){
+                        alert(`Você começou a seguir ${row.nick}`)
+                    }else{
+                        alert(`Você deixou de seguir ${row.nick}`)
+                    }                
                 })
 
 
