@@ -174,11 +174,7 @@ DELIMITER $$
 		INSERT INTO tb_message_agd (id,id_treino, data, id_usuario, scrap) VALUES (Iid,Iid_treino,Idata,@id_user,Iscrap)
         ON DUPLICATE KEY UPDATE scrap=Iscrap, data_scrap = CURRENT_TIMESTAMP;
         
-        SELECT MSG.*,USR.nick 
-        FROM tb_message_agd AS MSG
-        INNER JOIN tb_usuario AS USR
-        ON MSG.id_usuario = USR.id
-        AND id_treino=Iid_treino AND data=Idata;
+        SELECT * FROM vw_message_agd WHERE id_treino=Iid_treino AND data=Idata;
         
 	END $$
 DELIMITER ;
@@ -397,12 +393,28 @@ DELIMITER $$
         
         IF(@id_call = @id_owner) THEN
 			DELETE FROM tb_agd_confirma WHERE id_treino=Iid_treino AND data=Idata;
+			DELETE FROM tb_message_agd  WHERE id_treino=Iid_treino AND data=Idata;
 			DELETE FROM tb_agenda       WHERE id_treino=Iid_treino AND data=Idata;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
         END IF;
 
+	END $$
+DELIMITER ;
+
+ DROP PROCEDURE sp_delMessage_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_delMessage_agd(
+        IN Ihash varchar(77),
+        IN Iid int(11),
+        IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
+        DELETE FROM tb_message_agd  WHERE id=Iid AND id_treino=Iid_treino AND data=Idata AND id_usuario = @id_call;        
+		SELECT * FROM vw_message_agd WHERE id_treino=Iid_treno AND data=Idata;
 	END $$
 DELIMITER ;
 

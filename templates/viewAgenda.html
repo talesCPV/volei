@@ -36,10 +36,16 @@
             flex-direction: column;
             max-width: 300px;
             align-items: center;
-            justify-content: center;
+/*            justify-content: center;*/
             gap: 10px;
             padding: 5px;
             width: 40%;
+        }
+        #data-message {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .data-treino{
@@ -74,7 +80,7 @@
         }
 /* SCRAPS */
 
-.new-com{
+        .new-com{
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -82,7 +88,7 @@
             width: 100%;
             height: 20%;
             position: relative;
-            background-color: whitesmoke;
+            /*background-color: whitesmoke;*/
             padding: 5px 0;
         }
 
@@ -121,8 +127,18 @@
                 left: -30px;
         }
 
+        .view-message{
+            width: 100%;
+            padding: 10px;
+            background-color: rgb(245,245,245);
+            border-radius: 15px;
+        }
+
         .scrap{
-            padding: 0 80px 0 25px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0 0 0 25px;
             position: relative;
             top: -12;
             font-weight: lighter;
@@ -152,8 +168,11 @@
             color: #16a083;
         }
 
+        .btn-del{
+            width: 100px;
+            height: 40px;
 
-
+        }
 
         @media (max-width: 769px) {
 
@@ -233,7 +252,6 @@
 
     })
 
- 
     func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
         const params = new Object;                    
@@ -256,7 +274,22 @@
         })
     }
 
+    func.fillMessage = ()=>{
+        const params = new Object;  
+            params.id_treino = data.id_treino
+            params.data = data.data
+        const myPromisse = queryDB(params,24);
+        myPromisse.then((resolve)=>{  
+            const json = JSON.parse(resolve)
+            refreshMessage(json)
+        })
+
+
+    }
+
+
     func.fillAtl()
+    func.fillMessage()
 
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{      
         const dados = e.target.parentNode.data
@@ -297,9 +330,8 @@
         numMsg = dt.length;
         const div_message = document.querySelector('#data-message') 
         div_message.innerHTML = ''
-//        document.querySelector('#tab-comentarios').innerHTML = `Scraps (${numMsg})`
+
         for(let i=0; i<numMsg; i++){
-           
             const div = document.createElement('div')
             div.className = 'view-message'
 
@@ -318,32 +350,38 @@
                     user.appendChild(nome)
                 div.appendChild(user)
 
-            const msg = document.createElement('p')
-            msg.innerText = dt[i].scrap
+
+
+            const msg = document.createElement('div')
             msg.className = 'scrap'           
 
-            if(localStorage.getItem('idUser')== dt[i].userID ){
+            const txt = document.createElement('p')
+            txt.innerText = dt[i].scrap
+            msg.appendChild(txt)
+
+            if(localStorage.getItem('idUser')== dt[i].id_usuario ){
               
                 const btn = document.createElement('button')
                 btn.innerHTML = 'APAGAR'
-                btn.className = 'btnMessage'
+                btn.className = 'btn btn-primary btn-del'
 
                 btn.addEventListener('click',()=>{
 
                     const params = new Object;
                         params.hash = localStorage.getItem('hash')
-                        params.id_message = dt[i].id
-                        queryDB(params,20).then((resolve)=>{
-                            numMsg--
-                            document.querySelector('#tab-comentarios').innerHTML = `Scraps (${numMsg})`
-                        })
-                        div.style.display = 'none'   
-                          
-                       
+                        params.id = dt[i].id
+                        params.id_treino = dt[i].id_treino
+                        params.data = dt[i].data
+                    queryDB(params,25).then((resolve)=>{
+                        const json = JSON.parse(resolve)
+                        refreshMessage(json)                        
+                    })
+                    div.style.display = 'none'   
                 })
 
                 msg.appendChild(btn)
             }
+
             div.appendChild(msg)
             div_message.appendChild(div)
         }
