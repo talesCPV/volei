@@ -91,13 +91,14 @@ CREATE TABLE tb_following (
     PRIMARY KEY (id_host,id_guest)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
--- DROP TABLE tb_message;
-CREATE TABLE tb_message (
-	id int(11) NOT NULL AUTO_INCREMENT,
+ DROP TABLE tb_message_agd;
+CREATE TABLE tb_message_agd (
+	id int(11) NOT NULL,
+	id_treino int(11) NOT NULL,
+    data datetime NOT NULL,
     id_usuario int(11) NOT NULL,
-    id_atividade int(11) NOT NULL, 
+    data_scrap TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
     scrap varchar(600) DEFAULT NULL,
-	FOREIGN KEY (id_usuario) REFERENCES tb_usuario(id),
-	FOREIGN KEY (id_atividade) REFERENCES tb_atividades(id),
-    PRIMARY KEY (id)
+	FOREIGN KEY (id_usuario) REFERENCES tb_usuario(id),	
+    PRIMARY KEY (id,id_treino,data)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

@@ -24,6 +24,7 @@
         "20" => 'CALL sp_follow("x00",x01);',
         "21" => 'SELECT * FROM vw_friends WHERE y00 = x00;',
         "22" => 'SELECT * FROM vw_perfil WHERE id_user=x00;',
+        "23" => 'CALL sp_setMessage_agd("x00","x01",x02,"x03","x04");',
     );
 
     $query_json = array(

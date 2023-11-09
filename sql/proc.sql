@@ -156,6 +156,30 @@ DELIMITER ;
 
 CALL sp_setConfirma_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7,"2023-11-04 10:00:00",0);
 
+ DROP PROCEDURE sp_setMessage_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_setMessage_agd(    
+		IN Ihash varchar(77),
+        IN Iid int(11),
+        IN Iid_treino int(11),
+		IN Idata datetime,
+		IN Iscrap varchar(600)
+    )
+	BEGIN
+		SET @id_user = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        		
+        IF(Iid="") THEN
+			SET Iid = (SELECT IFNULL(MAX(id),0)+1 FROM tb_message_agd WHERE id_treino=Iid_treino AND data=Idata);
+		END IF;
+                    
+		INSERT INTO tb_message_agd (id,id_treino, data, id_usuario, scrap) VALUES (Iid,Iid_treino,Idata,@id_user,Iscrap)
+        ON DUPLICATE KEY UPDATE scrap=Iscrap, data_scrap = CURRENT_TIMESTAMP;
+        
+        SELECT * FROM tb_message_agd WHERE id_treino=Iid_treino AND data=Idata;
+        
+	END $$
+DELIMITER ;
+CALL sp_setMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",,7,"2023-11-11 10:00:00","teste 123");
+
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
 	CREATE PROCEDURE sp_addAtleta(		
@@ -433,14 +457,14 @@ DELIMITER $$
 	BEGIN	         
 
 		IF(Isel = 1) THEN
-			SELECT * FROM vw_following WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+			SELECT id,nick,email FROM tb_usuario WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
             LIMIT Istart,IshowLimit;        
         ELSE 
 			IF(Isel = 2) THEN
-				SELECT * FROM vw_following WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+				SELECT id,nick,email FROM tb_usuario WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
 				LIMIT Istart,IshowLimit;
 			ELSE 
-				SELECT * FROM vw_following WHERE id = Inick;
+				SELECT id,nick,email FROM tb_usuario WHERE id = Inick;
 			END IF;
 		END IF;
 
