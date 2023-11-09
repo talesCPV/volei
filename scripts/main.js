@@ -227,7 +227,7 @@ function calendar(){
             day.className = 'day'
             day.id = td.getFormatDate()
             day.innerHTML = w==0?dw[d]:td.getDate()
-            w>0?day.classList.add('day-use'):0
+            day.classList.add(w>0?'day-use':'day-name')
             w>0?td.change(1):0
             week.appendChild(day)
         }

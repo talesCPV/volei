@@ -18,12 +18,12 @@
         "14" => 'CALL sp_delAgenda("x00",x01,"x02");',
         "15" => 'CALL sp_vwConfirma_agd(x00,"x01");',
         "16" => 'CALL sp_setConfirma_agd("x00",x01,x02,"x03",x04);',
-        "17"  => 'SELECT * FROM tb_ranking WHERE id_treino=x00 AND id_avaliador=x01 AND  id_avaliado=x02;', 
-        "18"  => 'SELECT * FROM tb_warning WHERE id_atleta=x00 AND NOT view;', 
+        "17" => 'SELECT * FROM tb_ranking WHERE id_treino=x00 AND id_avaliador=x01 AND  id_avaliado=x02;', 
+        "18" => 'SELECT * FROM tb_warning WHERE id_atleta=x00 AND NOT view;', 
         "19" => 'CALL sp_markWarning("x00",x01);',
         "20" => 'CALL sp_follow("x00",x01);',
         "21" => 'SELECT * FROM vw_friends WHERE y00 = x00;',
-        "22" => ' SELECT * FROM vw_perfil WHERE id_user=x00;',
+        "22" => 'SELECT * FROM vw_perfil WHERE id_user=x00;',
     );
 
     $query_json = array(

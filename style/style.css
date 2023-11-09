@@ -425,6 +425,10 @@ input[type="text"],input[type="number"]{
   border-radius: 50%;
 }
 
+.day-name{  
+  background: brown;
+  color: aliceblue;
+}
 
 /* EDIT BUTTON */
 
