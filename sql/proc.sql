@@ -174,7 +174,11 @@ DELIMITER $$
 		INSERT INTO tb_message_agd (id,id_treino, data, id_usuario, scrap) VALUES (Iid,Iid_treino,Idata,@id_user,Iscrap)
         ON DUPLICATE KEY UPDATE scrap=Iscrap, data_scrap = CURRENT_TIMESTAMP;
         
-        SELECT * FROM tb_message_agd WHERE id_treino=Iid_treino AND data=Idata;
+        SELECT MSG.*,USR.nick 
+        FROM tb_message_agd AS MSG
+        INNER JOIN tb_usuario AS USR
+        ON MSG.id_usuario = USR.id
+        AND id_treino=Iid_treino AND data=Idata;
         
 	END $$
 DELIMITER ;

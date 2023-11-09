@@ -187,7 +187,7 @@
                 <div id="data-message"></div>
                 <div class="new-com">
                     <div class="msg-box">
-                        <img id="imgUserMs" class="imgUser" src="">
+                        <img id="imgUserMs" class="img-small" src="">
                         <textarea id="txtNewCom" cols="30" rows="10" maxlength="600"></textarea>    
                     </div>
                     <button id="btnPost" class="btnMessage btn btn-primary">Post</button>
@@ -286,12 +286,68 @@
             params.scrap = document.querySelector('#txtNewCom').value
             const myPromisse = queryDB(params,23);
             myPromisse.then((resolve)=>{  
-                console.log(resolve)
+                const json = JSON.parse(resolve)
+                console.log(json)
+                refreshMessage(json)
             })
-
-
-
     })
+
+
+    function refreshMessage(dt){
+        numMsg = dt.length;
+        const div_message = document.querySelector('#data-message') 
+        div_message.innerHTML = ''
+//        document.querySelector('#tab-comentarios').innerHTML = `Scraps (${numMsg})`
+        for(let i=0; i<numMsg; i++){
+           
+            const div = document.createElement('div')
+            div.className = 'view-message'
+
+                const user = document.createElement('div')
+                user.className='view-user'
+
+                    const img = document.createElement('img')
+                    img.src = `assets/users/${dt[i].id_usuario}.jpg`
+                    img.className = 'img-small'
+                    breakImg(img)
+                    user.appendChild(img)
+
+                    const nome = document.createElement('p')
+                    nome.innerHTML = dt[i].nick
+                    nome.className = 'nameUser'
+                    user.appendChild(nome)
+                div.appendChild(user)
+
+            const msg = document.createElement('p')
+            msg.innerText = dt[i].scrap
+            msg.className = 'scrap'           
+
+            if(localStorage.getItem('idUser')== dt[i].userID ){
+              
+                const btn = document.createElement('button')
+                btn.innerHTML = 'APAGAR'
+                btn.className = 'btnMessage'
+
+                btn.addEventListener('click',()=>{
+
+                    const params = new Object;
+                        params.hash = localStorage.getItem('hash')
+                        params.id_message = dt[i].id
+                        queryDB(params,20).then((resolve)=>{
+                            numMsg--
+                            document.querySelector('#tab-comentarios').innerHTML = `Scraps (${numMsg})`
+                        })
+                        div.style.display = 'none'   
+                          
+                       
+                })
+
+                msg.appendChild(btn)
+            }
+            div.appendChild(msg)
+            div_message.appendChild(div)
+        }
+    }
 
 
 </script>
