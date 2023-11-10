@@ -63,6 +63,7 @@ DELIMITER $$
             SET @id_treino = (SELECT MAX(id) FROM tb_treinos);
             SET @nick = (SELECT nick FROM tb_usuario WHERE id=@id_owner);            
             INSERT INTO tb_atleta (id_user,id_treino,nick,mensalista) VALUES (@id_owner,@id_treino,@nick,TRUE);
+			INSERT INTO tb_ranking (id_treino,id_avaliador,id_avaliado) VALUES (@id_treino,@id_owner,@id_owner);
             SELECT @nick;
         END IF;
 
@@ -344,6 +345,8 @@ DELIMITER $$
         IF(@id_call = @id_owner) THEN
 			DELETE FROM tb_ranking WHERE id_treino=Iid;
 			DELETE FROM tb_atleta WHERE id_treino=Iid;
+            DELETE FROM tb_agenda WHERE id_treino=Iid;
+			DELETE FROM id_treino WHERE id_treino=Iid;
 			DELETE FROM tb_treinos WHERE id=Iid;
 			SELECT 1 AS OK;
         ELSE
@@ -412,11 +415,19 @@ DELIMITER $$
 		IN Idata datetime
     )
 	BEGIN        
-		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);     
+        
         DELETE FROM tb_message_agd  WHERE id=Iid AND id_treino=Iid_treino AND data=Idata AND id_usuario = @id_call;        
-		SELECT * FROM vw_message_agd WHERE id_treino=Iid_treno AND data=Idata;
+		SELECT * FROM vw_message_agd WHERE id_treino=Iid_treino AND data=Idata;
+
 	END $$
 DELIMITER ;
+
+	SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = "f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<" COLLATE utf8_general_ci LIMIT 1;
+	DELETE FROM tb_message_agd  WHERE id=10 AND id_treino=7 AND data="2023-11-11 10:00:00" AND id_usuario = 1;
+
+
+CALL sp_delMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",4,7,"2023-11-11 10:00:00");
 
 /* VIEWS */
 
@@ -506,3 +517,9 @@ DELIMITER ;
 
 CALL sp_vwConfirma_agd(7,"2023-11-04 10:00:00");
 SELECT vou FROM tb_agd_confirma WHERE id_treino=7 AND id_atleta =2  AND data = "2023-11-04 10:00:00";
+
+CALL sp_vwConfirma_agd(9,"2023-11-11 10:00:00");
+
+SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = "2023-11-09 20:00:00"),2) AS GO
+		FROM vw_ranking AS RNK
+		WHERE id_treino = 6;

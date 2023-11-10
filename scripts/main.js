@@ -145,8 +145,8 @@ function loadActivity(keep=true){
                         </div>
                         <div class='dados-treino'>
                             <h2>${json[i].nome}</h2>
-                            <label>${json[i].local}</label>
-                            <div>Dia ${json[i].data.showDate()} as ${json[i].data.showTime()}</div>
+                            <h4>Dia ${json[i].data.showDate()} as ${json[i].data.showTime()}</h4>
+                            <label>Local: ${json[i].local}</label>
                             <div>${json[i].obs}</div>
                         </div>
                 `
