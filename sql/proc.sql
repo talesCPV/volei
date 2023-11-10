@@ -62,7 +62,7 @@ DELIMITER $$
 			INSERT INTO tb_treinos (id_owner,nome,dia_sem,horario,local,obs) VALUES (@id_owner,Inome,Idia_sem,Ihorario,Ilocal,Iobs);
             SET @id_treino = (SELECT MAX(id) FROM tb_treinos);
             SET @nick = (SELECT nick FROM tb_usuario WHERE id=@id_owner);            
-            INSERT INTO tb_atleta (id_user,id_treino,nick,mensalista) VALUES (@id_owner,@id_treino,@nick,TRUE);
+            INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (1,@id_owner,@id_treino,@nick,TRUE);
 			INSERT INTO tb_ranking (id_treino,id_avaliador,id_avaliado) VALUES (@id_treino,@id_owner,@id_owner);
             SELECT @nick;
         END IF;
