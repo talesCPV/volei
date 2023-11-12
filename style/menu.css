@@ -248,7 +248,7 @@
       padding-bottom: 100px;
       padding-top: 20px;
       background: #fff;
-      height: 100vh;
+      height: 95vh;
       /*max-width: 300px;*/
       transform: translate(-150%);
       display: flex;
@@ -280,8 +280,8 @@
       transform: translateX(40px);
     }
   
-    .navbar-container input[type="checkbox"]:checked ~ .hamburger-lines .line1 {
-      transform: rotate(35deg);
+    .navbar-container input[type="checkbox"]:checked ~ .hamburger-lines .line1 {      
+      transform: translateY(-4px) rotate(45deg) ;
     }
   
     .navbar-container input[type="checkbox"]:checked ~ .hamburger-lines .line2 {
@@ -289,7 +289,7 @@
     }
   
     .navbar-container input[type="checkbox"]:checked ~ .hamburger-lines .line3 {
-      transform: rotate(-35deg);
+      transform: rotate(-45deg);
     }
    
   }

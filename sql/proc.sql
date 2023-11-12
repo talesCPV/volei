@@ -62,7 +62,8 @@ DELIMITER $$
 			INSERT INTO tb_treinos (id_owner,nome,dia_sem,horario,local,obs) VALUES (@id_owner,Inome,Idia_sem,Ihorario,Ilocal,Iobs);
             SET @id_treino = (SELECT MAX(id) FROM tb_treinos);
             SET @nick = (SELECT nick FROM tb_usuario WHERE id=@id_owner);            
-            INSERT INTO tb_atleta (id_user,id_treino,nick,mensalista) VALUES (@id_owner,@id_treino,@nick,TRUE);
+            INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (1,@id_owner,@id_treino,@nick,TRUE);
+			INSERT INTO tb_ranking (id_treino,id_avaliador,id_avaliado) VALUES (@id_treino,@id_owner,@id_owner);
             SELECT @nick;
         END IF;
 
@@ -156,6 +157,30 @@ DELIMITER ;
 
 CALL sp_setConfirma_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7,"2023-11-04 10:00:00",0);
 
+ DROP PROCEDURE sp_setMessage_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_setMessage_agd(    
+		IN Ihash varchar(77),
+        IN Iid int(11),
+        IN Iid_treino int(11),
+		IN Idata datetime,
+		IN Iscrap varchar(600)
+    )
+	BEGIN
+		SET @id_user = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        		
+        IF(Iid="") THEN
+			SET Iid = (SELECT IFNULL(MAX(id),0)+1 FROM tb_message_agd WHERE id_treino=Iid_treino AND data=Idata);
+		END IF;
+                    
+		INSERT INTO tb_message_agd (id,id_treino, data, id_usuario, scrap) VALUES (Iid,Iid_treino,Idata,@id_user,Iscrap)
+        ON DUPLICATE KEY UPDATE scrap=Iscrap, data_scrap = CURRENT_TIMESTAMP;
+        
+        SELECT * FROM vw_message_agd WHERE id_treino=Iid_treino AND data=Idata;
+        
+	END $$
+DELIMITER ;
+CALL sp_setMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",,7,"2023-11-11 10:00:00","teste 123");
+
  DROP PROCEDURE sp_addAtleta;
 DELIMITER $$
 	CREATE PROCEDURE sp_addAtleta(		
@@ -171,9 +196,11 @@ DELIMITER $$
 
         IF(@id_call = @id_owner) THEN
 			SET @id = (SELECT (IFNULL(MAX(id),0)+1) AS id  FROM tb_atleta WHERE id_treino=Iid_treino);
+            
 			INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (@id,Iid_user,Iid_treino,Inick,Imensalista);
-            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id_owner,(SELECT MAX(id) FROM tb_atleta));
+            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id,@id);
             SELECT 1 AS OK;
+            
 		ELSE 
 			SELECT 0 AS OK;
         END IF;
@@ -181,7 +208,8 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","6",0,TESTE,"0");
+CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","11","0","PEDRO","1");
+
 
  DROP PROCEDURE sp_setWarning;
 DELIMITER $$
@@ -320,6 +348,8 @@ DELIMITER $$
         IF(@id_call = @id_owner) THEN
 			DELETE FROM tb_ranking WHERE id_treino=Iid;
 			DELETE FROM tb_atleta WHERE id_treino=Iid;
+            DELETE FROM tb_agenda WHERE id_treino=Iid;
+			DELETE FROM id_treino WHERE id_treino=Iid;
 			DELETE FROM tb_treinos WHERE id=Iid;
 			SELECT 1 AS OK;
         ELSE
@@ -369,6 +399,7 @@ DELIMITER $$
         
         IF(@id_call = @id_owner) THEN
 			DELETE FROM tb_agd_confirma WHERE id_treino=Iid_treino AND data=Idata;
+			DELETE FROM tb_message_agd  WHERE id_treino=Iid_treino AND data=Idata;
 			DELETE FROM tb_agenda       WHERE id_treino=Iid_treino AND data=Idata;
             SELECT 1 AS OK;
 		ELSE 
@@ -377,6 +408,29 @@ DELIMITER $$
 
 	END $$
 DELIMITER ;
+
+ DROP PROCEDURE sp_delMessage_agd;
+DELIMITER $$
+	CREATE PROCEDURE sp_delMessage_agd(
+        IN Ihash varchar(77),
+        IN Iid int(11),
+        IN Iid_treino int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);     
+        
+        DELETE FROM tb_message_agd  WHERE id=Iid AND id_treino=Iid_treino AND data=Idata AND id_usuario = @id_call;        
+		SELECT * FROM vw_message_agd WHERE id_treino=Iid_treino AND data=Idata;
+
+	END $$
+DELIMITER ;
+
+	SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = "f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<" COLLATE utf8_general_ci LIMIT 1;
+	DELETE FROM tb_message_agd  WHERE id=10 AND id_treino=7 AND data="2023-11-11 10:00:00" AND id_usuario = 1;
+
+
+CALL sp_delMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",4,7,"2023-11-11 10:00:00");
 
 /* VIEWS */
 
@@ -433,14 +487,14 @@ DELIMITER $$
 	BEGIN	         
 
 		IF(Isel = 1) THEN
-			SELECT * FROM vw_following WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+			SELECT id,nick,email FROM tb_usuario WHERE nick COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
             LIMIT Istart,IshowLimit;        
         ELSE 
 			IF(Isel = 2) THEN
-				SELECT * FROM vw_following WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
+				SELECT id,nick,email FROM tb_usuario WHERE email COLLATE utf8_general_ci LIKE CONCAT('%',Inick COLLATE utf8_general_ci,'%')
 				LIMIT Istart,IshowLimit;
 			ELSE 
-				SELECT * FROM vw_following WHERE id = Inick;
+				SELECT id,nick,email FROM tb_usuario WHERE id = Inick;
 			END IF;
 		END IF;
 
@@ -466,3 +520,9 @@ DELIMITER ;
 
 CALL sp_vwConfirma_agd(7,"2023-11-04 10:00:00");
 SELECT vou FROM tb_agd_confirma WHERE id_treino=7 AND id_atleta =2  AND data = "2023-11-04 10:00:00";
+
+CALL sp_vwConfirma_agd(9,"2023-11-11 10:00:00");
+
+SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = "2023-11-09 20:00:00"),2) AS GO
+		FROM vw_ranking AS RNK
+		WHERE id_treino = 6;

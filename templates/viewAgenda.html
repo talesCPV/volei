@@ -36,10 +36,16 @@
             flex-direction: column;
             max-width: 300px;
             align-items: center;
-            justify-content: center;
+/*            justify-content: center;*/
             gap: 10px;
             padding: 5px;
             width: 40%;
+        }
+        #data-message {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .data-treino{
@@ -72,6 +78,101 @@
             height: 30px;
             border-radius: 50%;
         }
+/* SCRAPS */
+
+        .new-com{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 20%;
+            position: relative;
+            /*background-color: whitesmoke;*/
+            padding: 5px 0;
+        }
+
+        .new-com img{
+            margin: 10px;
+            width: 40px;
+        }
+
+        .new-com textarea{
+            width: 100%;
+            height: 100%;
+            padding: 10px 60px 10px 10px;
+            resize: none;
+ 
+        }        
+
+        .new-com button{
+            padding: 10px;
+            margin: 5px;
+        }
+
+        .view-user{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0 10px;
+            margin: 10 0 0 0;
+        }
+
+        .nameUser{
+            font-weight: bold;
+            font-size: 0.8em;
+            padding-bottom: 0;
+            position: relative;
+                top: -10px;
+                left: -30px;
+        }
+
+        .view-message{
+            width: 100%;
+            padding: 10px;
+            background-color: rgb(245,245,245);
+            border-radius: 15px;
+        }
+
+        .scrap{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0 0 0 25px;
+            position: relative;
+            top: -12;
+            font-weight: lighter;
+            overflow-wrap: break-word;
+        }
+
+        .msg-box{
+            display: flex;
+            width: 95%;
+            height: 50%;
+        }
+
+        .btnMessage{
+            position: absolute;
+            width: 50px;
+            right: 20px;
+/*            margin-top: 10px;
+            padding: 5px;*/
+            background: white;
+/*            border: solid 1px white;
+            color: rgb(196, 196, 196);*/
+        }
+
+        .btnMessage:hover{
+            border: solid 1px #16a083;
+            border-radius: 5px;
+            color: #16a083;
+        }
+
+        .btn-del{
+            width: 100px;
+            height: 40px;
+
+        }
 
         @media (max-width: 769px) {
 
@@ -102,6 +203,15 @@
                 <label for="edtObs" id="lblAtl" class="hide-all">Atletas <button id="btnAddAtl" class="btn-round btn-round-side">+</button> </label>
                 <table id="tblAtl"></table>
                 
+                <div id="data-message"></div>
+                <div class="new-com">
+                    <div class="msg-box">
+                        <img id="imgUserMs" class="img-small" src="">
+                        <textarea id="txtNewCom" cols="30" rows="10" maxlength="600"></textarea>    
+                    </div>
+                    <button id="btnPost" class="btnMessage btn btn-primary">Post</button>
+                </div>
+
             </div>
 
 
@@ -118,7 +228,7 @@
         imgExist = JSON.parse(resp)
         const path = imgExist ? `assets/treinos/${data.id_treino}.jpg` : 'assets/default/treino.jpeg'    
         document.querySelector('#agd-logo').src = path
-
+        document.querySelector('#imgUserMs').src = document.querySelector('#imgUser').src
     })
 
     document.querySelector('.title-viewAgenda').innerHTML = data.nome
@@ -142,7 +252,6 @@
 
     })
 
- 
     func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
         const params = new Object;                    
@@ -152,7 +261,7 @@
         const myPromisse = queryDB(params,15);
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
-//            console.log(json)
+console.log(json)
             tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
                 const back = backFunc({'filename':`../assets/users/${json[i].id_user}.jpg`},1)
@@ -162,14 +271,25 @@
                 })                
                 tbl.plot(json[i],`<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">,nick,NIVEL,GO`,'let,Upp,Upp,usr')
             }
+        })
+    }
 
-
+    func.fillMessage = ()=>{
+        const params = new Object;  
+            params.id_treino = data.id_treino
+            params.data = data.data
+        const myPromisse = queryDB(params,24);
+        myPromisse.then((resolve)=>{  
+            const json = JSON.parse(resolve)
+            refreshMessage(json)
         })
 
 
     }
 
+
     func.fillAtl()
+    func.fillMessage()
 
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{      
         const dados = e.target.parentNode.data
@@ -187,10 +307,85 @@
             myPromisse.then((resolve)=>{  
                 func.fillAtl()
             })
-        }
-        
-
+        }        
     })
+
+    document.querySelector('#btnPost').addEventListener('click',()=>{
+        const params = new Object;  
+            params.hash = localStorage.getItem('hash')
+            params.id = ''
+            params.id_treino = data.id_treino
+            params.data = data.data
+            params.scrap = document.querySelector('#txtNewCom').value
+            const myPromisse = queryDB(params,23);
+            myPromisse.then((resolve)=>{  
+                const json = JSON.parse(resolve)
+                console.log(json)
+                refreshMessage(json)
+            })
+    })
+
+
+    function refreshMessage(dt){
+        numMsg = dt.length;
+        const div_message = document.querySelector('#data-message') 
+        div_message.innerHTML = ''
+
+        for(let i=0; i<numMsg; i++){
+            const div = document.createElement('div')
+            div.className = 'view-message'
+
+                const user = document.createElement('div')
+                user.className='view-user'
+
+                    const img = document.createElement('img')
+                    img.src = `assets/users/${dt[i].id_usuario}.jpg`
+                    img.className = 'img-small'
+                    breakImg(img)
+                    user.appendChild(img)
+
+                    const nome = document.createElement('p')
+                    nome.innerHTML = dt[i].nick
+                    nome.className = 'nameUser'
+                    user.appendChild(nome)
+                div.appendChild(user)
+
+
+
+            const msg = document.createElement('div')
+            msg.className = 'scrap'           
+
+            const txt = document.createElement('p')
+            txt.innerText = dt[i].scrap
+            msg.appendChild(txt)
+
+            if(localStorage.getItem('idUser')== dt[i].id_usuario ){
+              
+                const btn = document.createElement('button')
+                btn.innerHTML = 'APAGAR'
+                btn.className = 'btn btn-primary btn-del'
+
+                btn.addEventListener('click',()=>{
+
+                    const params = new Object;
+                        params.hash = localStorage.getItem('hash')
+                        params.id = dt[i].id
+                        params.id_treino = dt[i].id_treino
+                        params.data = dt[i].data
+                    queryDB(params,25).then((resolve)=>{
+                        const json = JSON.parse(resolve)
+                        refreshMessage(json)                        
+                    })
+                    div.style.display = 'none'   
+                })
+
+                msg.appendChild(btn)
+            }
+
+            div.appendChild(msg)
+            div_message.appendChild(div)
+        }
+    }
 
 
 </script>

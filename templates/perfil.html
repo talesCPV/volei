@@ -112,7 +112,7 @@
         <div class="middle">
             <div class="perfil-box">
                 <p>Últimas 4 semanas</p>
-                <p id="last-4"></p>
+                <p id="last-4">0</p>
             </div>
             <div class="myDate"></div>
         </div>
@@ -131,7 +131,7 @@
     const back = backFunc({'filename':`../assets/users/${usr}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
-        document.querySelector('#pic-perfil').src = imgExist ? `assets/users/${usr}.jpg` : 'assets/default/user.jpeg'
+        document.querySelector('#pic-perfil').src = imgExist ? `assets/users/${usr}.jpg?${new Date().getTime()}` : 'assets/default/user.jpeg'
     })
 
     document.querySelector('.myDate').appendChild(calendar())
@@ -144,7 +144,7 @@
             document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
             document.querySelector('#val-atividades').innerHTML = treinos[0].TREINOS
             document.querySelector('#perfil-rating').value = treinos[0].NIVEL
-            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL
+            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL            
         }
 
         const params = new Object;
@@ -160,6 +160,7 @@
                     fillUserData(JSON.parse(resolve))
                 })
             }else{
+                document.querySelector('#last-4').innerHTML = treinos.length
                 for(let i=0; i<treinos.length; i++){          
                     try{                        
                         const day =  document.getElementById(treinos[i].data.substr(0,10))

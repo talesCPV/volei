@@ -54,6 +54,25 @@
             width: 95%;
         }
 
+        .week{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .week-day{
+            display: flex;
+            gap: 15px;
+            max-width: 250px;
+            justify-content: center;
+        }
+
+        .day{
+            width: 50px;
+
+        }
+
         @media (max-width: 769px) {
 
             .data-treino, .img-treino{
@@ -80,20 +99,42 @@
                 <fieldset id="fds-dias">
                     <legend>Treinos - Dia/Hora</legend>
                     <div class="line">
-                        <label for="ckbDom">DOM</label>
-                        <input type="checkbox" id="ckbDom" class="ckbWeek" week='DOM'>
-                        <label for="ckbSeg">SEG</label>
-                        <input type="checkbox" id="ckbSeg" class="ckbWeek" week='SEG'>
-                        <label for="ckbTer">TER</label>
-                        <input type="checkbox" id="ckbTer" class="ckbWeek" week='TER'>
-                        <label for="ckbQua">QUA</label>
-                        <input type="checkbox" id="ckbQua" class="ckbWeek" week='QUA'>
-                        <label for="ckbQui">QUI</label>
-                        <input type="checkbox" id="ckbQui" class="ckbWeek" week='QUI'>
-                        <label for="ckbSex">SEX</label>
-                        <input type="checkbox" id="ckbSex" class="ckbWeek" week='SEX'>
-                        <label for="ckbSab">SAB</label>
-                        <input type="checkbox" id="ckbSab" class="ckbWeek" week='SAB'>
+                        <div class="week">
+                            <div class="week-day">
+                                <div class="day">
+                                    <label for="ckbDom">DOM</label>
+                                    <input type="checkbox" id="ckbDom" class="ckbWeek" week='DOM'>        
+                                </div>
+                                <div class="day">
+                                    <label for="ckbSeg">SEG</label>
+                                    <input type="checkbox" id="ckbSeg" class="ckbWeek" week='SEG'>
+                                </div>
+                                <div class="day">
+                                    <label for="ckbTer">TER</label>
+                                    <input type="checkbox" id="ckbTer" class="ckbWeek" week='TER'>
+                                </div>
+                                <div class="day">
+                                    <label for="ckbQua">QUA</label>
+                                    <input type="checkbox" id="ckbQua" class="ckbWeek" week='QUA'>
+                                </div>
+                            </div>
+                            <div class="week-day">
+                                <div class="day">
+                                    <label for="ckbQui">QUI</label>
+                                    <input type="checkbox" id="ckbQui" class="ckbWeek" week='QUI'>
+                                </div>
+                                <div class="day">
+                                    <label for="ckbSex">SEX</label>
+                                    <input type="checkbox" id="ckbSex" class="ckbWeek" week='SEX'>
+                                </div>
+                                <div class="day">
+                                    <label for="ckbSab">SAB</label>
+                                    <input type="checkbox" id="ckbSab" class="ckbWeek" week='SAB'>
+                                </div>
+                            </div>
+    
+                        </div>
+
                     </div>
                     <div class="line">
                         <label for="edtIni">das</label>

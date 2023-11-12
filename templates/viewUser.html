@@ -65,6 +65,11 @@
             border: 1px solid red;
         }
 
+        #up_file{
+            margin-bottom: 20px;
+        }
+
+
         @media (max-width: 769px) {
 
             .data-perfil, .img-perfil{
@@ -81,7 +86,7 @@
             <canvas width="300" height="300" id="cnvImg"></canvas>
             <input  name="up_file" id="up_file" type="file" accept=".jpg,.jpeg,.png">
     
-            <button id="btnUpload" class="btn btn-primary">upload</button>
+<!--            <button id="btnUpload" class="btn btn-primary">upload</button>  -->
         </div>
 
         <div class="data-perfil">
@@ -110,15 +115,22 @@
     document.querySelector('#edtMail').value = localStorage.getItem('email')
     document.querySelector('#edtNick').value = localStorage.getItem('nick')
 
-    document.querySelector('#btnUpload').addEventListener('click',()=>{
+    function uploadImg(){
         uploadImage('up_file','/../assets/users/',localStorage.getItem('idUser')+'.jpg')
-        .then(()=>{
-            openMenu()
+        .then(()=>{                     
+            document.querySelector('#imgUser').src = `assets/users/${localStorage.getItem('idUser')}.jpg?${new Date().getTime()}`
+            document.querySelector('#perfil-img').src = `assets/users/${localStorage.getItem('idUser')}.jpg?${new Date().getTime()}`            
         })
-    })
+    }
 
+/*
+    document.querySelector('#btnUpload').addEventListener('click',()=>{
+        uploadImg()
+    })
+*/
     document.querySelector('#up_file').addEventListener('change',()=>{
-        showFile('#up_file','#cnvImg')     
+        showFile('#up_file','#cnvImg')
+        uploadImg()
     })
 
     document.querySelector('#cnvImg').addEventListener('click',()=>{        
@@ -145,6 +157,10 @@
                         localStorage.setItem('email',params.email)
                         localStorage.setItem('hash',params.hash)
                         localStorage.setItem('nick',params.nick)
+/*                        if(document.querySelector('#up_file').value != ""){
+
+                        }
+*/                        
                         closeModal()
                     })
                 }

@@ -171,7 +171,13 @@
         }else if(data.origem == 'newAtl'){
             addAtl(row.id,row.nick)
         }else if(data.origem == 'social'){
-            const params = new Object;
+
+            if (row==undefined){
+                const usr = e.target.parentNode.parentNode.data
+                window.location.hash = 'P'+usr.id.padStart(10,0)
+                loadHash()
+            }else{
+                const params = new Object;
                 params.hash = localStorage.getItem('hash')
                 params.id_atleta = row.id
                 const myPromisse = queryDB(params,20)
@@ -182,8 +188,7 @@
                         alert(`Você deixou de seguir ${row.nick}`)
                     }                
                 })
-
-
+            }
         }
     })
 
