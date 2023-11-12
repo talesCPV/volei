@@ -142,7 +142,7 @@ DELIMITER $$
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
         SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino);
 		
-        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+        IF((@id_call = @id_owner OR @id_call = @id_user) AND CURDATE() < Idata) THEN
 			IF(@exist)THEN
 				UPDATE tb_agd_confirma SET vou = Ivou WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata;
             ELSE
