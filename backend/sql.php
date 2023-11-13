@@ -28,6 +28,9 @@
         "24" => 'SELECT * FROM vw_message_agd WHERE id_treino=x00 AND data="x01";',
         "25" => 'CALL sp_delMessage_agd("x00",x01,x02,"x03");',
         "26" => 'CALL sp_vwMail("x00",x01);',
+        "27" => 'CALL sp_delMail("x00",x01,"x02");',
+        "28" => 'CALL sp_setMail("x00",x01,"x02");',
+        
     );
 
     $query_json = array(

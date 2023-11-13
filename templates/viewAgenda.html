@@ -278,9 +278,11 @@
         const params = new Object;  
             params.id_treino = data.id_treino
             params.data = data.data
+console.log(params)            
         const myPromisse = queryDB(params,24);
         myPromisse.then((resolve)=>{  
             const json = JSON.parse(resolve)
+console.log(json)            
             refreshMessage(json)
         })
 
@@ -325,7 +327,7 @@
             const myPromisse = queryDB(params,23);
             myPromisse.then((resolve)=>{  
                 const json = JSON.parse(resolve)
-                console.log(json)
+//                console.log(json)
                 refreshMessage(json)
             })
     })

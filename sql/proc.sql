@@ -136,7 +136,18 @@ DELIMITER $$
 	BEGIN
 		SET @id_from = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
 		INSERT INTO tb_mail (id_from,id_to,scrap) VALUES (@id_from,Iid_to,Iscrap);
-		SELECT * FROM tb_mail WHERE id_to=Iid_to AND data >= CURDATE() - INTERVAL 30 DAY ORDER BY data DESC;
+        
+        IF(@id_from != Iid_to)THEN
+			SET @nome = (SELECT nick FROM tb_usuario WHERE id=@id_from);
+			SET @callback = CONCAT('{"origem":"mail","address":"',@id_from,'","from":',@id_from,',"to":', Iid_to,',"nome":"',@nome,'"}');
+			CALL sp_setWarning(Iid_to,CONCAT("Nova Mensagem de ",@nome),@callback);
+			SELECT * FROM vw_mail WHERE ((id_to = Iid_to AND id_from = @id_from)
+				OR (id_to = @id_from AND id_from = Iid_to))
+				ORDER BY data DESC;
+		ELSE
+			SELECT * FROM vw_mail WHERE id_to = @id_from OR id_from = @id_from ORDER BY data DESC;
+        END IF;
+
         
 	END $$
 DELIMITER ;
@@ -240,7 +251,7 @@ DELIMITER $$
 		SET @new_id = (SELECT  IFNULL(MAX(id),0)+1 AS NEW_ID FROM tb_warning WHERE id_atleta = Iid_atleta);
 		
 		INSERT INTO tb_warning (id,id_atleta,message,callback) VALUES (@new_id,Iid_atleta,Imessage,Icallback);
-		SELECT 1 AS OK;
+-- 		SELECT 1 AS OK;
         
 	END $$
 DELIMITER ;
@@ -444,11 +455,29 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-	SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = "f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<" COLLATE utf8_general_ci LIMIT 1;
-	DELETE FROM tb_message_agd  WHERE id=10 AND id_treino=7 AND data="2023-11-11 10:00:00" AND id_usuario = 1;
-
-
 CALL sp_delMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",4,7,"2023-11-11 10:00:00");
+
+ DROP PROCEDURE sp_delMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_delMail(
+        IN Ihash varchar(77),
+        IN Iid int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);             
+        SET @bef = (SELECT COUNT(*) FROM tb_mail WHERE id_from=@id_call AND id_to=Iid AND data=Idata);
+        DELETE FROM tb_mail WHERE id_from=@id_call AND id_to=Iid AND data=Idata;
+        IF(@bef > 0) THEN
+			SELECT 1 AS OK;
+		ELSE
+			SELECT 0 AS OK;
+		END IF;
+        		
+	END $$
+DELIMITER ;
+
+
 
 /* VIEWS */
 
@@ -546,14 +575,15 @@ DELIMITER $$
     
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
     
-		IF(Iid = 0) THEN
+		IF(Iid = @id_call) THEN
     		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
 				FROM tb_mail AS MSG
 				INNER JOIN tb_usuario AS F_USR
 				INNER JOIN tb_usuario AS T_USR
 				ON MSG.id_from = F_USR.id
 				AND MSG.id_to = T_USR.id
-                AND (MSG.id_to = @id_call OR MSG.id_from = @id_call);
+                AND (MSG.id_to = @id_call OR MSG.id_from = @id_call)
+                ORDER BY MSG.data DESC;
 		ELSE
     		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
 				FROM tb_mail AS MSG
@@ -562,11 +592,12 @@ DELIMITER $$
 				ON MSG.id_from = F_USR.id
 				AND MSG.id_to = T_USR.id
                 AND ((MSG.id_to = Iid AND MSG.id_from = @id_call)
-				 OR (MSG.id_to = @id_call AND MSG.id_from = Iid));        
+				 OR (MSG.id_to = @id_call AND MSG.id_from = Iid))
+				ORDER BY MSG.data DESC;
         END IF;
 
 	END $$
 DELIMITER ;
 
-CALL sp_vwMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",0);
+CALL sp_vwMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2);
 
