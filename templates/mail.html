@@ -1,0 +1,35 @@
+<title>Mensagens</title>
+<template>
+    <style>
+
+        .frm-mail{
+
+        }
+
+    </style>
+    <div class="frm-mail">
+
+
+    </div>
+
+</template>
+<script>
+    const data = mainData.mail.data
+    const func = mainData.mail.func
+
+
+    func.fillMail = ()=>{
+        const params = new Object; 
+        params.to =  data.address
+        params.from =  localStorage.getItem('hash')
+
+        const myPromisse = queryDB(params,26);
+            myPromisse.then((resolve)=>{
+                console.log(resolve)
+            })
+
+    }
+
+    func.fillMail()
+ 
+</script>

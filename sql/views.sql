@@ -6,6 +6,7 @@
  SELECT * FROM vw_friends;
  SELECT * FROM vw_perfil;
  SELECT * FROM vw_message_agd;
+ SELECT * FROM vw_mail;
  
  
  DROP VIEW vw_ranking;
@@ -128,3 +129,12 @@ SELECT FW.id_host AS hostID,(SELECT nick FROM tb_usuario WHERE id=FW.id_host) AS
 		FROM tb_message_agd AS MSG
 		INNER JOIN tb_usuario AS USR
 		ON MSG.id_usuario = USR.id;
+        
+ DROP VIEW vw_mail;
+  CREATE VIEW vw_mail AS
+		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
+		FROM tb_mail AS MSG
+		INNER JOIN tb_usuario AS F_USR
+        INNER JOIN tb_usuario AS T_USR
+		ON MSG.id_from = F_USR.id
+        AND MSG.id_to = T_USR.id;

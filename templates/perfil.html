@@ -89,7 +89,8 @@
                 <div class="line">
                     <p>nível:</p>
                     <h2 id="val-nivel">0</h2>
-                </div>                
+                </div>      
+                <button id="btnMail" class="btn-round"><span class="mdi mdi-email"></span></button>          
             </div>
 
             <div class="rigth-perfil">
@@ -136,6 +137,11 @@
 
     document.querySelector('.myDate').appendChild(calendar())
 
+    document.querySelector('#btnMail').addEventListener('click',()=>{
+        openHTML('mail.html','modal',mainData.perfil.data)
+
+    })
+
     function getPerfil(){
 
         function fillUserData(treinos){                
@@ -175,7 +181,7 @@
     }
 
     getPerfil()
-//    removeHash()
+    removeHash()
 
   
 </script>

@@ -126,6 +126,24 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+ DROP PROCEDURE sp_setMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_setMail(
+		IN Ihash varchar(77),
+		IN Iid_to int(11),
+		IN Iscrap varchar(600)
+    )
+	BEGIN
+		SET @id_from = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		INSERT INTO tb_mail (id_from,id_to,scrap) VALUES (@id_from,Iid_to,Iscrap);
+		SELECT * FROM tb_mail WHERE id_to=Iid_to AND data >= CURDATE() - INTERVAL 30 DAY ORDER BY data DESC;
+        
+	END $$
+DELIMITER ;
+
+CALL sp_setMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,"teste 1223");
+CALL sp_setMail("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",1,"Hello World!");
+
  DROP PROCEDURE sp_setConfirma_agd;
 DELIMITER $$
 	CREATE PROCEDURE sp_setConfirma_agd(
@@ -142,7 +160,7 @@ DELIMITER $$
 		SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id=Iid_treino);
         SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino);
 		
-        IF(@id_call = @id_owner OR @id_call = @id_user) THEN
+        IF((@id_call = @id_owner OR @id_call = @id_user) AND CURDATE() < Idata) THEN
 			IF(@exist)THEN
 				UPDATE tb_agd_confirma SET vou = Ivou WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata;
             ELSE
@@ -196,9 +214,11 @@ DELIMITER $$
 
         IF(@id_call = @id_owner) THEN
 			SET @id = (SELECT (IFNULL(MAX(id),0)+1) AS id  FROM tb_atleta WHERE id_treino=Iid_treino);
+            
 			INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (@id,Iid_user,Iid_treino,Inick,Imensalista);
-            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id_owner,(SELECT MAX(id) FROM tb_atleta));
+            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id,@id);
             SELECT 1 AS OK;
+            
 		ELSE 
 			SELECT 0 AS OK;
         END IF;
@@ -206,7 +226,8 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","6",0,TESTE,"0");
+CALL sp_addAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","11","0","PEDRO","1");
+
 
  DROP PROCEDURE sp_setWarning;
 DELIMITER $$
@@ -515,11 +536,37 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-CALL sp_vwConfirma_agd(7,"2023-11-04 10:00:00");
-SELECT vou FROM tb_agd_confirma WHERE id_treino=7 AND id_atleta =2  AND data = "2023-11-04 10:00:00";
+ DROP PROCEDURE sp_vwMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_vwMail(		
+		IN Ihash varchar(77),
+		IN Iid int(11)
+    )
+	BEGIN
+    
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+    
+		IF(Iid = 0) THEN
+    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
+				FROM tb_mail AS MSG
+				INNER JOIN tb_usuario AS F_USR
+				INNER JOIN tb_usuario AS T_USR
+				ON MSG.id_from = F_USR.id
+				AND MSG.id_to = T_USR.id
+                AND (MSG.id_to = @id_call OR MSG.id_from = @id_call);
+		ELSE
+    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
+				FROM tb_mail AS MSG
+				INNER JOIN tb_usuario AS F_USR
+				INNER JOIN tb_usuario AS T_USR
+				ON MSG.id_from = F_USR.id
+				AND MSG.id_to = T_USR.id
+                AND ((MSG.id_to = Iid AND MSG.id_from = @id_call)
+				 OR (MSG.id_to = @id_call AND MSG.id_from = Iid));        
+        END IF;
 
-CALL sp_vwConfirma_agd(9,"2023-11-11 10:00:00");
+	END $$
+DELIMITER ;
 
-SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = "2023-11-09 20:00:00"),2) AS GO
-		FROM vw_ranking AS RNK
-		WHERE id_treino = 6;
+CALL sp_vwMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",0);
+
