@@ -6,11 +6,121 @@
 
         }
 
+        .new-com{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 20%;
+            position: relative;
+            /*background-color: whitesmoke;*/
+            padding: 5px 0;
+        }
+
+        .new-com img{
+            margin: 10px;
+            width: 40px;
+        }
+
+        .new-com textarea{
+            width: 100%;
+            height: 100%;
+            padding: 10px 60px 10px 10px;
+            resize: none;
+ 
+        }        
+
+        .new-com button{
+            padding: 10px;
+            margin: 5px;
+        }
+
+
+        .view-user{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0 10px;
+            margin: 10 0 0 0;
+        }
+
+        .nameUser{
+            font-weight: bold;
+            font-size: 0.8em;
+            padding-bottom: 0;
+            position: relative;
+                top: -10px;
+                left: -30px;
+        }
+
+        .view-message{
+            width: 100%;
+            padding: 10px;
+            background-color: rgb(245,245,245);
+            border-radius: 15px;
+        }
+
+        .scrap{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0 0 0 25px;
+            position: relative;
+            top: -12;
+            font-weight: lighter;
+            overflow-wrap: break-word;
+        }
+
+        .msg-box{
+            display: flex;
+            width: 95%;
+            height: 50%;
+        }
+
+        .btnMessage{
+            position: absolute;
+            width: 50px;
+            right: 20px;
+/*            margin-top: 10px;
+            padding: 5px;*/
+            background: white;
+/*            border: solid 1px white;
+            color: rgb(196, 196, 196);*/
+        }
+
+        .btnMessage:hover{
+            border: solid 1px #16a083;
+            border-radius: 5px;
+            color: #16a083;
+        }
+
+        .btn-del{
+            width: 100px;
+            height: 40px;
+
+        }
+
+        .img-small{
+            width: 30px ;
+            height: 30px;
+            border-radius: 50%;
+        }
+
     </style>
     <div class="frm-mail">
 
 
     </div>
+
+    <div class="new-com">
+        <div class="msg-box">
+            <img id="imgUserMs" class="img-small" src="">
+            <textarea id="txtNewCom" cols="30" rows="10" maxlength="600"></textarea>    
+        </div>
+        <button id="btnPost" class="btnMessage btn btn-primary">Post</button>
+    </div>
+
 
 </template>
 <script>
@@ -20,9 +130,9 @@
 
     func.fillMail = ()=>{
         const params = new Object; 
-        params.to =  data.address
         params.from =  localStorage.getItem('hash')
-
+        params.to =  parseInt(data.address)
+)
         const myPromisse = queryDB(params,26);
             myPromisse.then((resolve)=>{
                 console.log(resolve)
