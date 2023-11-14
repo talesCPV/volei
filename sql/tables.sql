@@ -65,6 +65,7 @@ CREATE TABLE tb_agd_confirma (
     id_treino int(11) NOT NULL,
     data datetime NOT NULL,
     vou BOOLEAN NOT NULL DEFAULT FALSE,
+    time int(4) DEFAULT 0,
     FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     PRIMARY KEY (id_atleta,id_treino, data)
@@ -102,3 +103,14 @@ CREATE TABLE tb_message_agd (
 	FOREIGN KEY (id_usuario) REFERENCES tb_usuario(id),	
     PRIMARY KEY (id,id_treino,data)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+ DROP TABLE tb_mail;
+CREATE TABLE tb_mail (
+	id_from int(11) NOT NULL,
+	id_to int(11) NOT NULL,
+    data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    scrap varchar(600) NOT NULL,
+	FOREIGN KEY (id_from) REFERENCES tb_usuario(id),	
+	FOREIGN KEY (id_to) REFERENCES tb_usuario(id),	
+    PRIMARY KEY (id_from,id_to,data)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

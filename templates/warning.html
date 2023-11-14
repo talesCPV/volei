@@ -2,11 +2,16 @@
 <template>
     <style>
         .frm-avisos{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
             margin: 10px;
         }
 
         .div-warning{
             cursor: pointer;
+            display: flex;
+            gap: 10px;
         }
 
         .div-warning:hover{
@@ -51,23 +56,33 @@
                 avisos.appendChild(container)
             }else{
                 for(let i=0; i<json.length; i++){
-                    const treino = JSON.parse(json[i].callback)
-
+                    const call = JSON.parse(json[i].callback)
                     const container =  document.createElement('div')
                     container.className = 'div-warning' 
-                    container.innerHTML = `Confirmar Treino - ${treino.nome}, ${treino.data.showDate()} as ${treino.data.showTime()}hs, ${treino.local}`
-                    container.addEventListener('click',()=>{                    
-                        markWarning(json[i].id)
-
-                        switch(treino.origem){
+                    switch(call.origem){
                             case 'agenda':
-                                openHTML('viewAgenda.html','modal',treino)
+                                container.innerHTML = `<span class="mdi mdi-volleyball"></span> Treino - ${call.nome}, ${call.data.showDate()} as ${call.data.showTime()}hs, ${call.local}`
+                                container.addEventListener('click',()=>{                    
+                                    markWarning(json[i].id)
+                                    openHTML('viewAgenda.html','modal',call)
+                                })
+                            break
+                            case 'mail':
+                                container.innerHTML = '<span class="mdi mdi-email"></span> '+ json[i].message
+                                container.addEventListener('click',()=>{                    
+                                    markWarning(json[i].id)
+                                    openHTML('mail.html','modal',call)
+                                })
+
                             break
                             default:
-                                alert('não implementado ainda')
+                                container.innerHTML = 'AInda Não Implementado'
+                                container.addEventListener('click',()=>{                    
+                                    alert('não implementado ainda')
+                                })                                
 
                         }
-                    })
+
                     avisos.appendChild(container)
                 }
             }

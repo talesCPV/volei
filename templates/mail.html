@@ -1,0 +1,242 @@
+<title>Mensagens</title>
+<template>
+    <style>
+
+        #data-mail {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: scroll;
+            max-height: 60vh;
+        }
+
+        .new-com{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 20%;
+            position: relative;
+            /*background-color: whitesmoke;*/
+            padding: 5px 0;
+        }
+
+        .new-com img{
+            margin: 10px;
+            width: 40px;
+        }
+
+        .new-com textarea{
+            width: 100%;
+            height: 80px;
+            padding: 10px 60px 10px 10px;
+            resize: none;
+ 
+        }        
+
+        .new-com button{
+            padding: 10px;
+            margin: 5px;
+        }
+
+        .txt-btn{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;            
+        }
+
+        .view-user{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0 10px;
+            margin: 10 0 0 0;
+        }
+
+        .div-nome-data{
+            display: flex;
+            align-items: center;
+/*            position: relative;                
+            left: -30px;*/
+
+        }
+
+        .nameUser{
+            font-weight: bold;
+            font-size: 0.8em;
+            padding-bottom: 0;
+            padding-right: 0;
+        }
+
+        .data-hora{
+            padding-left: 0;
+            text-indent: 0.3em;
+            font-size: 0.8em;
+        }
+
+        .view-message{
+            width: 100%;
+            padding: 10px;
+            background-color: rgb(245,245,245);
+            border-radius: 15px;
+        }
+
+        .scrap{
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0 0 0 25px;
+            position: relative;
+            top: -12;
+            font-weight: lighter;
+            overflow-wrap: break-word;
+            justify-content: space-between;
+        }
+
+        .msg-box{
+            display: flex;
+            width: 95%;
+            height: 50%;
+        }
+
+        .img-small{
+            width: 30px ;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+    </style>
+
+    <div id="data-mail"></div>
+    <div class="new-com">
+        <div class="msg-box">
+            <img id="imgUserMail" class="img-small" src="">
+            <div class="txt-btn">
+                <textarea id="txtNewMail" cols="30" rows="10" maxlength="600"></textarea>    
+                <button id="btnPostMail" class="btn btn-primary">Post</button>
+            </div>
+        </div>
+    </div>
+
+
+</template>
+<script>
+    const data = mainData.mail.data
+    const func = mainData.mail.func
+    document.querySelector('#imgUserMail').src = document.querySelector('#imgUser').src
+
+    document.querySelector('#btnPostMail').addEventListener('click',()=>{
+        if(localStorage.getItem('idUser') != null){
+            const params = new Object;
+                params.hash =  localStorage.getItem('hash')
+                params.id_to = parseInt(data.address)
+                params.scrap = document.querySelector('#txtNewMail').value.trim()
+
+            const myPromisse = queryDB(params,28)
+
+            myPromisse.then((resolve)=>{
+                const message =  JSON.parse(resolve)      
+
+                refreshMessage(message)
+                document.querySelector('#txtNewMail').value = ''         
+            })
+        }
+
+    })
+
+    func.fillMail = ()=>{
+
+        document.querySelector('#data-mail').innerHTML = ''
+
+        const params = new Object; 
+        params.from =  localStorage.getItem('hash')
+        params.to =  parseInt(data.address)
+
+        const myPromisse = queryDB(params,26);
+            myPromisse.then((resolve)=>{
+                const json = JSON.parse(resolve)                
+                refreshMessage(json)
+            })
+
+    }
+
+    function refreshMessage(dt){
+        numMsg = dt.length;
+        const div_message = document.querySelector('#data-mail') 
+        div_message.innerHTML = ''
+
+        for(let i=0; i<numMsg; i++){
+            const div = document.createElement('div')
+            div.className = 'view-message'
+
+                const user = document.createElement('div')
+                user.className='view-user'
+
+                    const img = document.createElement('img')
+                    img.src = `assets/users/${dt[i].id_from}.jpg`
+                    img.className = 'img-small'
+                    breakImg(img)
+                    user.appendChild(img)
+
+                    const div_nome = document.createElement('div')
+                    div_nome.className = 'div-nome-data'
+
+                    const nome = document.createElement('p')
+                    nome.innerHTML = `${dt[i].fromName}`
+                    nome.className = 'nameUser'
+                    div_nome.appendChild(nome)
+
+                    const data_hora = document.createElement('p')
+                    data_hora.innerHTML = `${dt[i].data.showDate()} ${dt[i].data.showTime()}`
+                    data_hora.className = 'data-hora'
+                    div_nome.appendChild(data_hora)
+
+                    user.appendChild(div_nome)
+
+                div.appendChild(user)
+
+
+
+            const msg = document.createElement('div')
+            msg.className = 'scrap'           
+
+            const txt = document.createElement('p')
+            txt.innerText = dt[i].scrap
+            msg.appendChild(txt)
+
+            if(localStorage.getItem('idUser')== dt[i].id_from){
+              
+                const btn = document.createElement('button')
+                btn.innerHTML = 'APAGAR'
+                btn.className = 'btn btn-primary'
+
+                btn.addEventListener('click',()=>{
+
+                    const params = new Object;
+                        params.hash = localStorage.getItem('hash')
+                        params.id = dt[i].id_to                        
+                        params.data = dt[i].data
+                    queryDB(params,27).then((resolve)=>{
+                        const json = JSON.parse(resolve)
+                        
+                        if(json[0].OK == '1'){
+                            div.style.display = 'none'
+                        }                                                        
+                    })
+ 
+                })
+
+                msg.appendChild(btn)
+            }
+
+            div.appendChild(msg)
+            div_message.appendChild(div)
+        }
+    }
+
+    func.fillMail()
+ 
+</script>

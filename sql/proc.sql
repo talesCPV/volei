@@ -126,6 +126,43 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+ DROP PROCEDURE sp_setMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_setMail(
+		IN Ihash varchar(77),
+		IN Iid_to int(11),
+		IN Iscrap varchar(600)
+    )
+	BEGIN
+		SET @id_from = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		INSERT INTO tb_mail (id_from,id_to,scrap) VALUES (@id_from,Iid_to,Iscrap);
+        
+        IF(@id_from != Iid_to)THEN
+			        
+			SET @nome = (SELECT nick FROM tb_usuario WHERE id=@id_from);
+			SET @mensagem = CONCAT("Nova Mensagem de ",@nome);
+			SET @callback = CONCAT('{"origem":"mail","address":"',@id_from,'","from":',@id_from,',"to":', Iid_to,',"nome":"',@nome,'"}');
+            
+			SET @already = (SELECT COUNT(*) FROM tb_warning WHERE message=@mensagem AND id_atleta=Iid_to);
+
+			IF(@already=0) THEN
+				CALL sp_setWarning(Iid_to,@mensagem,@callback);
+            END IF;
+            			
+			SELECT * FROM vw_mail WHERE ((id_to = Iid_to AND id_from = @id_from)
+				OR (id_to = @id_from AND id_from = Iid_to))
+				ORDER BY data DESC;
+		ELSE
+			SELECT * FROM vw_mail WHERE id_to = @id_from OR id_from = @id_from ORDER BY data DESC;
+        END IF;
+
+        
+	END $$
+DELIMITER ;
+
+CALL sp_setMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,"teste 1223");
+CALL sp_setMail("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",1,"Hello World!");
+
  DROP PROCEDURE sp_setConfirma_agd;
 DELIMITER $$
 	CREATE PROCEDURE sp_setConfirma_agd(
@@ -222,30 +259,10 @@ DELIMITER $$
 		SET @new_id = (SELECT  IFNULL(MAX(id),0)+1 AS NEW_ID FROM tb_warning WHERE id_atleta = Iid_atleta);
 		
 		INSERT INTO tb_warning (id,id_atleta,message,callback) VALUES (@new_id,Iid_atleta,Imessage,Icallback);
-		SELECT 1 AS OK;
+-- 		SELECT 1 AS OK;
         
 	END $$
 DELIMITER ;
-
-
- DROP PROCEDURE sp_markWarning;
-DELIMITER $$
-	CREATE PROCEDURE sp_markWarning(	
-		IN Ihash varchar(77),
-		IN Iid_warning int(11)
-    )
-	BEGIN    
-		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-		
-        IF( @id_call > 0)THEN
-			UPDATE tb_warning SET view=1 WHERE id=Iid_warning AND id_atleta=@id_call ;
-			SELECT 1 AS OK;
-        ELSE
-			SELECT 0 AS OK;
-        END IF;        
-	END $$
-DELIMITER ;
-
 
 /* FOLLOW */
 
@@ -426,11 +443,46 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
-	SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = "f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<" COLLATE utf8_general_ci LIMIT 1;
-	DELETE FROM tb_message_agd  WHERE id=10 AND id_treino=7 AND data="2023-11-11 10:00:00" AND id_usuario = 1;
-
-
 CALL sp_delMessage_agd("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",4,7,"2023-11-11 10:00:00");
+
+ DROP PROCEDURE sp_delMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_delMail(
+        IN Ihash varchar(77),
+        IN Iid int(11),
+		IN Idata datetime
+    )
+	BEGIN        
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);             
+        SET @bef = (SELECT COUNT(*) FROM tb_mail WHERE id_from=@id_call AND id_to=Iid AND data=Idata);
+        DELETE FROM tb_mail WHERE id_from=@id_call AND id_to=Iid AND data=Idata;
+        IF(@bef > 0) THEN
+			SELECT 1 AS OK;
+		ELSE
+			SELECT 0 AS OK;
+		END IF;
+        		
+	END $$
+DELIMITER ;
+
+ DROP PROCEDURE sp_delWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_delWarning(	
+		IN Ihash varchar(77),
+		IN Iid_warning int(11)
+    )
+	BEGIN    
+		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		
+        IF( @id_call > 0)THEN
+			DELETE FROM tb_warning WHERE id=Iid_warning AND id_atleta=@id_call;
+			SELECT 1 AS OK;
+        ELSE
+			SELECT 0 AS OK;
+        END IF;        
+	END $$
+DELIMITER ;
+
 
 /* VIEWS */
 
@@ -511,18 +563,47 @@ DELIMITER $$
     )
 	BEGIN
     
-		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO
+		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO,
+        IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),0) AS TIME
 		FROM vw_ranking AS RNK
 		WHERE id_treino = Iid_treino;
 
 	END $$
 DELIMITER ;
 
-CALL sp_vwConfirma_agd(7,"2023-11-04 10:00:00");
-SELECT vou FROM tb_agd_confirma WHERE id_treino=7 AND id_atleta =2  AND data = "2023-11-04 10:00:00";
+ DROP PROCEDURE sp_vwMail;
+DELIMITER $$
+	CREATE PROCEDURE sp_vwMail(		
+		IN Ihash varchar(77),
+		IN Iid int(11)
+    )
+	BEGIN
+    
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+    
+		IF(Iid = @id_call) THEN
+    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
+				FROM tb_mail AS MSG
+				INNER JOIN tb_usuario AS F_USR
+				INNER JOIN tb_usuario AS T_USR
+				ON MSG.id_from = F_USR.id
+				AND MSG.id_to = T_USR.id
+                AND (MSG.id_to = @id_call OR MSG.id_from = @id_call)
+                ORDER BY MSG.data DESC;
+		ELSE
+    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
+				FROM tb_mail AS MSG
+				INNER JOIN tb_usuario AS F_USR
+				INNER JOIN tb_usuario AS T_USR
+				ON MSG.id_from = F_USR.id
+				AND MSG.id_to = T_USR.id
+                AND ((MSG.id_to = Iid AND MSG.id_from = @id_call)
+				 OR (MSG.id_to = @id_call AND MSG.id_from = Iid))
+				ORDER BY MSG.data DESC;
+        END IF;
 
-CALL sp_vwConfirma_agd(9,"2023-11-11 10:00:00");
+	END $$
+DELIMITER ;
 
-SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = "2023-11-09 20:00:00"),2) AS GO
-		FROM vw_ranking AS RNK
-		WHERE id_treino = 6;
+CALL sp_vwMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2);
+

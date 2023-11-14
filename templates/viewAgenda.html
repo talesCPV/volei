@@ -189,6 +189,7 @@
             <div class="img-treino">
                 <img src="" id="agd-logo">                
                 <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>                
+                <button id="btnSort" class="hide-all btn btn-primary">Montar Times</button>                
 
             </div>
 
@@ -236,6 +237,7 @@
     document.querySelector('#lblData').innerHTML = `dia ${data.data.showDate()} as ${data.data.showTime()}hs`
     document.querySelector('#edtObs').value = data.obs
     document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+    document.querySelector('#btnSort').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
 
     document.querySelector('#btnDelTreino').addEventListener('click',()=>{
         if(confirm('Deseja deletar este treino?')){
@@ -252,6 +254,66 @@
 
     })
 
+    document.querySelector('#btnSort').addEventListener('click',()=>{
+        const atl = mainData.viewAgenda.data.atl
+        const go = []
+        let qtdTimes = 0
+        const times = []
+        
+        console.log(atl)
+
+
+
+
+        for(let i=0; i<atl.length; i++){
+            if(atl[i].GO == '1'){
+                go.push(atl[i])
+            }            
+        }
+        order(go,'LEVANTA_AVG')
+
+        if(go.length <= 12 && go.length >= 4){
+            qtdTimes = 2
+        }else if(go.length > 12){
+            qtdTimes = Math.ceil(go.length/6)
+        }else{
+            alert('Quantidade de pessoas confirmadas insuficiente!')
+        }
+
+
+        if(qtdTimes>0){
+            
+            for(let i=0; i<qtdTimes; i++){
+                times.push([go[i]])
+            }
+
+            let i=0
+            go.splice(0,qtdTimes)
+            while(go.length > 0){
+                const pick = Math.floor(Math.random()*go.length)
+                times[i].push(go[pick])
+                go.splice(pick,1)
+                i++
+                i= i==qtdTimes ? 0 : i
+            }
+
+        }
+
+        for(let y=0; y<times.length; y++){
+            
+            let nota = 0
+            let nome = ''
+            for(let x=0; x<times[y].length; x++){
+                nome += times[y][x].nick + ' '
+                nota += parseFloat(times[y][x].NIVEL)
+            }
+            console.log('Time '+ (y+1) + ' Nota:'+(nota/times[y].length).toFixed(2))
+            console.log(nome)
+        }
+
+        
+    })
+
     func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
         const params = new Object;                    
@@ -261,6 +323,7 @@
         const myPromisse = queryDB(params,15);
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
+            data.atl = json
 
             tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
@@ -269,7 +332,23 @@
                     const imgExist = JSON.parse(resp)    
                     document.querySelector(`#atl-${i}`).src = imgExist ? `assets/users/${json[i].id_user}.jpg` : 'assets/default/user.jpeg'
                 })                
-                tbl.plot(json[i],`<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">,nick,NIVEL,GO`,'let,Upp,Upp,usr')
+
+                const img = document.createElement('img')
+                img.src = `assets/users/${json[i].id_user}.jpg`
+                img.id = `atl-${i}`
+                img.className = "img-small"
+                breakImg(img)
+                               
+                img.addEventListener('click',()=>{
+                    if(parseInt(json[i].id_user)){
+                        window.location.hash = 'P'+json[i].id_user.padStart(10,0)
+                        loadHash()
+                    }
+                })
+//<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">
+                mainData.data.obj = img
+
+                tbl.plot(json[i],`x,nick,NIVEL,GO`,'obj,Upp,Upp,usr')
             }
         })
     }
@@ -295,19 +374,23 @@
         const dados = e.target.parentNode.data
         const idUser = localStorage.getItem('idUser')
         if(new Date(data.data) > new Date()){
-            if(idUser==dados.id_user || idUser==dados.id_owner){
-            const params = new Object;  
-                params.hash = localStorage.getItem('hash')
-                params.id_atleta = dados.id
-                params.id_treino = data.id_treino
-                params.data = data.data
-                params.vou = confirm('Confirma Presença?') ? 1 : 0
-                
-            const myPromisse = queryDB(params,16);
-            myPromisse.then((resolve)=>{  
-                func.fillAtl()
-            })
-        }  
+            if(dados!= undefined){
+                if(idUser==dados.id_user || idUser==dados.id_owner){
+                    const params = new Object;  
+                        params.hash = localStorage.getItem('hash')
+                        params.id_atleta = dados.id
+                        params.id_treino = data.id_treino
+                        params.data = data.data
+                        params.vou = confirm('Confirma Presença?') ? 1 : 0
+                        
+                    const myPromisse = queryDB(params,16);
+                    myPromisse.then((resolve)=>{  
+                        func.fillAtl()
+                    })
+                }  
+
+
+            }            
         } else{
             alert('Evento Encerrado')
         }
@@ -325,7 +408,6 @@
             const myPromisse = queryDB(params,23);
             myPromisse.then((resolve)=>{  
                 const json = JSON.parse(resolve)
-                console.log(json)
                 refreshMessage(json)
             })
     })
@@ -390,6 +472,15 @@
             div.appendChild(msg)
             div_message.appendChild(div)
         }
+    }
+
+    function order(arr,key){            
+        arr.sort(function(a, b) {
+            var keyA = parseFloat(a[key]),
+                keyB = parseFloat(b[key]);            
+            return keyA < keyB ? 1 : keyA > keyB ? -1 : 0;
+            
+        });            
     }
 
 
