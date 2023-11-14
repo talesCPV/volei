@@ -138,9 +138,17 @@ DELIMITER $$
 		INSERT INTO tb_mail (id_from,id_to,scrap) VALUES (@id_from,Iid_to,Iscrap);
         
         IF(@id_from != Iid_to)THEN
+			        
 			SET @nome = (SELECT nick FROM tb_usuario WHERE id=@id_from);
+			SET @mensagem = CONCAT("Nova Mensagem de ",@nome);
 			SET @callback = CONCAT('{"origem":"mail","address":"',@id_from,'","from":',@id_from,',"to":', Iid_to,',"nome":"',@nome,'"}');
-			CALL sp_setWarning(Iid_to,CONCAT("Nova Mensagem de ",@nome),@callback);
+            
+			SET @already = (SELECT COUNT(*) FROM tb_warning WHERE message=@mensagem AND id_atleta=Iid_to);
+
+			IF(@already=0) THEN
+				CALL sp_setWarning(Iid_to,@mensagem,@callback);
+            END IF;
+            			
 			SELECT * FROM vw_mail WHERE ((id_to = Iid_to AND id_from = @id_from)
 				OR (id_to = @id_from AND id_from = Iid_to))
 				ORDER BY data DESC;
@@ -255,26 +263,6 @@ DELIMITER $$
         
 	END $$
 DELIMITER ;
-
-
- DROP PROCEDURE sp_markWarning;
-DELIMITER $$
-	CREATE PROCEDURE sp_markWarning(	
-		IN Ihash varchar(77),
-		IN Iid_warning int(11)
-    )
-	BEGIN    
-		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-		
-        IF( @id_call > 0)THEN
-			UPDATE tb_warning SET view=1 WHERE id=Iid_warning AND id_atleta=@id_call ;
-			SELECT 1 AS OK;
-        ELSE
-			SELECT 0 AS OK;
-        END IF;        
-	END $$
-DELIMITER ;
-
 
 /* FOLLOW */
 
@@ -477,6 +465,23 @@ DELIMITER $$
 	END $$
 DELIMITER ;
 
+ DROP PROCEDURE sp_delWarning;
+DELIMITER $$
+	CREATE PROCEDURE sp_delWarning(	
+		IN Ihash varchar(77),
+		IN Iid_warning int(11)
+    )
+	BEGIN    
+		SET @id_call = (SELECT IFNULL(id,0) FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
+		
+        IF( @id_call > 0)THEN
+			DELETE FROM tb_warning WHERE id=Iid_warning AND id_atleta=@id_call;
+			SELECT 1 AS OK;
+        ELSE
+			SELECT 0 AS OK;
+        END IF;        
+	END $$
+DELIMITER ;
 
 
 /* VIEWS */

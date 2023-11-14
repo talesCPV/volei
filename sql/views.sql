@@ -106,7 +106,8 @@ SELECT FW.id_host AS hostID,(SELECT nick FROM tb_usuario WHERE id=FW.id_host) AS
 
  DROP VIEW vw_perfil;
   CREATE VIEW vw_perfil AS
-    SELECT ATL.id_user, ATL.nick,TRN.nome, AGD.data, AGD.obs, RNK.NIVEL, RNK.TREINOS, RNK.SEGUINDO, RNK.SEGUIDO
+    SELECT ATL.id_user, ATL.nick,TRN.nome, AGD.data, AGD.obs, RNK.NIVEL, RNK.TREINOS, RNK.SEGUINDO, RNK.SEGUIDO,
+    IF(AGD.data < CURDATE(), 1, 0) AS HAPPEND
     FROM tb_agenda AS AGD
     INNER JOIN tb_atleta AS ATL
     INNER JOIN tb_treinos AS TRN
@@ -118,7 +119,7 @@ SELECT FW.id_host AS hostID,(SELECT nick FROM tb_usuario WHERE id=FW.id_host) AS
     AND CFM.id_atleta = ATL.id
     AND RNK.id = ATL.id_user
     AND CFM.data = AGD.data
-    AND AGD.data BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE()
+    AND AGD.data BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() + INTERVAL 30 DAY
     AND CFM.vou = 1;
 
     SELECT * FROM vw_perfil WHERE id_user=1;

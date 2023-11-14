@@ -421,7 +421,12 @@ input[type="text"],input[type="number"]{
 }
 
 .day-trainning{
-  background-color: burlywood;
+  background-color: rgb(158, 219, 109);
+  border-radius: 50%;
+}
+
+.day-confirm{
+  background-color: rgb(223, 134, 134);
   border-radius: 50%;
 }
 

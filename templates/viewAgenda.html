@@ -269,7 +269,23 @@
                     const imgExist = JSON.parse(resp)    
                     document.querySelector(`#atl-${i}`).src = imgExist ? `assets/users/${json[i].id_user}.jpg` : 'assets/default/user.jpeg'
                 })                
-                tbl.plot(json[i],`<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">,nick,NIVEL,GO`,'let,Upp,Upp,usr')
+
+                const img = document.createElement('img')
+                img.src = `assets/users/${json[i].id_user}.jpg`
+                img.id = `atl-${i}`
+                img.className = "img-small"
+                breakImg(img)
+                               
+                img.addEventListener('click',()=>{
+                    if(parseInt(json[i].id_user)){
+                        window.location.hash = 'P'+json[i].id_user.padStart(10,0)
+                        loadHash()
+                    }
+                })
+//<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">
+                mainData.data.obj = img
+
+                tbl.plot(json[i],`x,nick,NIVEL,GO`,'obj,Upp,Upp,usr')
             }
         })
     }
@@ -278,11 +294,9 @@
         const params = new Object;  
             params.id_treino = data.id_treino
             params.data = data.data
-console.log(params)            
         const myPromisse = queryDB(params,24);
         myPromisse.then((resolve)=>{  
             const json = JSON.parse(resolve)
-console.log(json)            
             refreshMessage(json)
         })
 
@@ -297,19 +311,23 @@ console.log(json)
         const dados = e.target.parentNode.data
         const idUser = localStorage.getItem('idUser')
         if(new Date(data.data) > new Date()){
-            if(idUser==dados.id_user || idUser==dados.id_owner){
-            const params = new Object;  
-                params.hash = localStorage.getItem('hash')
-                params.id_atleta = dados.id
-                params.id_treino = data.id_treino
-                params.data = data.data
-                params.vou = confirm('Confirma Presença?') ? 1 : 0
-                
-            const myPromisse = queryDB(params,16);
-            myPromisse.then((resolve)=>{  
-                func.fillAtl()
-            })
-        }  
+            if(dados!= undefined){
+                if(idUser==dados.id_user || idUser==dados.id_owner){
+                    const params = new Object;  
+                        params.hash = localStorage.getItem('hash')
+                        params.id_atleta = dados.id
+                        params.id_treino = data.id_treino
+                        params.data = data.data
+                        params.vou = confirm('Confirma Presença?') ? 1 : 0
+                        
+                    const myPromisse = queryDB(params,16);
+                    myPromisse.then((resolve)=>{  
+                        func.fillAtl()
+                    })
+                }  
+
+
+            }            
         } else{
             alert('Evento Encerrado')
         }
@@ -327,7 +345,6 @@ console.log(json)
             const myPromisse = queryDB(params,23);
             myPromisse.then((resolve)=>{  
                 const json = JSON.parse(resolve)
-//                console.log(json)
                 refreshMessage(json)
             })
     })
