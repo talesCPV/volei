@@ -341,8 +341,8 @@
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
             data.atl = json
-
-            tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
+console.log(json)
+            tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Time,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
                 const back = backFunc({'filename':`../assets/users/${json[i].id_user}.jpg`},1)
                 back.then((resp)=>{
@@ -365,7 +365,7 @@
 //<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">
                 mainData.data.obj = img
 
-                tbl.plot(json[i],`x,nick,NIVEL,GO`,'obj,Upp,Upp,usr')
+                tbl.plot(json[i],`x,TIME,nick,NIVEL,GO`,'obj,int,Upp,Upp,usr')
             }
         })
     }

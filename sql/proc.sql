@@ -181,7 +181,7 @@ DELIMITER $$
 		
         IF((@id_call = @id_owner OR @id_call = @id_user) AND CURDATE() < Idata) THEN
 			IF(@exist)THEN
-				UPDATE tb_agd_confirma SET vou = Ivou WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata;
+				UPDATE tb_agd_confirma SET vou = Ivou, time=0 WHERE id_atleta=Iid_atleta AND id_treino=Iid_treino AND data=Idata;
             ELSE
 				INSERT INTO tb_agd_confirma (id_atleta,id_treino,data,vou) VALUES (Iid_atleta,Iid_treino,Idata,Ivou);
             END IF;
@@ -582,7 +582,7 @@ DELIMITER ;
 
 CALL sp_vwUsersByName(2,'teste@',0,10);
 
--- DROP PROCEDURE sp_vwConfirma_agd;
+ DROP PROCEDURE sp_vwConfirma_agd;
 DELIMITER $$
 	CREATE PROCEDURE sp_vwConfirma_agd(		
 		IN Iid_treino int(11),
@@ -598,6 +598,8 @@ DELIMITER $$
 
 	END $$
 DELIMITER ;
+
+CALL sp_vwConfirma_agd(6,"2023-11-16 20:00:00");
 
  DROP PROCEDURE sp_vwMail;
 DELIMITER $$
