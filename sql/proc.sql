@@ -161,7 +161,7 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_setMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,"teste 1223");
-CALL sp_setMail("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",1,"Hello World!");
+CALL sp_setMail("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",1,"Hello World! 3");
 
  DROP PROCEDURE sp_setConfirma_agd;
 DELIMITER $$
@@ -323,6 +323,8 @@ DELIMITER ;
 
 CALL sp_avalia("6","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,"3.41","1","1","1","RODRIGO","1");
 
+/* UPDATE */
+
  DROP PROCEDURE sp_linkAtl;
 DELIMITER $$
 	CREATE PROCEDURE sp_linkAtl(		
@@ -349,6 +351,31 @@ DELIMITER $$
 DELIMITER ;
 
 CALL sp_linkAtl(2,"f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2,7);
+
+
+ DROP PROCEDURE sp_upTimes;
+DELIMITER $$
+	CREATE PROCEDURE sp_upTimes(		
+		IN Ihash varchar(77),
+        IN Iid_treino int(11),
+        IN Idate datetime,
+        IN Itime int(11),
+		IN Iids varchar(40)
+    )
+	BEGIN
+		    
+        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
+
+        IF(@id_owner = @id_call) THEN
+			UPDATE tb_agd_confirma SET time = Itime WHERE id_treino=Iid_treino AND data=Idate AND id_atleta IN (SELECT id FROM (SELECT id,(SELECT INSTR(Iids, CONCAT("*",id,"*"))) AS HAS FROM tb_atleta WHERE id_treino=Iid_treino) AS T1 WHERE HAS > 0);
+            SELECT 1 AS OK;
+		ELSE 
+			SELECT 0 AS OK;
+        END IF;
+        
+	END $$
+DELIMITER ;
 
 /* DELEÇÂO */
 
@@ -563,9 +590,11 @@ DELIMITER $$
     )
 	BEGIN
     
-		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO
+		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO,
+        IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS TIME
 		FROM vw_ranking AS RNK
-		WHERE id_treino = Iid_treino;
+		WHERE id_treino = Iid_treino
+        ORDER BY TIME;
 
 	END $$
 DELIMITER ;

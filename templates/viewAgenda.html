@@ -189,6 +189,7 @@
             <div class="img-treino">
                 <img src="" id="agd-logo">                
                 <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>                
+                <button id="btnSort" class="hide-all btn btn-primary">Montar Times</button>                
 
             </div>
 
@@ -236,6 +237,7 @@
     document.querySelector('#lblData').innerHTML = `dia ${data.data.showDate()} as ${data.data.showTime()}hs`
     document.querySelector('#edtObs').value = data.obs
     document.querySelector('#btnDelTreino').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
+    document.querySelector('#btnSort').style.display =  localStorage.getItem('idUser')==data.id_owner? 'block' : 'none'
 
     document.querySelector('#btnDelTreino').addEventListener('click',()=>{
         if(confirm('Deseja deletar este treino?')){
@@ -252,6 +254,83 @@
 
     })
 
+    document.querySelector('#btnSort').addEventListener('click',()=>{
+        const atl = mainData.viewAgenda.data.atl
+        const go = []
+        let qtdTimes = 0
+        const times = []
+        
+        console.log(atl)
+
+
+
+
+        for(let i=0; i<atl.length; i++){
+            if(atl[i].GO == '1'){
+                go.push(atl[i])
+            }            
+        }
+        order(go,'LEVANTA_AVG')
+
+        if(go.length <= 12 && go.length >= 4){
+            qtdTimes = 2
+        }else if(go.length > 12){
+            qtdTimes = Math.ceil(go.length/6)
+        }else{
+            alert('Quantidade de pessoas confirmadas insuficiente!')
+        }
+
+
+        if(qtdTimes>0){
+            
+            for(let i=0; i<qtdTimes; i++){
+                times.push([go[i]])
+            }
+
+            let i=0
+            go.splice(0,qtdTimes)
+            while(go.length > 0){
+                const pick = Math.floor(Math.random()*go.length)
+                times[i].push(go[pick])
+                go.splice(pick,1)
+                i++
+                i= i==qtdTimes ? 0 : i
+            }
+
+        }
+
+        let alerta = ''
+
+        for(let y=0; y<times.length; y++){
+            
+            let nota = 0
+            alerta += 'Time '+(y+1)+': '
+            let id_atletas = ''
+            for(let x=0; x<times[y].length; x++){
+                alerta += times[y][x].nick + ' - ' 
+                nota += parseFloat(times[y][x].NIVEL)
+                id_atletas += '*'+times[y][x].id+'*'
+            }
+            alerta += ' NOTA: '+nota.toFixed(2)+'\r\n'
+            console.log(id_atletas)
+
+            const params = new Object
+                params.hash = localStorage.getItem('hash')
+                params.id_treino = data.id_treino
+                params.date = data.data
+                params.time = y+1
+                params.ids = id_atletas
+            const myPromisse = queryDB(params,29);
+            myPromisse.then((resolve)=>{            
+                console.log(resolve)
+                func.fillAtl()
+            })
+        }
+
+        alert(alerta)
+        
+    })
+
     func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
         const params = new Object;                    
@@ -261,6 +340,7 @@
         const myPromisse = queryDB(params,15);
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
+            data.atl = json
 
             tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
@@ -409,6 +489,15 @@
             div.appendChild(msg)
             div_message.appendChild(div)
         }
+    }
+
+    function order(arr,key){            
+        arr.sort(function(a, b) {
+            var keyA = parseFloat(a[key]),
+                keyB = parseFloat(b[key]);            
+            return keyA < keyB ? 1 : keyA > keyB ? -1 : 0;
+            
+        });            
     }
 
 

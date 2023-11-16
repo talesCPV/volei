@@ -65,6 +65,7 @@ CREATE TABLE tb_agd_confirma (
     id_treino int(11) NOT NULL,
     data datetime NOT NULL,
     vou BOOLEAN NOT NULL DEFAULT FALSE,
+    time int(4) DEFAULT 0,
     FOREIGN KEY (id_atleta) REFERENCES tb_atleta(id),
     FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     PRIMARY KEY (id_atleta,id_treino, data)

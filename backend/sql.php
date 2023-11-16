@@ -30,6 +30,7 @@
         "26" => 'CALL sp_vwMail("x00",x01);',
         "27" => 'CALL sp_delMail("x00",x01,"x02");',
         "28" => 'CALL sp_setMail("x00",x01,"x02");',
+        "29" => 'CALL sp_upTimes("x00",x01,"x02",x03,"x04");',
         
     );
 
