@@ -305,11 +305,11 @@
             
             let nota = 0
             alerta += 'Time '+(y+1)+': '
-            let id_atletas = ''
+            let id_atletas = '*'
             for(let x=0; x<times[y].length; x++){
                 alerta += times[y][x].nick + ' - ' 
                 nota += parseFloat(times[y][x].NIVEL)
-                id_atletas += '*'+times[y][x].id+'*'
+                id_atletas += times[y][x].id+'*'
             }
             alerta += ' NOTA: '+nota.toFixed(2)+'\r\n'
             console.log(id_atletas)
