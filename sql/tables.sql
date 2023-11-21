@@ -36,18 +36,16 @@ CREATE TABLE tb_treinos (
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE tb_ranking;
-CREATE TABLE tb_ranking (
-    id_treino int(11) NOT NULL,
+CREATE TABLE tb_ranking (    
     id_avaliador int(11) NOT NULL,
     id_avaliado int(11) NOT NULL,
     saque double DEFAULT 1,
     passe double DEFAULT 1,
     ataque double DEFAULT 1,
     levanta double DEFAULT 1,
-    FOREIGN KEY (id_treino) REFERENCES tb_treinos(id),
     FOREIGN KEY (id_avaliador) REFERENCES tb_atleta(id),
     FOREIGN KEY (id_avaliado) REFERENCES tb_atleta(id),
-    PRIMARY KEY (id_treino,id_avaliador,id_avaliado)
+    PRIMARY KEY (id_avaliador,id_avaliado)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
  DROP TABLE tb_agenda;

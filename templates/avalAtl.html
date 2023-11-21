@@ -24,10 +24,6 @@
             margin: 10px;
         }
 
-        .ckb{
-            justify-content: center !important;
-        }
-
         .inline label{
             padding-right: 10px;
             cursor: pointer;
@@ -42,22 +38,10 @@
         }
 
 
-
     </style>
 
     <div class="frm-atleta">
 
-        <div class="inline">
-            <label for="edtNomeAtl">Nome</label>
-            <input type="text" id="edtNomeAtl" maxlength="40">
-        </div>
-
-        <div class="inline ckb">
-            <label for="ckbMensal">Mensalista</label>
-            <input type="checkbox" id="ckbMensal">
-        </div>
-
-        <button id="btnBuscaAtl" class="btn btn-primary">Buscar Atleta</button>
 
         <fieldset>
             <legend>Nível</legend>
@@ -105,20 +89,17 @@
         </fieldset>
 
         <button id="btnRanking" class="btn btn-primary">Salvar</button>
-        <button id="btnDelAtl" class="btn btn-primary">Sair do Treino</button>
-
+        
     </div>
 
 
 </template>
 <script>
 
-    const data = mainData.viewAtl.data    
-    
+    const data = mainData.avalAtl.data.perfil
 
-    document.querySelector('.title-viewAtl').innerHTML = data.nick.toUpperCase()
-    document.querySelector('#edtNomeAtl').value = data.nick.toUpperCase()
-    document.querySelector('#ckbMensal').checked = parseInt(data.mensalista)
+    document.querySelector('.title-avalAtl').innerHTML = data.nick.toUpperCase()    
+/*
     document.querySelector('#rtn-saque').value = data.saque
     document.querySelector('#rtn-passe').value = data.passe
     document.querySelector('#rtn-ataque').value = data.ataque
@@ -129,7 +110,7 @@
     document.querySelector('#btnBuscaAtl').style.display = (data.owner && data.id_user == '0') ? 'block' : 'none'
     document.querySelector('#btnDelAtl').style.display = (data.owner || data.self) ? 'block' : 'none'
 
-
+*/
     function getStar(e){
         const target = e.target;        
         let bar  = target.parentNode.querySelector('progress') 
@@ -157,25 +138,30 @@
         !data.self ? getStar(e) : 0
     })
 
-    document.querySelector('#btnBuscaAtl').addEventListener('click',()=>{
-        data.origem = 'treino'
-        openHTML('findUser.html','modal',data)
+    document.querySelector('#btnRanking').addEventListener('click',()=>{
+        const saque = document.querySelector('#rtn-saque').value
+        const passe = document.querySelector('#rtn-passe').value
+        const ataque = document.querySelector('#rtn-ataque').value
+        const levanta = document.querySelector('#rtn-levanta').value
+
+        const params = new Object;
+            params.hash = localStorage.getItem('hash')
+            params.id_avaliado = data.id_user
+            params.saque = saque
+            params.passe = passe
+            params.ataque = ataque
+            params.levanta = levanta            
+
+        const myPromisse = queryDB(params,7);
+        myPromisse.then((resolve)=>{
+            console.log(resolve)
+            mainData.newTreino.func.fillAtl()
+            closeModal(0)
+
+        })
+
     })
 
-    document.querySelector('#btnDelAtl').addEventListener('click',()=>{
-        if(confirm(`Deseja retirar o atleta ${data.nick} do treino ${mainData.newTreino.data.nome}?`)){
-            const params = new Object;
-            params.hash = localStorage.getItem('hash')
-            params.id_atl = data.id
-            params.id_treino = data.id_treino
-            const myPromisse = queryDB(params,10);
-            myPromisse.then((resolve)=>{
-                console.log(resolve)
-                mainData.newTreino.func.fillAtl()         
-                closeModal(0)
-            })
-        }
-    })
 
 
     

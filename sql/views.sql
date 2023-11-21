@@ -10,16 +10,13 @@
  
  
  DROP VIEW vw_ranking;
- CREATE VIEW vw_ranking AS
-	SELECT RNK.id_treino, TRN.id_owner, ATL.id, ATL.id_user, ATL.nick, ROUND(AVG(RNK.saque),2) AS SAQUE_AVG, ROUND(AVG(RNK.passe),2) AS PASSE_AVG, ROUND(AVG(RNK.ataque),2) AS ATAQUE_AVG, ROUND(AVG(RNK.levanta),2) AS LEVANTA_AVG,
-		ROUND(((AVG(RNK.saque) + AVG(RNK.passe) + AVG(RNK.ataque) + AVG(RNK.levanta))/4),2) AS NIVEL
-		FROM tb_ranking AS RNK
-		INNER JOIN tb_atleta AS ATL
-        INNER JOIN tb_treinos AS TRN
-		ON RNK.id_avaliado = ATL.id
-        AND RNK.id_treino = ATL.id_treino
-        AND TRN.id = RNK.id_treino
-		GROUP BY RNK.id_avaliado, RNK.id_treino ;
+-- CREATE VIEW vw_ranking AS
+	SELECT USR.id, USR.nick,
+    (SELECT IFNULL(ROUND(AVG(saque),2),0)FROM tb_ranking WHERE id_avaliado=USR.id) AS SAQUE,
+    (SELECT IFNULL(ROUND(AVG(passe),2),0)FROM tb_ranking WHERE id_avaliado=USR.id) AS PASSE,
+    (SELECT IFNULL(ROUND(AVG(ataque),2),0)FROM tb_ranking WHERE id_avaliado=USR.id) AS ATAQUE,
+    (SELECT IFNULL(ROUND(AVG(levanta),2),0)FROM tb_ranking WHERE id_avaliado=USR.id) AS LEVANTA
+	FROM tb_usuario AS USR;
         
         
  DROP VIEW vw_user_ranking;
@@ -49,7 +46,7 @@
         
         
  DROP VIEW vw_dashboard;
-  CREATE VIEW vw_dashboard AS
+--  CREATE VIEW vw_dashboard AS
 	SELECT AGD.*, TRN.nome,
     TRN.local,  TRN.id_owner, GROUP_CONCAT(ATL.nick SEPARATOR ',') AS ATLETAS
     FROM tb_agenda AS AGD

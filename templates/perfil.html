@@ -4,6 +4,9 @@
 <template>
     <style>
 
+        .abs{
+            position: unset !important;
+        }
 
         .form-perfil{
             padding: 20px ;
@@ -69,7 +72,7 @@
         }
 
         .line > *{
-            padding: 0;
+            /*padding: 0;*/
             text-indent: 0;
         }
 
@@ -89,8 +92,11 @@
                 <div class="line">
                     <p>nível:</p>
                     <h2 id="val-nivel">0</h2>
-                </div>      
-                <button id="btnMail" class="btn-round"><span class="mdi mdi-email"></span></button>          
+                </div>  
+                <div class="line">
+                    <button id="btnMail" class="abs btn-round"><span class="mdi mdi-email"></span></button>
+                    <button id="btnAval" class="abs btn-round"><span class="mdi mdi-clipboard-edit-outline"></span></button>    
+                </div>    
             </div>
 
             <div class="rigth-perfil">
@@ -128,7 +134,9 @@
 </template>
 <script>
 
-    const usr = parseInt(mainData.perfil.data.address)
+
+    const data = mainData.perfil.data
+    const usr = parseInt(data.address)
     const back = backFunc({'filename':`../assets/users/${usr}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
@@ -138,13 +146,18 @@
     document.querySelector('.myDate').appendChild(calendar())
 
     document.querySelector('#btnMail').addEventListener('click',()=>{
-        openHTML('mail.html','modal',mainData.perfil.data)
-
+        openHTML('mail.html','modal',data)
     })
+
+    document.querySelector('#btnAval').addEventListener('click',()=>{
+        openHTML('avalAtl.html','modal',data)
+    })
+
 
     function getPerfil(){
 
-        function fillUserData(treinos){                
+        function fillUserData(treinos){     
+            data.perfil = treinos[0]
             document.querySelector('.title-perfil').innerHTML = treinos[0].nick
             document.querySelector('#val-seguindo').innerHTML = treinos[0].SEGUINDO
             document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
@@ -160,12 +173,15 @@
         myPromisse.then((resolve)=>{
             const treinos = JSON.parse(resolve)
 
+            
             if(treinos.length == 0){
                 const myPromisse = queryDB(params,11);
                 myPromisse.then((resolve)=>{
-                    fillUserData(JSON.parse(resolve))
+                    const perfil = JSON.parse(resolve)
+                    perfil[0].id_user = perfil[0].id                    
+                    fillUserData(perfil)
                 })
-            }else{
+            }else{                
                 document.querySelector('#last-4').innerHTML = treinos.length
                 for(let i=0; i<treinos.length; i++){          
                     try{                                      

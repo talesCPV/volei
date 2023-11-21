@@ -236,7 +236,7 @@ DELIMITER $$
 			SET @id = (SELECT (IFNULL(MAX(id),0)+1) AS id  FROM tb_atleta WHERE id_treino=Iid_treino);
             
 			INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (@id,Iid_user,Iid_treino,Inick,Imensalista);
-            INSERT INTO tb_ranking (id_treino, id_avaliador, id_avaliado) VALUES (Iid_treino,@id,@id);
+            INSERT INTO tb_ranking (id_avaliador, id_avaliado) VALUES (@id,@id);
             SELECT 1 AS OK;
             
 		ELSE 
@@ -289,30 +289,21 @@ DELIMITER ;
 
  DROP PROCEDURE sp_avalia;
 DELIMITER $$
-	CREATE PROCEDURE sp_avalia(
-		IN Iid_treino int(11),
+	CREATE PROCEDURE sp_avalia(		
 		IN Ihash varchar(77),
         IN Iid_avaliado int(11),
         IN Isaque double,
         IN Ipasse double,
         IN Iataque double,
-        IN Ilevanta double,
-        IN Inick varchar(77),
-        IN Imensalista boolean
+        IN Ilevanta double
     )
 	BEGIN
-        SET @id_avaliador = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-        SET @id_user = (SELECT id_user FROM tb_atleta WHERE id=Iid_avaliado AND id_treino=Iid_treino);
-        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_atleta WHERE id_treino=Iid_treino AND id_user=@id_avaliador AND @id_avaliador != @id_user);		
-        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
-        
-        IF(@id_avaliador = @id_owner OR @id_avaliador = @id_avaliador) THEN
-			UPDATE tb_atleta SET nick=Inick, mensalista=Imensalista WHERE id_treino=Iid_treino AND id=Iid_avaliado;
-        END IF;
-        
-        IF(@pode_avaliar) THEN
-			INSERT INTO tb_ranking (id_treino,id_avaliador,id_avaliado,saque,passe,ataque,levanta)
-            VALUES (Iid_treino,@id_avaliador,Iid_avaliado,Isaque,Ipasse,Iataque,Ilevanta)
+        SET @id_avaliador = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
+        SET @pode_avaliar = (SELECT COUNT(*) FROM tb_following WHERE (id_host=@id_avaliador AND id_guest=Iid_avaliado) OR (id_host=Iid_avaliado AND id_guest=@id_avaliador));
+                
+        IF(@pode_avaliar > 1) THEN
+			INSERT INTO tb_ranking (id_avaliador,id_avaliado,saque,passe,ataque,levanta)
+            VALUES (@id_avaliador,Iid_avaliado,Isaque,Ipasse,Iataque,Ilevanta)
             ON DUPLICATE KEY UPDATE
             saque=Isaque, passe=Ipasse, ataque=Iataque,levanta=Ilevanta;
 			SELECT 1 AS OK;
