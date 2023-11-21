@@ -341,7 +341,6 @@
         myPromisse.then((resolve)=>{            
             const json = JSON.parse(resolve)
             data.atl = json
-console.log(json)
             tbl.head('<span class="mdi mdi-account-circle"></span>|img-small,Time,Atleta,<span class="mdi mdi-star"></span>,<span class="mdi mdi-account-check"></span>')
             for(let i=0; i<json.length;i++){
                 const back = backFunc({'filename':`../assets/users/${json[i].id_user}.jpg`},1)
@@ -383,13 +382,13 @@ console.log(json)
 
     }
 
-
     func.fillAtl()
     func.fillMessage()
 
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{      
         const dados = e.target.parentNode.data
         const idUser = localStorage.getItem('idUser')
+        console.log(dados)
         if(new Date(data.data) > new Date()){
             if(dados!= undefined){
                 if(idUser==dados.id_user || idUser==dados.id_owner){

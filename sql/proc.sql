@@ -582,16 +582,20 @@ DELIMITER $$
     )
 	BEGIN
     
-		SELECT RNK.*, IFNULL((SELECT vou FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS GO,
-        IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=RNK.id_treino AND id_atleta = RNK.id  AND data = Idata),2) AS TIME
-		FROM vw_ranking AS RNK
-		WHERE id_treino = Iid_treino
-        ORDER BY TIME;
+		SELECT ATL.* , TRN.nome, TRN.local,TRN.id_owner,
+			IFNULL((SELECT vou FROM tb_agd_confirma  WHERE id_treino=TRN.id AND id_atleta = ATL.id  AND data = Idata),2) AS GO,
+			IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=TRN.id AND id_atleta = ATL.id  AND data = Idata),2) AS TIME
+		FROM tb_atleta AS ATL
+		INNER JOIN tb_treinos AS TRN		
+		ON TRN.id=ATL.id_treino
+		AND TRN.id = Iid_treino
+		GROUP BY ATL.id
+		ORDER BY TIME;
 
 	END $$
 DELIMITER ;
 
-CALL sp_vwConfirma_agd(6,"2023-11-16 20:00:00");
+CALL sp_vwConfirma_agd(13,"2023-11-18 11:00:00");
 
  DROP PROCEDURE sp_vwMail;
 DELIMITER $$
