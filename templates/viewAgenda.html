@@ -262,7 +262,7 @@
         
         console.log(atl)
 
-
+        let alerta = ''
 
 
         for(let i=0; i<atl.length; i++){
@@ -277,7 +277,7 @@
         }else if(go.length > 12){
             qtdTimes = Math.ceil(go.length/6)
         }else{
-            alert('Quantidade de pessoas confirmadas insuficiente!')
+            alerta = 'Quantidade de pessoas confirmadas insuficiente!'
         }
 
 
@@ -299,7 +299,6 @@
 
         }
 
-        let alerta = ''
 
         for(let y=0; y<times.length; y++){
             
@@ -327,7 +326,7 @@
             })
         }
 
-        alert(alerta)
+        alerta != '' ? alert(alerta) : 0
         
     })
 

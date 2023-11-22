@@ -224,6 +224,11 @@
             img.src = `assets/users/${json[0].id}.jpg`
             breakImg(img)
 
+            img.addEventListener('click',()=>{
+              window.location.hash = 'P'+localStorage.getItem('idUser').padStart(10,0)
+              loadHash()
+            })
+
           document.querySelector('#imgUser').src = img.src
           breakImg(document.querySelector('#imgUser'))
 

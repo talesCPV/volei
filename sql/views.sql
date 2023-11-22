@@ -7,6 +7,7 @@
  SELECT * FROM vw_perfil;
  SELECT * FROM vw_message_agd;
  SELECT * FROM vw_mail;
+ SELECT * FROM vw_treinoAtl;
  
  
  DROP VIEW vw_ranking;
@@ -127,3 +128,22 @@ SELECT FW.id_host AS hostID,(SELECT nick FROM tb_usuario WHERE id=FW.id_host) AS
 		ON MSG.id_from = F_USR.id
         AND MSG.id_to = T_USR.id
         AND MSG.data >= CURDATE() - INTERVAL 30 DAY ORDER BY data DESC;
+        
+ DROP VIEW vw_treinoAtl;
+  CREATE VIEW vw_treinoAtl AS        
+	SELECT ATL.*, ROUND((saque+passe+ataque+levanta)/4,2) AS NIVEL
+		FROM tb_atleta AS ATL
+		INNER JOIN tb_treinos AS TRN
+		ON ATL.id_treino = TRN.id
+        AND ATL.id_user = 0		
+	UNION
+	SELECT ATL.id, ATL.id_user, ATL.id_treino, ATL.nick, ATL.mensalista, RNK.SAQUE AS saque, RNK.PASSE AS passe,
+		RNK.ATAQUE AS ataque, RNK.LEVANTA AS levanta, ROUND((RNK.SAQUE+RNK.PASSE+RNK.ATAQUE+RNK.LEVANTA)/4,2) AS NIVEL
+		FROM tb_atleta AS ATL
+		INNER JOIN tb_treinos AS TRN
+        INNER JOIN vw_ranking AS RNK
+		ON ATL.id_treino = TRN.id
+        AND RNK.id = ATL.id_user
+        AND ATL.id_user != 0
+		GROUP BY id_user, id_treino;
+        

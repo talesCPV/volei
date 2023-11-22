@@ -327,6 +327,7 @@ input[type="text"],input[type="number"]{
   .view-inline:hover{
     border-bottom: solid 1px #16a083;
     border-top: solid 1px #16a083;
+    cursor: pointer;
   }
 
   .view-inline button{

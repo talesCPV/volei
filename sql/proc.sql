@@ -227,6 +227,7 @@ DELIMITER $$
 		IN Iid_user int(11),
 		IN Inick varchar(15),
         IN Imensalista BOOLEAN
+        
     )
 	BEGIN		
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
@@ -286,6 +287,38 @@ DELIMITER $$
 
 	END $$
 DELIMITER ;
+
+
+ DROP PROCEDURE sp_setAtleta;
+DELIMITER $$
+	CREATE PROCEDURE sp_setAtleta(		
+		IN Ihash varchar(77),
+		IN Inick varchar(15),
+		IN Imensal boolean,
+        IN Iid_atleta int(11),
+        IN Iid_treino int(11),
+        IN Isaque double,
+        IN Ipasse double,
+        IN Iataque double,
+        IN Ilevanta double
+    )
+	BEGIN
+        SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);        
+        SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);
+                
+        IF(@id_call = @id_owner) THEN			
+            UPDATE tb_atleta SET nick=Inick,mensalista=Imensal, saque=Isaque, passe=Ipasse, ataque=Iataque, levanta=Ilevanta
+            WHERE id = Iid_atleta AND id_treino=Iid_treino;
+            
+			SELECT 1 AS OK;
+        ELSE
+			SELECT 0 AS OK;
+        END IF;
+	END $$
+DELIMITER ;
+
+CALL sp_setAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","DINHOaassa","1",23,6,3.25,2.16,3.16);
+
 
  DROP PROCEDURE sp_avalia;
 DELIMITER $$
@@ -505,6 +538,7 @@ DELIMITER ;
 
 /* VIEWS */
 
+/*
  DROP PROCEDURE sp_vwTreinoAtl;
 DELIMITER $$
 	CREATE PROCEDURE sp_vwTreinoAtl(
@@ -512,41 +546,34 @@ DELIMITER $$
 		IN Iid_user int(11)
     )
 	BEGIN
-SELECT * FROM(    
-	SELECT ATL.*, RNK.saque, RNK.passe, RNK.ataque, RNK.levanta, RNK.id_avaliador,
-		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG,
-        ROUND(((AVG_RNK.SAQUE_AVG + AVG_RNK.PASSE_AVG + AVG_RNK.ATAQUE_AVG + AVG_RNK.LEVANTA_AVG)/4),2) AS NIVEL
+
+
+	SELECT ATL.*, ROUND((saque+passe+ataque+levanta)/4,2) AS NIVEL
 		FROM tb_atleta AS ATL
-		INNER JOIN tb_ranking AS RNK
-		INNER JOIN vw_ranking AS AVG_RNK
-		ON ATL.id = RNK.id_avaliado
-		AND AVG_RNK.id_treino = RNK.id_treino
-		AND AVG_RNK.id = RNK.id_avaliado
-		AND ATL.id_treino = Iid_treino
-		AND RNK.id_avaliador = Iid_user
-		AND RNK.id_treino = Iid_treino
-		GROUP BY id
+		INNER JOIN tb_treinos AS TRN
+		ON ATL.id_treino = TRN.id
+        AND TRN.id_owner = 1
+        AND TRN.id = Iid_treino
+        AND ATL.id_user = 0
+		GROUP BY ATL.id
 	UNION
-	SELECT ATL.*, 1 AS saque, 1 AS passe, 1 AS ataque, 1 AS levanta, Iid_user AS id_avaliador,
-		AVG_RNK.SAQUE_AVG,AVG_RNK.PASSE_AVG,AVG_RNK.ATAQUE_AVG,AVG_RNK.LEVANTA_AVG,
-        ROUND(((AVG_RNK.SAQUE_AVG + AVG_RNK.PASSE_AVG + AVG_RNK.ATAQUE_AVG + AVG_RNK.LEVANTA_AVG)/4),2) AS NIVEL
+	SELECT ATL.id, ATL.id_user, ATL.id_treino, ATL.nick, ATL.mensalista, RNK.SAQUE AS saque, RNK.PASSE AS passe,
+		RNK.ATAQUE AS ataque, RNK.LEVANTA AS levanta, ROUND((RNK.SAQUE+RNK.PASSE+RNK.ATAQUE+RNK.LEVANTA)/4,2) AS NIVEL
 		FROM tb_atleta AS ATL
-		INNER JOIN tb_ranking AS RNK
-		INNER JOIN vw_ranking AS AVG_RNK
-		ON ATL.id = RNK.id_avaliado
-		AND AVG_RNK.id_treino = RNK.id_treino
-		AND AVG_RNK.id = RNK.id_avaliado
-		AND ATL.id_treino = Iid_treino
-		AND RNK.id_avaliador != Iid_user
-		AND RNK.id_treino = Iid_treino
-		GROUP BY id
-	) AS tbl_Atl 
-    GROUP BY id_treino,id;
+		INNER JOIN tb_treinos AS TRN
+        INNER JOIN vw_ranking AS RNK
+		ON ATL.id_treino = TRN.id
+        AND RNK.id = ATL.id_user
+        AND TRN.id_owner = 1
+        AND TRN.id = Iid_treino
+		GROUP BY ATL.id;
+
 	END $$
 DELIMITER ;
 
 CALL sp_vwTreinoAtl(7,1);
-
+CALL sp_vwTreinoAtl(6,1);
+*/
  DROP PROCEDURE sp_vwUsers;
 DELIMITER $$
 	CREATE PROCEDURE sp_vwUsers(
@@ -584,13 +611,13 @@ DELIMITER $$
     
 		SELECT ATL.* , TRN.nome, TRN.local,TRN.id_owner,
 			IFNULL((SELECT vou FROM tb_agd_confirma  WHERE id_treino=TRN.id AND id_atleta = ATL.id  AND data = Idata),2) AS GO,
-			IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=TRN.id AND id_atleta = ATL.id  AND data = Idata),2) AS TIME
-		FROM tb_atleta AS ATL
+			IFNULL((SELECT time FROM tb_agd_confirma WHERE id_treino=TRN.id AND id_atleta = ATL.id  AND data = Idata),0) AS TIME
+		FROM vw_treinoAtl AS ATL
 		INNER JOIN tb_treinos AS TRN		
 		ON TRN.id=ATL.id_treino
 		AND TRN.id = Iid_treino
 		GROUP BY ATL.id
-		ORDER BY TIME;
+		ORDER BY TIME, mensalista DESC;
 
 	END $$
 DELIMITER ;

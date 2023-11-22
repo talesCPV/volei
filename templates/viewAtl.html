@@ -177,6 +177,31 @@
         }
     })
 
+    document.querySelector('#btnRanking').addEventListener('click',()=>{
+        const nick =  document.querySelector('#edtNomeAtl').value
+        const mensal =  document.querySelector('#ckbMensal').checked
+        const saque = document.querySelector('#rtn-saque').value
+        const passe = document.querySelector('#rtn-passe').value
+        const ataque = document.querySelector('#rtn-ataque').value
+        const levanta = document.querySelector('#rtn-levanta').value
 
+        const params = new Object;
+            params.hash = localStorage.getItem('hash')
+            params.nick = nick
+            params.mensal = mensal
+            params.id_atleta = data.id
+            params.id_treino = data.id_treino
+            params.saque = saque
+            params.passe = passe
+            params.ataque = ataque
+            params.levanta = levanta            
+
+        const myPromisse = queryDB(params,30);
+        myPromisse.then((resolve)=>{
+            mainData.newTreino.func.fillAtl()
+            closeModal(0)
+        })
+
+    })
     
 </script>    

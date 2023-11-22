@@ -48,17 +48,21 @@
             div_search.innerHTML = ''
             for(let i=0; i<friends.length; i++){      
                 const div = document.createElement('div')
+                div.id = 'id-perfil'
                 div.className = 'view-inline'
 
                 const leftdiv = document.createElement('div')
                 leftdiv.style.display = 'flex'
                 const img = document.createElement('img')
+                img.id = 'id-perfil'
                 img.src = `assets/users/${friends[i][pic]}.jpg`                
                 breakImg(img)
                                
-                img.addEventListener('click',()=>{
-                    window.location.hash = 'P'+friends[i][pic].padStart(10,0)
-                    loadHash()                    
+                div.addEventListener('click',(e)=>{
+                    if(e.target.id == 'id-perfil'){
+                        window.location.hash = 'P'+friends[i][pic].padStart(10,0)
+                        loadHash()
+                    }
                 })
                 
                 img.className = 'imgUser'

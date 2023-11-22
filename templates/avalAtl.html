@@ -100,17 +100,32 @@
 
     document.querySelector('.title-avalAtl').innerHTML = data.nick.toUpperCase()    
 /*
-    document.querySelector('#rtn-saque').value = data.saque
-    document.querySelector('#rtn-passe').value = data.passe
-    document.querySelector('#rtn-ataque').value = data.ataque
-    document.querySelector('#rtn-levanta').value = data.levanta
-
     document.querySelector('#edtNomeAtl').disabled =  !(data.owner || data.self)
     document.querySelector('#ckbMensal').disabled = !data.owner
     document.querySelector('#btnBuscaAtl').style.display = (data.owner && data.id_user == '0') ? 'block' : 'none'
     document.querySelector('#btnDelAtl').style.display = (data.owner || data.self) ? 'block' : 'none'
 
 */
+
+    fillAval()
+
+    function fillAval(){
+        const params = new Object
+            params.id_avaliador = localStorage.getItem('idUser')
+            params.id_avaliado = data.id_user
+
+        const myPromisse = queryDB(params,17);
+        myPromisse.then((resolve)=>{
+            const json = JSON.parse(resolve)
+            if(json.length > 0){
+                document.querySelector('#rtn-saque').value = json[0].saque
+                document.querySelector('#rtn-passe').value = json[0].passe
+                document.querySelector('#rtn-ataque').value = json[0].ataque
+                document.querySelector('#rtn-levanta').value = json[0].levanta
+            }
+        })
+    }
+
     function getStar(e){
         const target = e.target;        
         let bar  = target.parentNode.querySelector('progress') 
@@ -154,10 +169,7 @@
 
         const myPromisse = queryDB(params,7);
         myPromisse.then((resolve)=>{
-            console.log(resolve)
-            mainData.newTreino.func.fillAtl()
             closeModal(0)
-
         })
 
     })

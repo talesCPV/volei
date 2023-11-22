@@ -173,11 +173,11 @@
     mainData.newTreino.func.fillAtl = ()=>{
         const tbl = document.querySelector('#tblAtl')
         const params = new Object;
-            params.id_treino = data.id
-            params.id_user = localStorage.getItem('idUser')
+            params.id_treino = data.id            
         const myPromisse = queryDB(params,6);
         myPromisse.then((resolve)=>{
             const json = JSON.parse(resolve)
+console.log(json)            
             tbl.head('Nome,Mensal,<span class="mdi mdi-star"></span>')
             for(let i=0; i<json.length; i++){  
                 tbl.plot(json[i],`nick,mensalista,NIVEL`,'Upp,cha 1=SIM 0=NÃO,Upp')
