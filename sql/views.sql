@@ -73,8 +73,8 @@
 	SELECT USR.id, USR.email, USR.nick, 
     (SELECT COUNT(*) FROM tb_following WHERE id_guest=USR.id) AS SEGUIDORES,
     (SELECT COUNT(*) FROM tb_following WHERE id_host=USR.id) AS SEGUINDO,
-    GROUP_CONCAT((SELECT id_host FROM tb_following WHERE id_guest=USR.id) SEPARATOR ',') AS EU_SEGUIDORES,
-	GROUP_CONCAT((SELECT id_guest FROM tb_following WHERE id_host=USR.id) SEPARATOR ',') AS EU_SEGUINDO
+    (SELECT GROUP_CONCAT(id_host) from tb_following  WHERE id_guest=USR.id) AS MEUS_SEGUIDORES,
+    (SELECT GROUP_CONCAT(id_guest) from tb_following  WHERE id_host=USR.id) AS MEUS_SEGUIDOS    
     FROM tb_usuario AS USR
     GROUP BY USR.id
     ORDER BY USR.id

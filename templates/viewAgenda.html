@@ -360,7 +360,6 @@
                         loadHash()
                     }
                 })
-//<img class="img-small" id="atl-${i}" src="assets/default/user.jpeg">
                 mainData.data.obj = img
 
                 tbl.plot(json[i],`x,TIME,nick,NIVEL,GO`,'obj,int,Upp,Upp,usr')
@@ -402,7 +401,12 @@
                     myPromisse.then((resolve)=>{  
                         func.fillAtl()
                     })
-                }  
+                }else if(dados.id_user != '0'){
+                    window.location.hash = 'P'+dados.id_user.padStart(10,0)
+                    loadHash()
+                }else{
+                    alert('Perfil de NÂO USUÀRIO!')
+                }
             }            
         } else{
             alert('Evento Encerrado')

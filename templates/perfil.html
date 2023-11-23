@@ -97,6 +97,7 @@
                     <button id="btnMail" class="abs btn-round"><span class="mdi mdi-email"></span></button>
                     <button id="btnAval" class="abs btn-round"><span class="mdi mdi-clipboard-edit-outline"></span></button>    
                 </div>    
+                <button id="btnSeguir" class="btn btn-primary">Seguir</button>
             </div>
 
             <div class="rigth-perfil">
@@ -153,6 +154,17 @@
         openHTML('avalAtl.html','modal',data,350)
     })
 
+    document.querySelector('#btnSeguir').addEventListener('click',()=>{
+        const params = new Object;
+            params.hash = localStorage.getItem('hash')
+            params.id_guest = data.perfil.id_user
+
+        queryDB(params,20).then((resolve)=>{
+            document.querySelector('#btnSeguir').innerHTML = document.querySelector('#btnSeguir').innerHTML == 'SEGUIR' ? 'DEIXAR DE SEGUIR' : 'SEGUIR'
+            document.querySelector('#val-seguidores').innerHTML = JSON.parse(resolve)[0].FOLLOW            
+        })
+    })
+
 
     function getPerfil(){
 
@@ -163,11 +175,15 @@
             document.querySelector('#val-seguidores').innerHTML = treinos[0].SEGUIDO
             document.querySelector('#val-atividades').innerHTML = treinos[0].TREINOS
             document.querySelector('#perfil-rating').value = treinos[0].NIVEL
-            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL            
+            document.querySelector('#val-nivel').innerHTML = treinos[0].NIVEL
+
+            const flw = data.perfil.MEUS_SEGUIDORES.split(',')
+            document.querySelector('#btnSeguir').innerHTML = flw.includes(localStorage.getItem('idUser')) ? 'DEIXAR DE SEGUIR' : 'SEGUIR'
         }
 
         const params = new Object;
         params.id_user =  usr
+        params.hash = localStorage.getItem('hash')
 
         const myPromisse = queryDB(params,22);
         myPromisse.then((resolve)=>{
