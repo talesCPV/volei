@@ -237,7 +237,6 @@ DELIMITER $$
 			SET @id = (SELECT (IFNULL(MAX(id),0)+1) AS id  FROM tb_atleta WHERE id_treino=Iid_treino);
             
 			INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (@id,Iid_user,Iid_treino,Inick,Imensalista);
-            INSERT INTO tb_ranking (id_avaliador, id_avaliado) VALUES (@id,@id);
             SELECT 1 AS OK;
             
 		ELSE 
@@ -441,18 +440,19 @@ DELIMITER $$
         SET @id_owner = (SELECT id_owner FROM tb_treinos WHERE id = Iid_treino);        
         
         IF(@id_call = @id_owner OR @id_call = @id_user) THEN
-			DELETE FROM tb_ranking WHERE id_treino=Iid_treino AND (id_avaliado=Iid_atleta OR id_avaliador=@id_user);
 			DELETE FROM tb_atleta WHERE id=Iid_atleta AND id_treino=Iid_treino;
             SELECT 1 AS OK;
 		ELSE 
 			SELECT 0 AS OK;
         END IF;
 
+		SELECT @id_call, @id_user,@id_owner;
+
 	END $$
 DELIMITER ;
 
-CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",10);
-CALL sp_delAtleta("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",3);
+CALL sp_delAtleta("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",8,13);
+CALL sp_delAtleta("p[#p[/p[#p[/?iMwF6bb1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M=i8(T#p?/[*wF6b1~M",8,13);
 
 
  DROP PROCEDURE sp_delAgenda;
@@ -617,7 +617,7 @@ DELIMITER $$
 		ON TRN.id=ATL.id_treino
 		AND TRN.id = Iid_treino
 		GROUP BY ATL.id
-		ORDER BY TIME, mensalista DESC;
+		ORDER BY TIME, mensalista DESC, nick;
 
 	END $$
 DELIMITER ;

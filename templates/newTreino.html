@@ -177,7 +177,7 @@
         const myPromisse = queryDB(params,6);
         myPromisse.then((resolve)=>{
             const json = JSON.parse(resolve)
-console.log(json)            
+         
             tbl.head('Nome,Mensal,<span class="mdi mdi-star"></span>')
             for(let i=0; i<json.length; i++){  
                 tbl.plot(json[i],`nick,mensalista,NIVEL`,'Upp,cha 1=SIM 0=NÃO,Upp')
@@ -211,7 +211,9 @@ console.log(json)
         document.querySelector('#btnDelTreino').style.display =  owner? 'block' : 'none'
         document.querySelector('#btnAgendar').style.display =  owner? 'block' : 'none'
         document.querySelector('#lblAtl').style.display =  owner? 'block' : 'none'
-        
+        document.querySelector('#btnUpload').style.display =  owner? 'block' : 'none'
+
+                
         mainData.newTreino.func.fillAtl()
     }
 
@@ -301,7 +303,7 @@ console.log(json)
         const data = e.target.parentNode.data
         data.id_treino = mainData.newTreino.data.id
         data.owner = owner
-        data.self = localStorage.getItem('idUser') == data.id_user
+        data.self = localStorage.getItem('idUser') == data.id_user        
         data!=undefined ? openHTML('viewAtl.html','modal',data,400) : 0
     })
 

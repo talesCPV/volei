@@ -41,6 +41,10 @@
             width: auto;
         }
 
+        .only-owner{
+            display: none;
+        }
+
 
 
     </style>
@@ -127,6 +131,7 @@
     document.querySelector('#edtNomeAtl').disabled =  !(data.owner || data.self)
     document.querySelector('#ckbMensal').disabled = !data.owner
     document.querySelector('#btnBuscaAtl').style.display = (data.owner && data.id_user == '0') ? 'block' : 'none'
+    document.querySelector('#btnRanking').style.display = data.owner ? 'block' : 'none'
     document.querySelector('#btnDelAtl').style.display = (data.owner || data.self) ? 'block' : 'none'
 
 

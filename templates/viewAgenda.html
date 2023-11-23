@@ -189,7 +189,7 @@
             <div class="img-treino">
                 <img src="" id="agd-logo">                
                 <button id="btnDelTreino" class="hide-all btn btn-primary">Deletar</button>                
-                <button id="btnSort" class="hide-all btn btn-primary">Montar Times</button>                
+                <button id="btnSort" class="hide-all btn btn-primary">Sortear Times</button>                
 
             </div>
 
@@ -387,7 +387,7 @@
     document.querySelector('#tblAtl').addEventListener('click',(e)=>{      
         const dados = e.target.parentNode.data
         const idUser = localStorage.getItem('idUser')
-        console.log(dados)
+        
         if(new Date(data.data) > new Date()){
             if(dados!= undefined){
                 if(idUser==dados.id_user || idUser==dados.id_owner){
@@ -403,8 +403,6 @@
                         func.fillAtl()
                     })
                 }  
-
-
             }            
         } else{
             alert('Evento Encerrado')
