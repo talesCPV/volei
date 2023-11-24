@@ -153,7 +153,10 @@ DELIMITER $$
 				OR (id_to = @id_from AND id_from = Iid_to))
 				ORDER BY data DESC;
 		ELSE
-			SELECT * FROM vw_mail WHERE id_to = @id_from OR id_from = @id_from ORDER BY data DESC;
+			SELECT * FROM vw_mail 
+				WHERE (id_from = @id_from AND id_to = Iid_to) 
+                OR (id_from = Iid_to AND id_to = @id_from) 
+                ORDER BY data DESC;
         END IF;
 
         
@@ -632,31 +635,13 @@ DELIMITER $$
     )
 	BEGIN
     
-		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
-    
-		IF(Iid = @id_call) THEN
-    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
-				FROM tb_mail AS MSG
-				INNER JOIN tb_usuario AS F_USR
-				INNER JOIN tb_usuario AS T_USR
-				ON MSG.id_from = F_USR.id
-				AND MSG.id_to = T_USR.id
-                AND (MSG.id_to = @id_call OR MSG.id_from = @id_call)
-                ORDER BY MSG.data DESC;
-		ELSE
-    		SELECT F_USR.nick AS fromName,T_USR.nick AS toName,MSG.* 
-				FROM tb_mail AS MSG
-				INNER JOIN tb_usuario AS F_USR
-				INNER JOIN tb_usuario AS T_USR
-				ON MSG.id_from = F_USR.id
-				AND MSG.id_to = T_USR.id
-                AND ((MSG.id_to = Iid AND MSG.id_from = @id_call)
-				 OR (MSG.id_to = @id_call AND MSG.id_from = Iid))
-				ORDER BY MSG.data DESC;
-        END IF;
+		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);    
+		SELECT * FROM vw_mail WHERE (id_from = @id_call AND id_to = Iid) OR (id_from = Iid AND id_to = @id_call);
 
 	END $$
 DELIMITER ;
 
 CALL sp_vwMail("f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<",2);
+
+
 

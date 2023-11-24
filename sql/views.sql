@@ -31,9 +31,6 @@
 		FROM vw_ranking AS RNK		
 		GROUP BY RNK.id;        
 
-        
-        
-        
  DROP VIEW vw_dashboard;
 --  CREATE VIEW vw_dashboard AS
 	SELECT AGD.*, TRN.nome,
@@ -93,13 +90,16 @@ SELECT FW.id_host AS hostID,(SELECT nick FROM tb_usuario WHERE id=FW.id_host) AS
  DROP VIEW vw_perfil;
   CREATE VIEW vw_perfil AS
     SELECT ATL.id_user, ATL.nick,TRN.nome, AGD.data, AGD.obs, RNK.NIVEL, RNK.TREINOS, RNK.SEGUINDO, RNK.SEGUIDO,
-    IF(AGD.data < CURDATE(), 1, 0) AS HAPPEND
+    IF(AGD.data < CURDATE(), 1, 0) AS HAPPEND,
+    FLW.MEUS_SEGUIDORES,FLW.MEUS_SEGUIDOS
     FROM tb_agenda AS AGD
     INNER JOIN tb_atleta AS ATL
     INNER JOIN tb_treinos AS TRN
     INNER JOIN tb_agd_confirma AS CFM
     INNER JOIN vw_user_ranking AS RNK
+    INNER JOIN vw_following AS FLW
     ON ATL.id_treino = AGD.id_treino
+    AND FLW.id = ATL.id_user
     AND TRN.id = ATL.id_treino
     AND CFM.id_treino = TRN.id
     AND CFM.id_atleta = ATL.id
