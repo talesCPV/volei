@@ -156,23 +156,10 @@ function loadActivity(keep=true){
             atv.addEventListener('click',()=>{
                 openHTML('viewAgenda.html','modal',json[i])
             })
-            
 
             divAtv.appendChild(atv)
 
-
-
-
             }) 
-
-
-
-
-  
-            
-  
-
-
 
         }
     })

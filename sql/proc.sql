@@ -631,12 +631,13 @@ CALL sp_vwConfirma_agd(13,"2023-11-18 11:00:00");
 DELIMITER $$
 	CREATE PROCEDURE sp_vwMail(		
 		IN Ihash varchar(77),
-		IN Iid int(11)
+		IN Iid int(11),
+        IN Iload int(11)
     )
 	BEGIN
     
 		SET @id_call = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);    
-		SELECT * FROM vw_mail WHERE (id_from = @id_call AND id_to = Iid) OR (id_from = Iid AND id_to = @id_call);
+		SELECT * FROM vw_mail WHERE (id_from = @id_call AND id_to = Iid) OR (id_from = Iid AND id_to = @id_call) LIMIT Iload,10;
 
 	END $$
 DELIMITER ;

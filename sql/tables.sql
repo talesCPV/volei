@@ -22,6 +22,8 @@ CREATE TABLE tb_atleta (
     PRIMARY KEY (id,id_treino)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+ALTER TABLE tb_atleta ADD COLUMN levanta double DEFAULT 1;
+
  DROP TABLE tb_treinos;
 CREATE TABLE tb_treinos (
 	id int(11) NOT NULL AUTO_INCREMENT,	

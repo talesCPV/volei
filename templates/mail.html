@@ -129,6 +129,8 @@
 <script>
     const data = mainData.mail.data
     const func = mainData.mail.func
+    data.load = 0
+
     document.querySelector('#imgUserMail').src = document.querySelector('#imgUser').src
 
     document.querySelector('#btnPostMail').addEventListener('click',()=>{
@@ -150,6 +152,15 @@
 
     })
 
+    document.querySelector('#data-mail').onscroll = function(e) {
+        const div = document.querySelector('#data-mail')
+        if (div.scrollTop + div.clientHeight == div.scrollHeight) {
+            console.log('Chegou!')
+            func.fillMail()
+        }
+
+    }
+
     func.fillMail = ()=>{
 
         document.querySelector('#data-mail').innerHTML = ''
@@ -157,19 +168,21 @@
         const params = new Object; 
         params.from =  localStorage.getItem('hash')
         params.to =  parseInt(data.address)
+        params.load = data.load
 
         const myPromisse = queryDB(params,26);
             myPromisse.then((resolve)=>{
-                const json = JSON.parse(resolve)                
+                const json = JSON.parse(resolve)
                 refreshMessage(json)
+                data.load += json.length
             })
 
     }
 
     function refreshMessage(dt){
         numMsg = dt.length;
-        const div_message = document.querySelector('#data-mail') 
-        div_message.innerHTML = ''
+        const div_message = document.querySelector('#data-mail')
+        div_message.innerHTML = data.load == 0 ? '' : div_message.innerHTML
 
         for(let i=0; i<numMsg; i++){
             const div = document.createElement('div')
