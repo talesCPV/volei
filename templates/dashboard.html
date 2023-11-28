@@ -209,7 +209,9 @@
 </template>
 <script>
 
+    const data = mainData.dashboard.data
     const func = mainData.dashboard.func
+    data.load = 0
 
     func.fillPerfil = ()=>{
 
@@ -267,7 +269,6 @@
       })
     }
 
-
     const back = backFunc({'filename':`../assets/users/${localStorage.getItem('idUser')}.jpg`},1)
     back.then((resp)=>{
         const imgExist = JSON.parse(resp)    
@@ -281,8 +282,6 @@
       document.querySelector('.dashboard').style.width = '100%'
     }
 
-    
-
     function mobileScreen(){
       if(window.innerWidth < 769){
         const menu_perfil = document.querySelector('.menu-perfil')
@@ -291,9 +290,18 @@
       }
     }
 
+    document.querySelector('.dashboard').onscroll = function(e) {
+        const div = document.querySelector('.dashboard')
+        if (div.scrollTop + div.clientHeight == div.scrollHeight) {
+//            console.log('Chegou!')
+            loadActivity(data.load)
+
+        }
+    }
+
 
     mobileScreen()
-    loadActivity()
+    loadActivity(data.load)
     
 
 

@@ -252,6 +252,9 @@ input[type="text"],input[type="number"]{
 .dashboard{
   padding: 30px;
   width: calc(100vw - 320px);
+  height: 80vh;
+  overflow-y: scroll;
+  justify-content: start;
 }
 
 .imgUser{

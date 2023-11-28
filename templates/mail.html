@@ -149,21 +149,17 @@
                 document.querySelector('#txtNewMail').value = ''         
             })
         }
-
     })
 
     document.querySelector('#data-mail').onscroll = function(e) {
         const div = document.querySelector('#data-mail')
         if (div.scrollTop + div.clientHeight == div.scrollHeight) {
-            console.log('Chegou!')
+//            console.log('Chegou!')
             func.fillMail()
         }
-
     }
 
     func.fillMail = ()=>{
-
-        document.querySelector('#data-mail').innerHTML = ''
 
         const params = new Object; 
         params.from =  localStorage.getItem('hash')
@@ -171,8 +167,11 @@
         params.load = data.load
 
         const myPromisse = queryDB(params,26);
-            myPromisse.then((resolve)=>{
+            myPromisse.then((resolve)=>{                
                 const json = JSON.parse(resolve)
+
+                console.log(json)
+
                 refreshMessage(json)
                 data.load += json.length
             })

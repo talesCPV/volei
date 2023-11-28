@@ -104,32 +104,21 @@ function makeElement(kind,html='',cn='',id='',src='',target=''){
 }
 
 
-function loadActivity(keep=true){
+function loadActivity(load=0){
 
     const divAtv = document.querySelector('.dashboard')
-    divAtv.innerHTML = ''
+    mainData.dashboard.data.load = load
 
-    if(!keep){
-        mainData.data.dashPos = 0
-    }
-
-    if(mainData.data.dashPos == '0'){
-        try{
-            const screen = document.querySelector('.dashboard')
-            screen.innerHTML = ''
-            mainData.data.activities = []    
-        }catch{
-
-        }
-    }
+    divAtv.innerHTML = load==0 ? '' : divAtv.innerHTML
 
     const params = new Object;
-        params.id_user = localStorage.getItem('idUser')
+        params.load = load
+        params.limit = 5
         
     const myPromisse = queryDB(params,13);
     myPromisse.then((resolve)=>{
-        mainData.data.dashPos += mainData.data.dashLim
         const json = JSON.parse(resolve)   
+        mainData.dashboard.data.load += json.length
 //console.log(json)
 
         for(let i=0; i<json.length; i++){            

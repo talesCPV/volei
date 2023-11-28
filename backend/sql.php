@@ -14,7 +14,7 @@
         "10" => 'CALL sp_delAtleta("x00",x01,x02);',
         "11" => 'SELECT * FROM vw_user_ranking WHERE id=x00;',
         "12" => 'CALL sp_setAgenda("x00",x01,"x02","x03");',
-        "13" => 'SELECT * FROM vw_dashboard;',
+        "13" => 'SELECT * FROM vw_dashboard LIMIT x00,x01;',
         "14" => 'CALL sp_delAgenda("x00",x01,"x02");',
         "15" => 'CALL sp_vwConfirma_agd(x00,"x01");',
         "16" => 'CALL sp_setConfirma_agd("x00",x01,x02,"x03",x04);',
