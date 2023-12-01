@@ -1,0 +1,144 @@
+<title>Cidades e Regiões</title>
+<template>
+    <style>
+
+        .frm-cidade{
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .line{
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .frm-cidade fieldset{
+            display: flex;
+            width: 300px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .frm-cidade select{
+            width: 200px;
+            overflow-x: scroll;
+        }
+
+        .frm-cidade label{
+            width: 70px;
+        }
+
+
+    </style>
+    <div class="frm-cidade">
+        <fieldset>
+            <legend>Selecione a Cidade</legend>
+            <div class="line">
+                <label for="cmbUF">UF</label>
+                <select id="cmbUF">
+                    <option selected="selected" value="">Selecione uma UF</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapa</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceara</option>
+                    <option value="ES">Espirito Santo</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="MA">Maranhao</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Para</option>
+                    <option value="PB">Paraiba</option>
+                    <option value="PR">Parana</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piaui</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondonia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">Sao Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>  
+                </select>
+            </div>
+
+            
+            <div class="line">
+                <label for="cmbCity">Cidade</label>
+                <select id="cmbCity"></select>
+            </div>
+
+        </fieldset>
+    </div>
+
+
+
+
+
+</template>
+<script>
+    document.querySelector('#cmbUF').addEventListener('change',()=>{
+        const UF = document.querySelector('#cmbUF').value
+        
+        cityUF(UF).then((txt)=>{
+            const json = JSON.parse(txt)
+            const city = document.querySelector('#cmbCity')
+            city.innerHTML='<option selected="selected" value="">Selecione uma Cidade</option>'
+            for(let i=0; i<json.length; i++){
+                const op = document.createElement('option')
+                op.value =  json[i].id
+                op.innerHTML =  json[i].nome
+                city.appendChild(op)
+            }
+//            console.log(json)
+        })
+  
+    })
+    
+    document.querySelector('#cmbCity').addEventListener('change',()=>{
+        const cod = document.querySelector('#cmbCity').value
+        
+        cityCod(cod).then((txt)=>{
+            const json = JSON.parse(txt)
+            console.log(json)
+//            fillData(json)
+            mainData.newTreino.data.cidade = json
+            document.querySelector('#edtCidade').value = json.nome+'-'+ document.querySelector('#cmbUF').value
+            closeModal(0)
+
+        })
+    })
+ 
+/*    
+
+    function fillData(data){
+//        document.querySelector('#edtNome').value = data.nome
+//        document.querySelector('#edtRegiao').value = data.microrregiao.nome
+
+//        const city = document.querySelector('#cmbReg')
+//            city.innerHTML=''
+        regCod(data.microrregiao.id).then((txt)=>{
+            const json = JSON.parse(txt)
+            console.log(json)
+
+            for(let i=0; i<json.length; i++){
+                const op = document.createElement('option')
+                op.value =  json[i].id
+                op.innerHTML =  json[i].nome
+//                city.appendChild(op)
+                
+            }
+        })
+
+    }
+*/
+
+</script>

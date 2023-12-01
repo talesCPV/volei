@@ -32,10 +32,15 @@ CREATE TABLE tb_treinos (
     dia_sem varchar(30) DEFAULT "SEG,QUA,SEX",
     horario varchar(11) DEFAULT "20:00-22:00",
     local varchar(70) DEFAULT NULL,
+    cod_local INT(11) DEFAULT 3508504,
+    cod_regiao INT(11) DEFAULT 35050,
     obs varchar(255) DEFAULT NULL,
     FOREIGN KEY (id_owner) REFERENCES tb_usuario(id),
     PRIMARY KEY (id)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+ALTER TABLE tb_treinos ADD COLUMN cod_local INT(11) DEFAULT 3508504;
+ALTER TABLE tb_treinos ADD COLUMN cod_regiao INT(11) DEFAULT 35050;
 
 DROP TABLE tb_ranking;
 CREATE TABLE tb_ranking (    
