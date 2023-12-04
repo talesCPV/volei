@@ -17,18 +17,21 @@ DELIMITER $$
 		IN Iid int(11),
 		IN Iemail varchar(70),
 		IN Ihash varchar(77),
-		IN Inick varchar(15)
+		IN Inick varchar(15),
+		IN Icod_local int(11),
+        IN Icod_regiao int(11)
+
     )
 	BEGIN
     
 		SET @edit = (SELECT COUNT(*) FROM tb_usuario WHERE id=Iid);
         
 		IF(@edit) THEN
-			UPDATE tb_usuario SET email=Iemail, nick=Inick, hash=Ihash WHERE id=Iid;
+			UPDATE tb_usuario SET email=Iemail, nick=Inick, hash=Ihash, cod_local=Icod_local, cod_regiao=Icod_regiao WHERE id=Iid;
 			SELECT 1 AS OK;
 		ELSE
 			SET @qtd_before = (SELECT COUNT(*) FROM tb_usuario);
-			INSERT INTO tb_usuario (email,hash,nick) VALUES (Iemail,Ihash,Inick);
+			INSERT INTO tb_usuario (email,hash,nick,cod_local,cod_regiao) VALUES (Iemail,Ihash,Inick,Icod_local,Icod_regiao);
 			IF((SELECT COUNT(*) FROM tb_usuario) > @qtd_before) THEN
 				SELECT 1 AS OK;
 			ELSE
@@ -50,16 +53,18 @@ DELIMITER $$
 		IN Idia_sem varchar(30),
 		IN Ihorario varchar(11),
 		IN Ilocal varchar(70),
-		IN Iobs varchar(255)
+		IN Iobs varchar(255),
+        IN Icod_local int(11),
+        IN Icod_regiao int(11)
     )
 	BEGIN
         SET @id_owner = (SELECT id FROM tb_usuario WHERE hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1);
 		SET @edit = (SELECT COUNT(*) FROM tb_treinos WHERE id=Iid);
 	
         IF(@edit) THEN
-			UPDATE tb_treinos SET nome=Inome, dia_sem=Idia_sem, horario=Ihorario,local=Ilocal,obs=Iobs WHERE id=Iid;
+			UPDATE tb_treinos SET nome=Inome, dia_sem=Idia_sem, horario=Ihorario,local=Ilocal,obs=Iobs,cod_local=Icod_local,cod_regiao=Icod_regiao  WHERE id=Iid;
         ELSE
-			INSERT INTO tb_treinos (id_owner,nome,dia_sem,horario,local,obs) VALUES (@id_owner,Inome,Idia_sem,Ihorario,Ilocal,Iobs);
+			INSERT INTO tb_treinos (id_owner,nome,dia_sem,horario,local,obs,cod_local,cod_regiao) VALUES (@id_owner,Inome,Idia_sem,Ihorario,Ilocal,Iobs,Icod_local,Icod_regiao);
             SET @id_treino = (SELECT MAX(id) FROM tb_treinos);
             SET @nick = (SELECT nick FROM tb_usuario WHERE id=@id_owner);            
             INSERT INTO tb_atleta (id,id_user,id_treino,nick,mensalista) VALUES (1,@id_owner,@id_treino,@nick,TRUE);
@@ -69,6 +74,8 @@ DELIMITER $$
 
 	END $$
 DELIMITER ;
+
+CALL sp_setTreino("13","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","SABADÃO 2","SAB","10:00-12:00","QUADRA DO JD. SÃO JOSÉ","",1600303,16003);
 
 CALL sp_setTreino("DEFAULT","f'lB9$rN`<'~l<$Z<9*~rBHT$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<-Z*xH9f6'T$rB3`0~N?l<","RACHA DE QUINTA","QUI","20:00-22:00","GREMIO","");
 

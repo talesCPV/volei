@@ -16,7 +16,7 @@
             padding-top: 50px;
         }
 
-        input{
+        input, .edtbtn{
             width: 250px;
             height: 30px;
         }
@@ -31,6 +31,7 @@
             background-repeat: no-repeat;
             background-size: cover;
         }
+        
 
     </style>
 
@@ -52,6 +53,14 @@
             <input id="edtRePass" type="password" maxlength="12" placeholder="* Repita a Senha" onkeyup="valNoSpace(this)">
         </div>
 
+        <div class="line">
+            <div class="edtbtn">
+                <input type="text" id="edtCidade" readonly placeholder="Cidade-UF">
+                <button id="btnCidade" onclick="openHTML('cidade.html','modal',{'call':'user'},400)"><span class="mdi mdi-magnify"></span></button>
+            </div>    
+        </div>
+
+
         <button  class="btn-backhand btn-fill" id="btnAddUser">Salvar</button>
     </div>
 
@@ -66,13 +75,16 @@
 
         if(checkMail('#edtMail')){
             if(pass == repass){
-                if(goon('edtPass,edtMail')){
+                if(goon('edtPass,edtMail,edtCidade')){
                     const email = document.querySelector('#edtMail').value.trim().toLowerCase()
                     const params = new Object;
                         params.id = 'DEFAULT'
                         params.email = email
                         params.hash = (email+pass).getHash(77)
                         params.nick = nick
+                        params.cod_local  = mainData.newUser.data.cod_local
+                        params.cod_regiao = mainData.newUser.data.cod_regiao
+
                     const myPromisse = queryDB(params,1);
                     myPromisse.then((resolve)=>{
                         const json = JSON.parse(resolve)                        

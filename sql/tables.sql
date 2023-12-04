@@ -5,10 +5,15 @@ CREATE TABLE tb_usuario (
     hash varchar(77) NOT NULL,
     access int(11) DEFAULT 1,
     nick varchar(15) NOT NULL,
+	cod_local INT(11) DEFAULT 3508504,
+    cod_regiao INT(11) DEFAULT 35050,
 	UNIQUE KEY (hash),
 	UNIQUE KEY (email),
     PRIMARY KEY (id)
 ) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+ALTER TABLE tb_usuario ADD COLUMN cod_local INT(11) DEFAULT 3508504;
+ALTER TABLE tb_usuario ADD COLUMN cod_regiao INT(11) DEFAULT 35050;
 
  DROP TABLE tb_atleta;
 CREATE TABLE tb_atleta (

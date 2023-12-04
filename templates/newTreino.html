@@ -162,7 +162,7 @@
                 <label for="edtCidade">Cidade</label>
                 <div class="edtbtn">
                     <input type="text" id="edtCidade" readonly>
-                    <button onclick="openHTML('cidade.html','modal',null,400)"><span class="mdi mdi-magnify"></span></button>
+                    <button id="btnCidade" onclick="openHTML('cidade.html','modal',{'call':'treino'},400)"><span class="mdi mdi-magnify"></span></button>
                 </div>
 
                 <label for="edtObs">Obs:</label>
@@ -234,6 +234,7 @@
         document.querySelector('#up_file').disabled = !owner
         document.querySelector('#btnUpload').disabled = !owner
         document.querySelector('#fds-dias').disabled = !owner
+        document.querySelector('#btnCidade').disabled =  !owner
         document.querySelector('.title-newTreino').innerHTML = data.nome
         document.querySelector('#btnTreino').innerHTML = 'Salvar'
         document.querySelector('#edtNomeTreino').value = data.nome
@@ -241,11 +242,21 @@
         document.querySelector('#edtFin').value = horario[1]
         document.querySelector('#edtLocal').value = data.local
         document.querySelector('#edtObs').value = data.obs
+        cityCod(data.cod_local).then((txt)=>{
+            const json = JSON.parse(txt)
+            console.log(json)
+//            console.log(json['regiao-imediata']['regiao-intermediaria'].UF)
+//            console.log(json.microrregiao.mesorregiao.UF)
+            document.querySelector('#edtCidade').value = json.nome+'-'+json.microrregiao.mesorregiao.UF.sigla
+            data.cod_local = json.id
+            data.cod_regiao = json.microrregiao.id
+
+        })
+
         document.querySelector('#btnDelTreino').style.display =  owner? 'block' : 'none'
         document.querySelector('#btnAgendar').style.display =  owner? 'block' : 'none'
         document.querySelector('#lblAtl').style.display =  owner? 'block' : 'none'
         document.querySelector('#btnUpload').style.display =  owner? 'block' : 'none'
-
                 
         mainData.newTreino.func.fillAtl()
     }
@@ -296,6 +307,8 @@
             params.horario = time
             params.local = local
             params.obs = obs
+            params.cod_local = data.cod_local
+            params.cod_regiao = data.cod_regiao
 
             const myPromisse = queryDB(params,2);
             myPromisse.then((resolve)=>{
