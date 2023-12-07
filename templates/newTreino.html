@@ -244,9 +244,6 @@
         document.querySelector('#edtObs').value = data.obs
         cityCod(data.cod_local).then((txt)=>{
             const json = JSON.parse(txt)
-            console.log(json)
-//            console.log(json['regiao-imediata']['regiao-intermediaria'].UF)
-//            console.log(json.microrregiao.mesorregiao.UF)
             document.querySelector('#edtCidade').value = json.nome+'-'+json.microrregiao.mesorregiao.UF.sigla
             data.cod_local = json.id
             data.cod_regiao = json.microrregiao.id

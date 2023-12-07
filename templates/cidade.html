@@ -125,6 +125,12 @@
                     mainData.newUser.data.cod_regiao = json.microrregiao.id
                     document.querySelector('#edtCidade').value = json.nome+'-'+ document.querySelector('#cmbUF').value                
                     break
+                case 'edtuser':                    
+                    mainData.viewUser.data.cod_local = json.id
+                    mainData.viewUser.data.cod_regiao = json.microrregiao.id
+                    document.querySelector('#edtCidade').value = json.nome+'-'+ document.querySelector('#cmbUF').value                
+                    break
+
             }
             closeModal(0)
 

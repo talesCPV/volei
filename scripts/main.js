@@ -109,48 +109,53 @@ function loadActivity(load=0){
     const divAtv = document.querySelector('.dashboard')
     mainData.dashboard.data.load = load
 
-    divAtv.innerHTML = load==0 ? '' : divAtv.innerHTML
+    load==0 ? divAtv.innerHTML = '' : 0
 
     const params = new Object;
         params.load = load
         params.limit = 5
-        
+        params.cod_local = localStorage.getItem('cod_local') == null ? 0 : localStorage.getItem('cod_local')
+        params.cod_regiao = localStorage.getItem('cod_regiao') == null ? 0 : localStorage.getItem('cod_regiao')
     const myPromisse = queryDB(params,13);
     myPromisse.then((resolve)=>{
         const json = JSON.parse(resolve)   
-        mainData.dashboard.data.load += json.length
-//console.log(json)
-
         for(let i=0; i<json.length; i++){            
 
             const back = backFunc({'filename':`../assets/treinos/${json[i].id_treino}.jpg`},1)
             back.then((resp)=>{
                 imgExist = JSON.parse(resp)
                 const path = imgExist ? `assets/treinos/${json[i].id_treino}.jpg` : 'assets/default/treino.jpeg'    
+                const index = divAtv.childNodes.length
+                const atv = makeElement('div','','post-activity',`atv-${index}`)
 
-                const HTML = `
-                        <div class="img-treino">
-                            <img src=${path}>
-                        </div>
-                        <div class='dados-treino'>
-                            <h2>${json[i].nome}</h2>
-                            <h4>Dia ${json[i].data.showDate()} as ${json[i].data.showTime()}</h4>
-                            <label>Local: ${json[i].local}</label>
-                            <div>${json[i].obs}</div>
-                        </div>
-                `
+                const div_img = makeElement('div','','img-treino')
+                const img = document.createElement('img')
+                img.src = path
+                div_img.appendChild(img)
+                atv.appendChild(div_img)
 
-            const atv = makeElement('div',HTML,'post-activity',`atv-${i}`) 
-            
-            atv.addEventListener('click',()=>{
-                openHTML('viewAgenda.html','modal',json[i])
-            })
+                const div_treino = makeElement('div','','dados-treino')
+                div_treino.appendChild(makeElement('h2',json[i].nome,''))
+                div_treino.appendChild(makeElement('h4',json[i].data.showDate()+' as '+json[i].data.showTime(),''))
+                div_treino.appendChild(makeElement('label','Local: '+json[i].local,''))
+                div_treino.appendChild(makeElement('div',json[i].obs,''))
+                div_treino.json = json[i]
 
-            divAtv.appendChild(atv)
+                atv.appendChild(div_treino)
+
+
+                atv.addEventListener('click',()=>{  
+                    console.log(1)
+                    openHTML('viewAgenda.html','modal',json[i])
+                })
+
+                divAtv.appendChild(atv)
 
             }) 
 
         }
+        mainData.dashboard.data.load += json.length
+
     })
 }
 

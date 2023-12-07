@@ -1,6 +1,6 @@
  SELECT * FROM vw_ranking;
  SELECT * FROM vw_user_ranking;
- SELECT * FROM vw_dashboard;
+ SELECT * FROM vw_dashboard ORDER BY FIELD(cod_local, 3508504) DESC, FIELD(cod_regiao, 35050) DESC;
  SELECT * FROM vw_meus_treinos;
  SELECT * FROM vw_following;
  SELECT * FROM vw_friends;
@@ -32,16 +32,15 @@
 		GROUP BY RNK.id;        
 
  DROP VIEW vw_dashboard;
---  CREATE VIEW vw_dashboard AS
+  CREATE VIEW vw_dashboard AS
 	SELECT AGD.*, TRN.nome,
-    TRN.local,  TRN.id_owner, GROUP_CONCAT(ATL.nick SEPARATOR ',') AS ATLETAS
+    TRN.local, TRN.cod_local, TRN.cod_regiao, TRN.id_owner, GROUP_CONCAT(ATL.nick SEPARATOR ',') AS ATLETAS
     FROM tb_agenda AS AGD
     INNER JOIN tb_treinos AS TRN
     INNER JOIN tb_atleta AS ATL
     ON AGD.id_treino = TRN.id
     AND ATL.id_treino = TRN.id
-    GROUP BY AGD.id_treino, AGD.data
-    ORDER BY AGD.data DESC;
+    GROUP BY AGD.id_treino, AGD.data;
     
 
  DROP VIEW vw_meus_treinos;

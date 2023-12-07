@@ -5,13 +5,13 @@ DELIMITER $$
 		IN Ihash varchar(77)
     )
 	BEGIN
-		SELECT COUNT(*) AS login, IFNULL(nick,0) AS nick,  IFNULL(id,0) AS id, IFNULL(access,0) AS access FROM tb_usuario WHERE email COLLATE utf8_general_ci = Iemail COLLATE utf8_general_ci AND  hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1;
+		SELECT COUNT(*) AS login, IFNULL(nick,0) AS nick,  IFNULL(id,0) AS id, IFNULL(access,0) AS access, cod_local, cod_regiao FROM tb_usuario WHERE email COLLATE utf8_general_ci = Iemail COLLATE utf8_general_ci AND  hash COLLATE utf8_general_ci = Ihash COLLATE utf8_general_ci LIMIT 1;
 	END $$
 DELIMITER ;
 
 CALL sp_login("talescd@gmail.com","L,$@)6zDJh,T$^6rh)8Tz@B=`&j0t:~D+N5X?b(l2v<#F-P7ZAd*n4x>%H/R9¨­f,p6z@'J1T;^$h");
 
--- DROP PROCEDURE sp_setUser;
+ DROP PROCEDURE sp_setUser;
 DELIMITER $$
 	CREATE PROCEDURE sp_setUser(
 		IN Iid int(11),
