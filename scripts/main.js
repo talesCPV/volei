@@ -144,8 +144,7 @@ function loadActivity(load=0){
                 atv.appendChild(div_treino)
 
 
-                atv.addEventListener('click',()=>{  
-                    console.log(1)
+                atv.addEventListener('click',()=>{                      
                     openHTML('viewAgenda.html','modal',json[i])
                 })
 

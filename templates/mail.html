@@ -169,9 +169,6 @@
         const myPromisse = queryDB(params,26);
             myPromisse.then((resolve)=>{                
                 const json = JSON.parse(resolve)
-
-                console.log(json)
-
                 refreshMessage(json)
                 data.load += json.length
             })
